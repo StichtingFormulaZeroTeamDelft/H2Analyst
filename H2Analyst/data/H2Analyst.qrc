@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/H2Analyst">
+        <file alias="forze_logo">forze_logo.png</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>icons/H2Analyst.ico</file>
+        <file alias="left-arrow">icons/left-arrow.png</file>
+        <file alias="right-arrow">icons/right-arrow.png</file>
+    </qresource>
+</RCC>
