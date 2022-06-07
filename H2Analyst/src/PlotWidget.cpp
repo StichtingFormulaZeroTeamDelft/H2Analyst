@@ -16,6 +16,7 @@ m_CrosshairLabelY(nullptr),
 m_MousePos(0, 0)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
+	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 
 	// Add layer for crosshair and create crosshair elements (lines and labels)
 	if (this->addLayer("cursor", this->layer("axes"))) { }
