@@ -240,7 +240,10 @@ void ReadMessages(char* buffer, size_t& cursor, const std::vector<int32_t>& dime
 	arma::Row<float> *time_row = new arma::Row<float>(dt_row->size());
 	time_row->at(0) = 0.0;
 	for (size_t col = 1; col < dt_row->size(); ++col)
-		time_row->at(col) = time_row->at(col - 1) + (1.e-3 / H2A::INTCANLOG_SAMPLING_TIME) * static_cast<float>(dt_row->at(col));
+	{
+		//time_row->at(col) = time_row->at(col - 1) + (1.e-3 / H2A::INTCANLOG_SAMPLING_TIME) * static_cast<float>(dt_row->at(col));
+		time_row->at(col) = time_row->at(col - 1) + 1.e-3 * static_cast<float>(dt_row->at(col));
+	}
 
 	df->message_ids = id_row;
 	df->message_time = time_row;
