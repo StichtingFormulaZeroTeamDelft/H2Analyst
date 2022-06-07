@@ -119,7 +119,7 @@ void PlotManager::plotTimeAxisChanged(PlotWidget* source)
 		// Change all plots
 		for (const auto& plot : m_Plots)
 		{
-			if (plot == source) continue;
+			if (plot == source || plot->isEmpty()) continue;
 			plot->xAxis->setRange(newRange);
 			plot->replot();
 		}

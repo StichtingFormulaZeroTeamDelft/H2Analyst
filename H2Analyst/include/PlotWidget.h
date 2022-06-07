@@ -1,6 +1,8 @@
 #pragma once
 
 #include <algorithm>
+#include <iomanip> // Used to format double in string with set precision (crosshair labels)
+
 
 #include <QWidget>
 #include <QVector>
@@ -36,10 +38,18 @@ class PlotWidget :
     const DataPanel* m_DataPanel;
     std::vector<const H2A::Dataset*> m_Datasets;
     
+    bool m_CrosshairEnabled;
+    QCPItemLine *m_CrosshairH;
+    QCPItemLine *m_CrosshairV;
+    QCPItemText *m_CrosshairLabelX;
+    QCPItemText *m_CrosshairLabelY;
+
     QCPRange m_TimeRange;
     QCPRange m_DataRange;
     double m_MaxTimePadding;
     double m_MaxDataPadding;
+    
+    QPoint m_MousePos;
 
     void plot();
 
@@ -58,8 +68,11 @@ public:
     void resetView();
 
 protected:
+    void leaveEvent(QEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
 signals:
     void rangeChanged(PlotWidget* source);
@@ -71,6 +84,7 @@ private slots:
     void copyToClipboard();
     void emitRangeChanged() { emit rangeChanged(this); };
     void enforceAxisLimits();
+    void updateCrosshair();
 
 };
 
