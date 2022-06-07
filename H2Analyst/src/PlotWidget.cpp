@@ -5,7 +5,9 @@ PlotWidget::PlotWidget(QWidget* parent) : QCustomPlot(parent),
 m_DataPanel(nullptr),
 m_Datasets(),
 m_TimeRange(0.0, 10.0),
-m_DataRange(0.0, 5.0)
+m_DataRange(0.0, 5.0),
+m_MaxTimePadding(0.0),
+m_MaxDataPadding(0.0)
 {
 	this->xAxis->setRange(m_TimeRange);
 	this->xAxis->setLabel("Time [sec]");
@@ -110,12 +112,12 @@ void PlotWidget::plot()
 
 	// Store and set axis ranges
 	m_TimeRange = QCPRange(xmin, xmax);
-	this->xAxis->setRange(m_TimeRange);
 	m_DataRange = QCPRange(ymin, ymax);
-	if (m_DataRange.lower > 0.0) m_DataRange.lower = 0.0;
-	this->yAxis->setRange(m_DataRange);
+	if (m_DataRange.lower > 0.0) m_DataRange.lower = 0.0; // This (almost) always makes sense for visualization
+	m_MaxTimePadding = (m_TimeRange.upper - m_TimeRange.lower) * RANGE_PADDING_X;
+	m_MaxDataPadding = (m_DataRange.upper - m_DataRange.lower) * RANGE_PADDING_Y;
 
-	this->replot();
+	this->resetView();
 }
 
 void PlotWidget::setAxisLabels()
@@ -203,25 +205,34 @@ void PlotWidget::dropEvent(QDropEvent* event)
 	}
 }
 
+// Function that makes sure the axis ranges stay within limits to keep data in view
 void PlotWidget::enforceAxisLimits()
 {
+	// Determine padding as fraction of visible range (to keep the screen space padding constant)
+	double xPadding = (this->xAxis->range().upper - this->xAxis->range().lower) * RANGE_PADDING_X;
+	double yPadding = (this->yAxis->range().upper - this->yAxis->range().lower) * RANGE_PADDING_Y;
+	// Make sure this padding is not larger than the absolute max based on the data itself
+	xPadding = std::min({ xPadding, m_MaxTimePadding });
+	yPadding = std::min({ yPadding, m_MaxDataPadding });
+
 	// X axis lower bound
-	if (this->xAxis->range().lower < m_TimeRange.lower)
-		this->xAxis->setRange(m_TimeRange.lower, this->xAxis->range().upper);
+	if (this->xAxis->range().lower < m_TimeRange.lower - xPadding)
+		this->xAxis->setRange(m_TimeRange.lower - xPadding, this->xAxis->range().upper);
 	// X axis upper bound
-	if (this->xAxis->range().upper > m_TimeRange.upper)
-		this->xAxis->setRange(this->xAxis->range().lower, m_TimeRange.upper);
+	if (this->xAxis->range().upper > m_TimeRange.upper + xPadding)
+		this->xAxis->setRange(this->xAxis->range().lower, m_TimeRange.upper + xPadding);
 	// Y axis lower bound
-	if (this->yAxis->range().lower < m_DataRange.lower)
-		this->yAxis->setRange(m_DataRange.lower, this->yAxis->range().upper);
+	if (this->yAxis->range().lower < m_DataRange.lower - yPadding)
+		this->yAxis->setRange(m_DataRange.lower - yPadding, this->yAxis->range().upper);
 	// Y axis upper bound
-	if (this->yAxis->range().upper > m_DataRange.upper)
-		this->yAxis->setRange(this->yAxis->range().lower, m_DataRange.upper);
+	if (this->yAxis->range().upper > m_DataRange.upper + yPadding)
+		this->yAxis->setRange(this->yAxis->range().lower, m_DataRange.upper + yPadding);
 }
 
+// Function to reset view to fit all data with padding included
 void PlotWidget::resetView()
 {
-	this->xAxis->setRange(m_TimeRange);
-	this->yAxis->setRange(m_DataRange);
+	this->xAxis->setRange(m_TimeRange.lower - m_MaxTimePadding, m_TimeRange.upper + m_MaxTimePadding);
+	this->yAxis->setRange(m_DataRange.lower - m_MaxDataPadding, m_DataRange.upper + m_MaxDataPadding);
 	this->replot();
 }

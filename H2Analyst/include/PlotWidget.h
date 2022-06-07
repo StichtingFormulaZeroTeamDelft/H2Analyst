@@ -18,8 +18,8 @@ class PlotWidget :
 {
 
     // Padding around min and max data on the ranges (fractional)
-    const float RANGE_PADDING_W = 0.1;
-    const float RANGE_PADDING_H = 0.1;
+    const float RANGE_PADDING_X = 0.05;
+    const float RANGE_PADDING_Y = 0.05;
 
     Q_OBJECT
 
@@ -38,6 +38,8 @@ class PlotWidget :
     
     QCPRange m_TimeRange;
     QCPRange m_DataRange;
+    double m_MaxTimePadding;
+    double m_MaxDataPadding;
 
     void plot();
 
