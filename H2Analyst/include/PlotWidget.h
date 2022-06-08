@@ -12,6 +12,7 @@
 
 #include "DataStructures.h"
 #include "DataPanel.h"
+#include "PlotCrosshairs.h"
 
 //class DataPanel;
 
@@ -43,6 +44,8 @@ class PlotWidget :
     QCPItemLine *m_CrosshairV;
     QCPItemText *m_CrosshairLabelX;
     QCPItemText *m_CrosshairLabelY;
+    Crosshairs* m_Crosshairs;
+
 
     QCPRange m_TimeRange;
     QCPRange m_DataRange;
@@ -75,6 +78,7 @@ protected:
     void wheelEvent(QWheelEvent* event) override;
 
 signals:
+    void mouseMoved(QMouseEvent* event);
     void rangeChanged(PlotWidget* source);
     void resetViewsRequested();
 
@@ -84,7 +88,6 @@ private slots:
     void copyToClipboard();
     void emitRangeChanged() { emit rangeChanged(this); };
     void enforceAxisLimits();
-    void updateCrosshair();
 
 };
 

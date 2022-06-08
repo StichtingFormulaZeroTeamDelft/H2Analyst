@@ -109,6 +109,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PanelToggleButton.cpp" />
     <ClCompile Include="src\ParserIntCanLog.cpp" />
+    <ClCompile Include="src\PlotCrosshairs.cpp" />
     <ClCompile Include="src\PlotManager.cpp" />
     <ClCompile Include="src\PlotWidget.cpp" />
     <ClCompile Include="src\Populator.cpp" />
@@ -133,6 +134,7 @@
     <QtMoc Include="include\PanelToggleButton.h" />
     <ClInclude Include="include\Parsers.h" />
     <QtMoc Include="include\PlotManager.h" />
+    <QtMoc Include="include\PlotCrosshairs.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\TreeView.h" />
     <QtMoc Include="include\qcustomplot.h" />

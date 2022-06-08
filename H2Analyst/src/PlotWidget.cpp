@@ -18,29 +18,9 @@ m_MousePos(0, 0)
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
 	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
 
-	// Add layer for crosshair and create crosshair elements (lines and labels)
-	if (this->addLayer("cursor", this->layer("axes"))) { }
-	else { std::cout << "[Error] Failed to add cursor layer to plot" << std::endl; }
-	this->setCurrentLayer("cursor");
-	this->layer("cursor")->setVisible(false);
-	this->layer("cursor")->setMode(QCPLayer::lmBuffered);
-	m_CrosshairH = new QCPItemLine(this);
-	m_CrosshairV = new QCPItemLine(this);
-	m_CrosshairLabelX = new QCPItemText(this);
-	m_CrosshairLabelX->setClipToAxisRect(false);
-	m_CrosshairLabelX->setBrush(QBrush(Qt::white));
-	m_CrosshairLabelX->setPen(QPen(Qt::black));
-	m_CrosshairLabelX->setPadding(QMargins(2, 2, 2, 2));
-	m_CrosshairLabelX->setPositionAlignment(Qt::AlignBottom | Qt::AlignHCenter);
-	m_CrosshairLabelX->position->setType(QCPItemPosition::ptPlotCoords);
-	m_CrosshairLabelY = new QCPItemText(this);
-	m_CrosshairLabelY->setClipToAxisRect(false);
-	m_CrosshairLabelY->setBrush(QBrush(Qt::white));
-	m_CrosshairLabelY->setPen(QPen(Qt::black));
-	m_CrosshairLabelY->setPadding(QMargins(2, 2, 2, 2));
-	m_CrosshairLabelY->setPositionAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-	m_CrosshairLabelY->position->setType(QCPItemPosition::ptPlotCoords);
-	this->setCurrentLayer("main");
+	// Crosshairs
+	m_Crosshairs = new Crosshairs(this, QString("crosshairs"), this->layer("axes"));
+	connect(this, SIGNAL(mouseMoved(QMouseEvent*)), m_Crosshairs, SLOT(update(QMouseEvent*)));
 
 	// Set default ranges and label
 	this->xAxis->setRange(m_TimeRange);
@@ -273,73 +253,39 @@ void PlotWidget::resetView()
 
 void PlotWidget::leaveEvent(QEvent* event)
 {
-	// Should be done in mouseMoveEvent, but to be sure
-	m_CrosshairEnabled = false;
-	this->layer("cursor")->setVisible(false);
-	this->layer("cursor")->replot();
+	// Should be caught in mouseMoveEvent, but to be sure
+	m_Crosshairs->disable();
 
 	QCustomPlot::leaveEvent(event);
 }
 
 void PlotWidget::mouseMoveEvent(QMouseEvent* event)
 {
-	m_MousePos = event->pos();
+	if (!this->isEmpty())
+		QCustomPlot::mouseMoveEvent(event);
 
-	this->updateCrosshair();
+	emit this->mouseMoved(event);
 	
 	// If mouse is in plot area (within axis ranges), hide cursor and show crosshair
-	if (this->xAxis->range().lower < this->xAxis->pixelToCoord(m_MousePos.x()) &&
-		this->xAxis->pixelToCoord(m_MousePos.x()) < this->xAxis->range().upper &&
-		this->yAxis->range().lower < this->yAxis->pixelToCoord(m_MousePos.y()) &&
-		this->yAxis->pixelToCoord(m_MousePos.y()) < this->yAxis->range().upper)
-	{
+	if (this->xAxis->range().lower < this->xAxis->pixelToCoord(event->pos().x()) &&
+		this->xAxis->pixelToCoord(event->pos().x()) < this->xAxis->range().upper &&
+		this->yAxis->range().lower < this->yAxis->pixelToCoord(event->pos().y()) &&
+		this->yAxis->pixelToCoord(event->pos().y()) < this->yAxis->range().upper)
+	{	
 		this->setCursor(Qt::BlankCursor);
-		m_CrosshairEnabled = true;
-		this->layer("cursor")->setVisible(true);
+		m_Crosshairs->enable();
 	}
 	else
 	{
 		this->setCursor(Qt::ArrowCursor);
-		m_CrosshairEnabled = false;
-		this->layer("cursor")->setVisible(false);
-		this->layer("cursor")->replot();
+		m_Crosshairs->disable();
 	}
 
-
-	if (!this->isEmpty())
-		QCustomPlot::mouseMoveEvent(event);
 }
 
 void PlotWidget::wheelEvent(QWheelEvent* event)
 {
 	if (!this->isEmpty())
 		QCustomPlot::wheelEvent(event);
-	this->updateCrosshair();
-}
-
-void PlotWidget::updateCrosshair()
-{
-	if (!m_CrosshairEnabled) return;
-
-	double xOrigin = this->xAxis->pixelToCoord(m_MousePos.x());
-	double yOrigin = this->yAxis->pixelToCoord(m_MousePos.y());
-	
-	// Crosshair lines
-	m_CrosshairH->start->setCoords(this->xAxis->range().lower, yOrigin);
-	m_CrosshairH->end->setCoords(this->xAxis->range().upper, yOrigin);
-	m_CrosshairV->start->setCoords(xOrigin, this->yAxis->range().upper);
-	m_CrosshairV->end->setCoords(xOrigin, this->yAxis->range().lower);
-
-	// Labels
-	m_CrosshairLabelX->position->setCoords(xOrigin, this->yAxis->range().lower);
-	std::stringstream stream;
-	stream << std::fixed << std::setprecision(2) << xOrigin;
-	m_CrosshairLabelX->setText(QString(stream.str().c_str()));
-
-	m_CrosshairLabelY->position->setCoords(this->xAxis->range().lower, yOrigin);
-	stream.str(""); // Clear stream
-	stream << std::fixed << std::setprecision(2) << yOrigin;
-	m_CrosshairLabelY->setText(QString(stream.str().c_str()));
-
-	this->layer("cursor")->replot();
+	m_Crosshairs->update();
 }
