@@ -248,7 +248,6 @@ void PlotWidget::mouseMoveEvent(QMouseEvent* event)
 	if (!this->isEmpty())
 		QCustomPlot::mouseMoveEvent(event);
 
-	emit this->mouseMoved(event);
 	
 	// If mouse is in plot area (within axis ranges), hide cursor and show crosshair
 	if (this->xAxis->range().lower < this->xAxis->pixelToCoord(event->pos().x()) &&
@@ -265,6 +264,7 @@ void PlotWidget::mouseMoveEvent(QMouseEvent* event)
 		m_Crosshairs->disable();
 	}
 
+	emit this->mouseMoved(event);
 }
 
 void PlotWidget::wheelEvent(QWheelEvent* event)
