@@ -73,6 +73,9 @@
     <ClCompile Include="src\PlotCrosshairs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\PlotLine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="include\ControlPanel.h">
@@ -106,6 +109,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\PlotCrosshairs.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\PlotLine.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

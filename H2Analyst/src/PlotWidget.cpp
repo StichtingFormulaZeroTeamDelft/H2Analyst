@@ -7,7 +7,8 @@ m_Datasets(),
 m_TimeRange(0.0, 10.0),
 m_DataRange(0.0, 5.0),
 m_MaxTimePadding(0.0),
-m_MaxDataPadding(0.0)
+m_MaxDataPadding(0.0),
+m_LegendEnabled(true)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
 	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
@@ -92,33 +93,22 @@ void PlotWidget::plot()
 	size_t plot_counter = 0;
 	for (const auto& dataset : m_Datasets)
 	{
-		// Create QVectors from dataset data
-		QVector<double> x(dataset->timeVec.begin(), dataset->timeVec.end());
-		QVector<double> y(dataset->dataVec.begin(), dataset->dataVec.end());
+		
+		PlotLine* pl = new PlotLine(this, dataset);
+		pl->setColor(k_PlotColors[plot_counter % k_PlotColors.size()]);
 
-		// Expand bounds with the new data
-		xmin = std::min({ xmin, *std::min_element(x.begin(), x.end()) });
-		xmax = std::max({ xmax, *std::max_element(x.begin(), x.end()) });
-		ymin = std::min({ ymin, *std::min_element(y.begin(), y.end()) });
-		ymax = std::max({ ymax, *std::max_element(y.begin(), y.end()) });
-
-		// Add graph and data
-		this->addGraph();
-		this->graph()->setLineStyle(QCPGraph::lsStepLeft);
-		this->graph()->setData(x, y);
-
-		// Set visual properties
-		this->graph()->setPen(QPen(k_PlotColors[plot_counter % k_PlotColors.size()]));
-		QPen pen = this->graph()->pen();
-		// Change pen to change appearance of selected plot
-		this->graph()->selectionDecorator()->setPen(pen);
+		// Update data ranges to fit new data
+		xmin = std::min({ xmin, pl->minX() });
+		xmax = std::max({ xmax, pl->maxX() });
+		ymin = std::min({ ymin, pl->minY() });
+		ymax = std::max({ ymax, pl->maxY() });
 
 		++ plot_counter;
 	}
 
 	this->setAxisLabels();
 
-	// Store and set axis ranges
+	// Store and set axis ranges and calculate paddings
 	m_TimeRange = QCPRange(xmin, xmax);
 	m_DataRange = QCPRange(ymin, ymax);
 	if (m_DataRange.lower > 0.0) m_DataRange.lower = 0.0; // This (almost) always makes sense for visualization

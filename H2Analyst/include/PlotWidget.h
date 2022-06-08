@@ -13,6 +13,7 @@
 #include "DataStructures.h"
 #include "DataPanel.h"
 #include "PlotCrosshairs.h"
+#include "PlotLine.h"
 
 //class DataPanel;
 
@@ -39,8 +40,9 @@ class PlotWidget :
     const DataPanel* m_DataPanel;
     std::vector<const H2A::Dataset*> m_Datasets;
     
-    Crosshairs* m_Crosshairs;
+    bool m_LegendEnabled;
 
+    Crosshairs* m_Crosshairs;
 
     QCPRange m_TimeRange;
     QCPRange m_DataRange;
