@@ -7,13 +7,7 @@ m_Datasets(),
 m_TimeRange(0.0, 10.0),
 m_DataRange(0.0, 5.0),
 m_MaxTimePadding(0.0),
-m_MaxDataPadding(0.0),
-m_CrosshairEnabled(false),
-m_CrosshairH(nullptr),
-m_CrosshairV(nullptr),
-m_CrosshairLabelX(nullptr),
-m_CrosshairLabelY(nullptr),
-m_MousePos(0, 0)
+m_MaxDataPadding(0.0)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
 	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));

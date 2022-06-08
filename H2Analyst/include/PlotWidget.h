@@ -39,11 +39,6 @@ class PlotWidget :
     const DataPanel* m_DataPanel;
     std::vector<const H2A::Dataset*> m_Datasets;
     
-    bool m_CrosshairEnabled;
-    QCPItemLine *m_CrosshairH;
-    QCPItemLine *m_CrosshairV;
-    QCPItemText *m_CrosshairLabelX;
-    QCPItemText *m_CrosshairLabelY;
     Crosshairs* m_Crosshairs;
 
 
@@ -52,8 +47,6 @@ class PlotWidget :
     double m_MaxTimePadding;
     double m_MaxDataPadding;
     
-    QPoint m_MousePos;
-
     void plot();
 
     void setDatasets(const H2A::Dataset* dataset, bool replot = true);
