@@ -29,6 +29,7 @@ m_Color(Qt::black)
 	m_Label->setPositionAlignment(Qt::AlignRight | Qt::AlignVCenter);
 	m_Label->position->setType(QCPItemPosition::ptPlotCoords);
 	m_Label->setText(QString(m_Dataset->name.c_str()));
+	this->updateLabelPosition();
 	connect(m_Parent->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(updateLabelPosition()));
 	connect(m_Parent->yAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(updateLabelPosition()));
 }
@@ -50,9 +51,19 @@ void PlotLine::setColor(QColor color)
 
 void PlotLine::updateLabelPosition()
 {
-	auto begin = m_Graph->data()->findBegin(m_Parent->xAxis->range().upper);
+	std::string name = m_Dataset->name;
+	auto data = m_Graph->data();
+	auto begin = data->findBegin(m_Parent->xAxis->range().upper);
 	m_Label->position->setCoords(m_Parent->xAxis->range().upper, begin->value);
 	QPointF pos = m_Label->position->pixelPosition();
 	pos.setX(pos.x() - 1);
 	m_Label->position->setPixelPosition(pos);
 }
+
+PlotLine::~PlotLine()
+{
+	m_Parent->removePlottable(m_Graph);
+	m_Parent->removeItem(m_Label);
+}
+
+

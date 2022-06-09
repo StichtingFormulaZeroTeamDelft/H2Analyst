@@ -38,23 +38,25 @@ class PlotWidget :
     };
 
     const DataPanel* m_DataPanel;
-    std::vector<const H2A::Dataset*> m_Datasets;
-    
-    bool m_LegendEnabled;
-
+    std::vector<PlotLine*> m_PlotLines;
     Crosshairs* m_Crosshairs;
+    bool m_LegendEnabled;
 
     QCPRange m_TimeRange;
     QCPRange m_DataRange;
     double m_MaxTimePadding;
     double m_MaxDataPadding;
     
+
     void plot();
 
-    void setDatasets(const H2A::Dataset* dataset, bool replot = true);
+    void clearPlottables();
+
+    void setDataset(const H2A::Dataset* dataset, bool replot = true);
     void setDatasets(std::vector<const H2A::Dataset*> datasets, bool replot = true);
-    void addDatasets(const H2A::Dataset* dataset, bool replot = true);
+    void addDataset(const H2A::Dataset* dataset, bool replot = true);
     void addDatasets(std::vector<const H2A::Dataset*> datasets, bool replot = true);
+    void addPlotLine(const H2A::Dataset* dataset);
 
     void setAxisLabels();
 

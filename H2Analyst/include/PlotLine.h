@@ -21,13 +21,16 @@ class PlotLine : public QObject
 public:
 
 	PlotLine(QCustomPlot* parentPlot, const H2A::Dataset* dataset);
+	~PlotLine();
 	
 	void setColor(QColor color);
 
-	double minX() { return rangeX.lower; };
-	double maxX() { return rangeX.upper; };
-	double minY() { return rangeY.lower; };
-	double maxY() { return rangeY.upper; };
+	const H2A::Dataset* dataset() const { return m_Dataset; };
+
+	double minX() const { return rangeX.lower; };
+	double maxX() const { return rangeX.upper; };
+	double minY() const { return rangeY.lower; };
+	double maxY() const { return rangeY.upper; };
 
 private slots:
 	void updateLabelPosition();

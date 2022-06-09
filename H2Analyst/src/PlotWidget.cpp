@@ -3,7 +3,6 @@
 
 PlotWidget::PlotWidget(QWidget* parent) : QCustomPlot(parent),
 m_DataPanel(nullptr),
-m_Datasets(),
 m_TimeRange(0.0, 10.0),
 m_DataRange(0.0, 5.0),
 m_MaxTimePadding(0.0),
@@ -38,45 +37,52 @@ m_LegendEnabled(true)
 
 bool PlotWidget::isEmpty()
 {
-	return m_Datasets.size() == 0;
+	return m_PlotLines.size() == 0;
 }
 
 void PlotWidget::setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel;  }
 
 
-void PlotWidget::setDatasets(const H2A::Dataset* dataset, bool replot)
+void PlotWidget::setDataset(const H2A::Dataset* dataset, bool replot)
 {
-	m_Datasets.clear();
-	this->addDatasets(dataset, replot);
+	this->clearPlottables();
+	this->addDataset(dataset, replot);
 }
-
 
 void PlotWidget::setDatasets(std::vector<const H2A::Dataset*> datasets, bool replot)
 {
-	m_Datasets.clear();
+	this->clearPlottables();
 	this->addDatasets(datasets, replot);
 }
 
-
-void PlotWidget::addDatasets(const H2A::Dataset* dataset, bool replot)
+void PlotWidget::addDataset(const H2A::Dataset* dataset, bool replot)
 {
-	// Make sure dataset is populated
-	m_DataPanel->requestDatasetPopulation(dataset, true);
-	// Only add the dataset
-	if (std::find(m_Datasets.begin(), m_Datasets.end(), dataset) == m_Datasets.end())
-		m_Datasets.push_back(dataset);
-	if (replot)
-		this->plot();
+	// Check if dataset not already added 
+	for (const auto& plotLine : m_PlotLines)
+	{
+		if (plotLine->dataset() == dataset) return;
+	}
+
+	if (!dataset->populated) m_DataPanel->requestDatasetPopulation(dataset, true);
+	
+	this->addPlotLine(dataset);
+
+	if (replot) this->plot();
 }
 
 void PlotWidget::addDatasets(std::vector<const H2A::Dataset*> datasets, bool replot)
 {
 	for (auto const& dataset : datasets)
-		this->addDatasets(dataset, false);
-	if (replot)
-		this->plot();
+		this->addDataset(dataset, false);
+	if (replot) this->plot();
 }
 
+void PlotWidget::addPlotLine(const H2A::Dataset* dataset)
+{
+	PlotLine* pl = new PlotLine(this, dataset);
+	m_PlotLines.push_back(pl);
+	pl->setColor(k_PlotColors[m_PlotLines.size() % k_PlotColors.size()]);
+}
 
 void PlotWidget::plotSelected()
 {
@@ -86,24 +92,20 @@ void PlotWidget::plotSelected()
 
 void PlotWidget::plot()
 {
-	this->clearPlottables();
+	
+	//this->clearPlottables();
+	//m_PlotLines.clear();
 
 	// Add datasets
 	double xmin = 0.0, xmax = 0.0, ymin = 0.0, ymax = 0.0;
-	size_t plot_counter = 0;
-	for (const auto& dataset : m_Datasets)
+	for (const auto& plotLine : m_PlotLines)
 	{
-		
-		PlotLine* pl = new PlotLine(this, dataset);
-		pl->setColor(k_PlotColors[plot_counter % k_PlotColors.size()]);
-
 		// Update data ranges to fit new data
-		xmin = std::min({ xmin, pl->minX() });
-		xmax = std::max({ xmax, pl->maxX() });
-		ymin = std::min({ ymin, pl->minY() });
-		ymax = std::max({ ymax, pl->maxY() });
+		xmin = std::min({ xmin, plotLine->minX() });
+		xmax = std::max({ xmax, plotLine->maxX() });
+		ymin = std::min({ ymin, plotLine->minY() });
+		ymax = std::max({ ymax, plotLine->maxY() });
 
-		++ plot_counter;
 	}
 
 	this->setAxisLabels();
@@ -116,17 +118,27 @@ void PlotWidget::plot()
 	m_MaxDataPadding = (m_DataRange.upper - m_DataRange.lower) * RANGE_PADDING_Y;
 
 	this->resetView();
+	
+}
+
+void PlotWidget::clearPlottables()
+{
+	for (const auto& plotLine : m_PlotLines)
+	{
+		delete plotLine;
+	}
+	m_PlotLines.clear();
 }
 
 void PlotWidget::setAxisLabels()
 {
 	// Create unique list of quantities of datasets
 	std::vector<std::string> units;
-	for (const auto& dataset : m_Datasets)
+	for (const auto& plotLine : m_PlotLines)
 	{
-		if (std::find(units.begin(), units.end(), dataset->unit) == units.end())
+		if (std::find(units.begin(), units.end(), plotLine->dataset()->unit) == units.end())
 		{
-			units.push_back(dataset->unit);
+			units.push_back(plotLine->dataset()->unit);
 		}
 	}
 
@@ -134,7 +146,7 @@ void PlotWidget::setAxisLabels()
 	if (units.size() < 2)
 	{
 		// Since only a unique unit was found, we can assume there is also only one unique quantity
-		label << m_Datasets.front()->quantity << " [" << units.front() << "]";
+		label << m_PlotLines.front()->dataset()->quantity << " [" << units.front() << "]";
 	}
 	else
 	{
@@ -196,6 +208,7 @@ void PlotWidget::dropEvent(QDropEvent* event)
 	if (QApplication::keyboardModifiers() & Qt::ControlModifier)
 	{
 		this->addDatasets(m_DataPanel->getSelectedDatasets());
+		this->replot();
 	}
 	else
 	{
