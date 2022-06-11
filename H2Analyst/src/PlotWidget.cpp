@@ -13,7 +13,6 @@ m_LegendEnabled(true)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
 	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom)); // Sets comma as thousand-seperator and period as decimal-point.
-	this->setNoAntialiasingOnDrag(true);
 
 	// Cursor crosshairs
 	m_Crosshairs = new Crosshairs(this, QString("crosshairs"), this->layer("axes"));
@@ -234,60 +233,39 @@ void PlotWidget::dropEvent(QDropEvent* event)
 	}
 }
 
-// Function that makes sure the axis ranges stay within limits to keep data in view
+// Function that makes sure the axis ranges stay within limits to keep data in view.
 // It has a different behaviour for panning versus zooming (panning can not lead to zooming).
 void PlotWidget::restrictView(const QCPRange& oldRange, const QCPRange& newRange)
 {
-	// Calculate padding amounts
-	double paddingX = this->xAxis->range().size() * RANGE_PADDING_X;
-	double paddingY = this->yAxis->range().size()  * RANGE_PADDING_Y;
+	double padding;
+	QCPRange range;
 
-	// Check if user is panning (not zooming)
-	if (std::abs(oldRange.size() - newRange.size()) < 1e-8)
+	// Restrict X axis if needed
+	padding = std::min({
+	this->xAxis->range().size() * RANGE_PADDING_X,
+	m_RangeX.size() * RANGE_PADDING_X });
+
+	range = this->xAxis->range();
+	range.upper = std::min({ range.upper, m_RangeX.upper + padding });
+	range.lower = std::max({ range.lower, m_RangeX.lower - padding });
+	if (range != this->xAxis->range())
 	{
-		if (this->xAxis->range().upper > m_RangeX.upper + paddingX)
-		{
-			this->xAxis->setRange(m_RangeX.upper + paddingX - oldRange.size(), m_RangeX.upper + paddingX);
-			return;
-		}
-		if (this->xAxis->range().lower < m_RangeX.lower - paddingX)
-		{
-			this->xAxis->setRange(m_RangeX.lower - paddingX, m_RangeX.lower - paddingX + oldRange.size());
-			return;
-		}
-		if (this->yAxis->range().upper > m_RangeY.upper + paddingY)
-		{
-			this->yAxis->setRange(m_RangeY.upper + paddingY - oldRange.size(), m_RangeY.upper + paddingY);
-			return;
-		}
-		if (this->yAxis->range().lower < m_RangeY.lower - paddingY)
-		{
-			this->yAxis->setRange(m_RangeY.lower - paddingY, m_RangeY.lower - paddingY + oldRange.size());
-			return;
-		}
+		this->xAxis->setRange(range);
+		return;
 	}
-	// Zooming
-	else
+
+	// Restrict Y axis if needed
+	padding = std::min({
+	this->yAxis->range().size() * RANGE_PADDING_Y,
+	m_RangeY.size() * RANGE_PADDING_Y });
+
+	range = this->yAxis->range();
+	range.upper = std::min({ range.upper, m_RangeY.upper + padding });
+	range.lower = std::max({ range.lower, m_RangeY.lower - padding });
+	if (range != this->yAxis->range())
 	{
-		// This function doesn't know which axis change, so first check X, then Y.
-		QCPRange range = this->xAxis->range();
-		range.upper = std::min({ range.upper, m_RangeX.upper + paddingX });
-		range.lower = std::max({ range.lower, m_RangeX.lower - paddingX });
-		if (std::abs(range.size() - this->xAxis->range().size()) > 1e-8)
-		{
-			this->xAxis->setRange(range);
-			return;
-		}
-
-		range = this->yAxis->range();
-		range.upper = std::min({ range.upper, m_RangeY.upper + paddingY });
-		range.lower = std::max({ range.lower, m_RangeY.lower - paddingY });
-		if (std::abs(range.size() - this->yAxis->range().size()) > 1e-8)
-		{
-			this->yAxis->setRange(range);
-			return;
-		}
-
+		this->yAxis->setRange(range);
+		return;
 	}
 }
 
