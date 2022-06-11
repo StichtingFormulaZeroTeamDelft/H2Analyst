@@ -1,5 +1,4 @@
 #include "H2Analyst.h"
-#include "stdafx.h"
 
 H2Analyst::H2Analyst(QWidget* parent)
     : QMainWindow(parent),

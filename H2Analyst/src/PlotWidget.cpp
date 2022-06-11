@@ -31,8 +31,8 @@ m_LegendEnabled(true)
 	this->setAcceptDrops(true);
 
 	connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(emitTimeRangeChanged()));
-	connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(enforceAxisLimits()));
-	connect(this->yAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(enforceAxisLimits()));
+	connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&, const QCPRange&)), this, SLOT(restrictView(const QCPRange&, const QCPRange&)));
+	connect(this->yAxis, SIGNAL(rangeChanged(const QCPRange&, const QCPRange&)), this, SLOT(restrictView(const QCPRange&, const QCPRange&)));
 
 }
 
@@ -235,27 +235,60 @@ void PlotWidget::dropEvent(QDropEvent* event)
 }
 
 // Function that makes sure the axis ranges stay within limits to keep data in view
-void PlotWidget::enforceAxisLimits()
+// It has a different behaviour for panning versus zooming (panning can not lead to zooming).
+void PlotWidget::restrictView(const QCPRange& oldRange, const QCPRange& newRange)
 {
-	// Determine padding as fraction of visible range (to keep the screen space padding constant)
-	double xPadding = (this->xAxis->range().upper - this->xAxis->range().lower) * RANGE_PADDING_X;
-	double yPadding = (this->yAxis->range().upper - this->yAxis->range().lower) * RANGE_PADDING_Y;
-	// Make sure this padding is not larger than the absolute max based on the data itself
-	xPadding = std::min({ xPadding, m_PaddingX });
-	yPadding = std::min({ yPadding, m_PaddingY });
+	// Calculate padding amounts
+	double paddingX = this->xAxis->range().size() * RANGE_PADDING_X;
+	double paddingY = this->yAxis->range().size()  * RANGE_PADDING_Y;
 
-	// X axis lower bound
-	if (this->xAxis->range().lower < m_RangeX.lower - xPadding)
-		this->xAxis->setRange(m_RangeX.lower - xPadding, this->xAxis->range().upper);
-	// X axis upper bound
-	if (this->xAxis->range().upper > m_RangeX.upper + xPadding)
-		this->xAxis->setRange(this->xAxis->range().lower, m_RangeX.upper + xPadding);
-	// Y axis lower bound
-	if (this->yAxis->range().lower < m_RangeY.lower - yPadding)
-		this->yAxis->setRange(m_RangeY.lower - yPadding, this->yAxis->range().upper);
-	// Y axis upper bound
-	if (this->yAxis->range().upper > m_RangeY.upper + yPadding)
-		this->yAxis->setRange(this->yAxis->range().lower, m_RangeY.upper + yPadding);
+	// Check if user is panning (not zooming)
+	if (std::abs(oldRange.size() - newRange.size()) < 1e-8)
+	{
+		if (this->xAxis->range().upper > m_RangeX.upper + paddingX)
+		{
+			this->xAxis->setRange(m_RangeX.upper + paddingX - oldRange.size(), m_RangeX.upper + paddingX);
+			return;
+		}
+		if (this->xAxis->range().lower < m_RangeX.lower - paddingX)
+		{
+			this->xAxis->setRange(m_RangeX.lower - paddingX, m_RangeX.lower - paddingX + oldRange.size());
+			return;
+		}
+		if (this->yAxis->range().upper > m_RangeY.upper + paddingY)
+		{
+			this->yAxis->setRange(m_RangeY.upper + paddingY - oldRange.size(), m_RangeY.upper + paddingY);
+			return;
+		}
+		if (this->yAxis->range().lower < m_RangeY.lower - paddingY)
+		{
+			this->yAxis->setRange(m_RangeY.lower - paddingY, m_RangeY.lower - paddingY + oldRange.size());
+			return;
+		}
+	}
+	// Zooming
+	else
+	{
+		// This function doesn't know which axis change, so first check X, then Y.
+		QCPRange range = this->xAxis->range();
+		range.upper = std::min({ range.upper, m_RangeX.upper + paddingX });
+		range.lower = std::max({ range.lower, m_RangeX.lower - paddingX });
+		if (std::abs(range.size() - this->xAxis->range().size()) > 1e-8)
+		{
+			this->xAxis->setRange(range);
+			return;
+		}
+
+		range = this->yAxis->range();
+		range.upper = std::min({ range.upper, m_RangeY.upper + paddingY });
+		range.lower = std::max({ range.lower, m_RangeY.lower - paddingY });
+		if (std::abs(range.size() - this->yAxis->range().size()) > 1e-8)
+		{
+			this->yAxis->setRange(range);
+			return;
+		}
+
+	}
 }
 
 // Function to reset view to fit all data with padding included

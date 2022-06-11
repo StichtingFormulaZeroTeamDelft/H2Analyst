@@ -92,7 +92,7 @@ private slots:
     void showContextMenu(const QPoint& pos);
     void plotSelected();
     void copyToClipboard();
-    void enforceAxisLimits();
+    void restrictView(const QCPRange& oldRange, const QCPRange& newRange);
     void emitTimeRangeChanged() { emit this->timeRangeChanged(this); };
 
 };
