@@ -13,6 +13,7 @@ m_LegendEnabled(true)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
 	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom)); // Sets comma as thousand-seperator and period as decimal-point.
+	this->setNoAntialiasingOnDrag(true);
 
 	// Cursor crosshairs
 	m_Crosshairs = new Crosshairs(this, QString("crosshairs"), this->layer("axes"));
