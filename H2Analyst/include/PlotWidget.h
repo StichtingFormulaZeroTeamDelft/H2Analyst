@@ -12,20 +12,31 @@
 
 #include "DataStructures.h"
 #include "DataPanel.h"
+#include "TimeSeries.h"
 #include "PlotCrosshairs.h"
-#include "PlotLine.h"
 
 //class DataPanel;
+
+class Crosshairs;
 
 class PlotWidget :
     public QCustomPlot
 {
+    Q_OBJECT
+
+public:
+    
+    enum class PlotType {
+        Time, XY
+    };
+
+private:
+
+    PlotType m_Type;
 
     // Padding around min and max data on the ranges (fractional)
     const float RANGE_PADDING_X = 0.05;
     const float RANGE_PADDING_Y = 0.05;
-
-    Q_OBJECT
 
     const std::vector<QColor> k_PlotColors = {
     QColor(0, 114, 189),
@@ -38,25 +49,20 @@ class PlotWidget :
     };
 
     const DataPanel* m_DataPanel;
-    std::vector<PlotLine*> m_PlotLines;
+    std::vector<Plottable*> m_Plottables;
     Crosshairs* m_Crosshairs;
     bool m_LegendEnabled;
 
-    QCPRange m_TimeRange;
-    QCPRange m_DataRange;
-    double m_MaxTimePadding;
-    double m_MaxDataPadding;
+    QCPRange m_RangeX;
+    QCPRange m_RangeY;
+    double m_PaddingX;
+    double m_PaddingY;
     
 
     void plot();
 
-    void clearPlottables();
-
-    void setDataset(const H2A::Dataset* dataset, bool replot = true);
-    void setDatasets(std::vector<const H2A::Dataset*> datasets, bool replot = true);
-    void addDataset(const H2A::Dataset* dataset, bool replot = true);
-    void addDatasets(std::vector<const H2A::Dataset*> datasets, bool replot = true);
-    void addPlotLine(const H2A::Dataset* dataset);
+    void setPlots(std::vector<const H2A::Dataset*> datasets, bool replot = true);
+    void addPlots(std::vector<const H2A::Dataset*> datasets, bool replot = true);
 
     void setAxisLabels();
 
@@ -68,23 +74,26 @@ public:
     void resetView();
 
 protected:
-    void leaveEvent(QEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
+    void leaveEvent(QEvent* event);
 
 signals:
     void mouseMoved(QMouseEvent* event);
-    void rangeChanged(PlotWidget* source);
+    void wheelMoved(QWheelEvent* event);
+    void mouseLeft();
+    void timeRangeChanged(PlotWidget* source);
     void resetViewsRequested();
 
 private slots:
+    void clear();
     void showContextMenu(const QPoint& pos);
     void plotSelected();
     void copyToClipboard();
-    void emitRangeChanged() { emit rangeChanged(this); };
     void enforceAxisLimits();
+    void emitTimeRangeChanged() { emit this->timeRangeChanged(this); };
 
 };
 

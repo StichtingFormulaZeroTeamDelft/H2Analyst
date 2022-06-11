@@ -2,24 +2,24 @@
 
 
 PlotWidget::PlotWidget(QWidget* parent) : QCustomPlot(parent),
+m_Type(PlotType::Time),
 m_DataPanel(nullptr),
-m_TimeRange(0.0, 10.0),
-m_DataRange(0.0, 5.0),
-m_MaxTimePadding(0.0),
-m_MaxDataPadding(0.0),
+m_Plottables(),
+m_RangeX(0.0, 10.0),
+m_RangeY(0.0, 10.0),
+m_PaddingX(0.0),
+m_PaddingY(0.0),
 m_LegendEnabled(true)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
-	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom)); // Sets comma as thousand-seperator and period as decimal-point.
 
-	// Crosshairs
+	// Cursor crosshairs
 	m_Crosshairs = new Crosshairs(this, QString("crosshairs"), this->layer("axes"));
-	connect(this, SIGNAL(mouseMoved(QMouseEvent*)), m_Crosshairs, SLOT(update(QMouseEvent*)));
+	m_Crosshairs->enable();
 
-	// Set default ranges and label
-	this->xAxis->setRange(m_TimeRange);
-	this->xAxis->setLabel("Time [sec]");
-	this->yAxis->setRange(m_DataRange);
+	// Set ranges and labels
+	this->clear();
 
 	// Right-click menu
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -29,137 +29,151 @@ m_LegendEnabled(true)
 	this->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables | QCP::iMultiSelect);
 	this->setAcceptDrops(true);
 
-	// Connect signals
-	connect(this->xAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(emitRangeChanged()));
-	connect(this->xAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(enforceAxisLimits()));
-	connect(this->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(enforceAxisLimits()));
+	connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(emitTimeRangeChanged()));
+	connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(enforceAxisLimits()));
+	connect(this->yAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(enforceAxisLimits()));
+
 }
 
 bool PlotWidget::isEmpty()
 {
-	return m_PlotLines.size() == 0;
+	return m_Plottables.size() == 0;
 }
 
-void PlotWidget::setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel;  }
+void PlotWidget::setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel; }
 
-
-void PlotWidget::setDataset(const H2A::Dataset* dataset, bool replot)
+void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, bool replot)
 {
-	this->clearPlottables();
-	this->addDataset(dataset, replot);
+	if (datasets.size() == 0) return;
+	this->clear();
+	this->addPlots(datasets, replot);
 }
 
-void PlotWidget::setDatasets(std::vector<const H2A::Dataset*> datasets, bool replot)
+void PlotWidget::addPlots(std::vector<const H2A::Dataset*> datasets, bool replot)
 {
-	this->clearPlottables();
-	this->addDatasets(datasets, replot);
-}
-
-void PlotWidget::addDataset(const H2A::Dataset* dataset, bool replot)
-{
-	// Check if dataset not already added 
-	for (const auto& plotLine : m_PlotLines)
+	switch (m_Type)
 	{
-		if (plotLine->dataset() == dataset) return;
+	case PlotType::Time:
+	{
+		for (auto const& dataset : datasets)
+		{
+			// Check if this dataset is not already plotted
+			bool alreadyPlotted = false;
+			for (auto const& plottable : m_Plottables)
+			{
+				if (dataset == plottable->datasets().front())
+				{
+					alreadyPlotted = true;
+					break;
+				}
+			}
+			if (alreadyPlotted) continue;
+
+			if (!dataset->populated) m_DataPanel->requestDatasetPopulation(dataset, true);
+
+			TimeSeries* ts = new TimeSeries(this, dataset);
+			ts->setColor(k_PlotColors[m_Plottables.size() % k_PlotColors.size()]);
+			m_Plottables.push_back(ts);
+		}
+		break;
+	}
+	case PlotType::XY:
+	{
+		break;
+	}
 	}
 
-	if (!dataset->populated) m_DataPanel->requestDatasetPopulation(dataset, true);
-	
-	this->addPlotLine(dataset);
-
 	if (replot) this->plot();
 }
 
-void PlotWidget::addDatasets(std::vector<const H2A::Dataset*> datasets, bool replot)
-{
-	for (auto const& dataset : datasets)
-		this->addDataset(dataset, false);
-	if (replot) this->plot();
-}
-
-void PlotWidget::addPlotLine(const H2A::Dataset* dataset)
-{
-	PlotLine* pl = new PlotLine(this, dataset);
-	m_PlotLines.push_back(pl);
-	pl->setColor(k_PlotColors[m_PlotLines.size() % k_PlotColors.size()]);
-}
 
 void PlotWidget::plotSelected()
 {
-	this->setDatasets(m_DataPanel->getSelectedDatasets(), true);
+	this->setPlots(m_DataPanel->getSelectedDatasets(), true);
 }
 
-
+// Set plot properties based on the plottables that have been added to it.
 void PlotWidget::plot()
 {
-	
-	//this->clearPlottables();
-	//m_PlotLines.clear();
-
-	// Add datasets
+	// Determine data range
 	double xmin = 0.0, xmax = 0.0, ymin = 0.0, ymax = 0.0;
-	for (const auto& plotLine : m_PlotLines)
+	for (const auto& plotLine : m_Plottables)
 	{
-		// Update data ranges to fit new data
-		xmin = std::min({ xmin, plotLine->minX() });
-		xmax = std::max({ xmax, plotLine->maxX() });
-		ymin = std::min({ ymin, plotLine->minY() });
-		ymax = std::max({ ymax, plotLine->maxY() });
-
+		xmin = std::min({ xmin, plotLine->rangeX().lower });
+		xmax = std::max({ xmax, plotLine->rangeX().upper});
+		ymin = std::min({ ymin, plotLine->rangeY().lower});
+		ymax = std::max({ ymax, plotLine->rangeY().upper});
 	}
 
 	this->setAxisLabels();
 
 	// Store and set axis ranges and calculate paddings
-	m_TimeRange = QCPRange(xmin, xmax);
-	m_DataRange = QCPRange(ymin, ymax);
-	if (m_DataRange.lower > 0.0) m_DataRange.lower = 0.0; // This (almost) always makes sense for visualization
-	m_MaxTimePadding = (m_TimeRange.upper - m_TimeRange.lower) * RANGE_PADDING_X;
-	m_MaxDataPadding = (m_DataRange.upper - m_DataRange.lower) * RANGE_PADDING_Y;
+	m_RangeX = QCPRange(xmin, xmax);
+	m_RangeY = QCPRange(ymin, ymax);
+	if (m_RangeY.lower > 0.0) m_RangeY.lower = 0.0; // This (almost) always makes sense for visualization
+	m_PaddingX = (m_RangeX.upper - m_RangeX.lower) * RANGE_PADDING_X;
+	m_PaddingY = (m_RangeY.upper - m_RangeY.lower) * RANGE_PADDING_Y;
 
 	this->resetView();
 	
 }
 
-void PlotWidget::clearPlottables()
+void PlotWidget::clear()
 {
-	for (const auto& plotLine : m_PlotLines)
-	{
-		delete plotLine;
-	}
-	m_PlotLines.clear();
+	// Remove plottables
+	for (const auto& plottable : m_Plottables)
+		delete plottable;
+	m_Plottables.clear();
+
+	// Reset axis and labels
+	this->xAxis->setLabel("");
+	this->yAxis->setLabel("");
+	m_RangeX = QCPRange(0.0, 10.0);
+	m_RangeY = QCPRange(0.0, 10.0);
+	this->xAxis->setRange(m_RangeX);
+	this->yAxis->setRange(m_RangeY);
 }
 
 void PlotWidget::setAxisLabels()
 {
-	// Create unique list of quantities of datasets
-	std::vector<std::string> units;
-	for (const auto& plotLine : m_PlotLines)
+	switch (m_Type)
 	{
-		if (std::find(units.begin(), units.end(), plotLine->dataset()->unit) == units.end())
+	case PlotType::Time:
+	{
+		// Create unique list of quantities of datasets
+		std::vector<std::string> units;
+		for (const auto& plottable : m_Plottables)
 		{
-			units.push_back(plotLine->dataset()->unit);
+			if (std::find(units.begin(), units.end(), plottable->datasets().front()->unit) == units.end())
+			{
+				units.push_back(plottable->datasets().front()->unit);
+			}
 		}
-	}
 
-	std::stringstream label;
-	if (units.size() < 2)
-	{
-		// Since only a unique unit was found, we can assume there is also only one unique quantity
-		label << m_PlotLines.front()->dataset()->quantity << " [" << units.front() << "]";
-	}
-	else
-	{
-		label << "Mixed quantities [";
-		for (size_t i = 0; i < units.size(); ++ i)
+		std::stringstream label;
+		if (units.size() < 2)
 		{
-			label << units[i];
-			if (i < units.size() - 1) label << ", ";
+			// Since only a unique unit was found, we can assume there is also only one unique quantity
+			label << m_Plottables.front()->datasets().front()->quantity << " [" << units.front() << "]";
 		}
-		label << "]";
+		else
+		{
+			label << "Mixed quantities [";
+			for (size_t i = 0; i < units.size(); ++i)
+			{
+				label << units[i];
+				if (i < units.size() - 1) label << ", ";
+			}
+			label << "]";
+		}
+		this->yAxis->setLabel(QString(label.str().c_str()));
+		this->xAxis->setLabel("Time [sec]");
 	}
-	this->yAxis->setLabel(QString(label.str().c_str()));
-	this->xAxis->setLabel("Time [sec]");
+	case PlotType::XY:
+	{
+
+	}
+	}
 }
 
 
@@ -170,6 +184,10 @@ void PlotWidget::showContextMenu(const QPoint& pos)
 	QAction acPlot("Plot", this);
 	connect(&acPlot, SIGNAL(triggered()), this, SLOT(plotSelected()));
 	contextMenu.addAction(&acPlot);
+
+	QAction acClear("Clear", this);
+	connect(&acClear, SIGNAL(triggered()), this, SLOT(clear()));
+	contextMenu.addAction(&acClear);
 
 	QAction acReset("Reset view", this);
 	connect(&acReset, &QAction::triggered, [=]() {this->resetView(); });
@@ -207,8 +225,7 @@ void PlotWidget::dropEvent(QDropEvent* event)
 
 	if (QApplication::keyboardModifiers() & Qt::ControlModifier)
 	{
-		this->addDatasets(m_DataPanel->getSelectedDatasets());
-		this->replot();
+		this->addPlots(m_DataPanel->getSelectedDatasets(), true);
 	}
 	else
 	{
@@ -223,59 +240,36 @@ void PlotWidget::enforceAxisLimits()
 	double xPadding = (this->xAxis->range().upper - this->xAxis->range().lower) * RANGE_PADDING_X;
 	double yPadding = (this->yAxis->range().upper - this->yAxis->range().lower) * RANGE_PADDING_Y;
 	// Make sure this padding is not larger than the absolute max based on the data itself
-	xPadding = std::min({ xPadding, m_MaxTimePadding });
-	yPadding = std::min({ yPadding, m_MaxDataPadding });
+	xPadding = std::min({ xPadding, m_PaddingX });
+	yPadding = std::min({ yPadding, m_PaddingY });
 
 	// X axis lower bound
-	if (this->xAxis->range().lower < m_TimeRange.lower - xPadding)
-		this->xAxis->setRange(m_TimeRange.lower - xPadding, this->xAxis->range().upper);
+	if (this->xAxis->range().lower < m_RangeX.lower - xPadding)
+		this->xAxis->setRange(m_RangeX.lower - xPadding, this->xAxis->range().upper);
 	// X axis upper bound
-	if (this->xAxis->range().upper > m_TimeRange.upper + xPadding)
-		this->xAxis->setRange(this->xAxis->range().lower, m_TimeRange.upper + xPadding);
+	if (this->xAxis->range().upper > m_RangeX.upper + xPadding)
+		this->xAxis->setRange(this->xAxis->range().lower, m_RangeX.upper + xPadding);
 	// Y axis lower bound
-	if (this->yAxis->range().lower < m_DataRange.lower - yPadding)
-		this->yAxis->setRange(m_DataRange.lower - yPadding, this->yAxis->range().upper);
+	if (this->yAxis->range().lower < m_RangeY.lower - yPadding)
+		this->yAxis->setRange(m_RangeY.lower - yPadding, this->yAxis->range().upper);
 	// Y axis upper bound
-	if (this->yAxis->range().upper > m_DataRange.upper + yPadding)
-		this->yAxis->setRange(this->yAxis->range().lower, m_DataRange.upper + yPadding);
+	if (this->yAxis->range().upper > m_RangeY.upper + yPadding)
+		this->yAxis->setRange(this->yAxis->range().lower, m_RangeY.upper + yPadding);
 }
 
 // Function to reset view to fit all data with padding included
 void PlotWidget::resetView()
 {
-	this->xAxis->setRange(m_TimeRange.lower - m_MaxTimePadding, m_TimeRange.upper + m_MaxTimePadding);
-	this->yAxis->setRange(m_DataRange.lower - m_MaxDataPadding, m_DataRange.upper + m_MaxDataPadding);
+	this->xAxis->setRange(m_RangeX.lower - m_PaddingX, m_RangeX.upper + m_PaddingX);
+	this->yAxis->setRange(m_RangeY.lower - m_PaddingY, m_RangeY.upper + m_PaddingY);
 	this->replot();
-}
-
-void PlotWidget::leaveEvent(QEvent* event)
-{
-	// Should be caught in mouseMoveEvent, but to be sure
-	m_Crosshairs->disable();
-
-	QCustomPlot::leaveEvent(event);
 }
 
 void PlotWidget::mouseMoveEvent(QMouseEvent* event)
 {
+	// Only propagate event is plot is in use (to disable panning and zooming)
 	if (!this->isEmpty())
 		QCustomPlot::mouseMoveEvent(event);
-
-	
-	// If mouse is in plot area (within axis ranges), hide cursor and show crosshair
-	if (this->xAxis->range().lower < this->xAxis->pixelToCoord(event->pos().x()) &&
-		this->xAxis->pixelToCoord(event->pos().x()) < this->xAxis->range().upper &&
-		this->yAxis->range().lower < this->yAxis->pixelToCoord(event->pos().y()) &&
-		this->yAxis->pixelToCoord(event->pos().y()) < this->yAxis->range().upper)
-	{	
-		this->setCursor(Qt::BlankCursor);
-		m_Crosshairs->enable();
-	}
-	else
-	{
-		this->setCursor(Qt::ArrowCursor);
-		m_Crosshairs->disable();
-	}
 
 	emit this->mouseMoved(event);
 }
@@ -284,5 +278,11 @@ void PlotWidget::wheelEvent(QWheelEvent* event)
 {
 	if (!this->isEmpty())
 		QCustomPlot::wheelEvent(event);
-	m_Crosshairs->update();
+	
+	emit this->wheelMoved(event);
+}
+
+void PlotWidget::leaveEvent(QEvent* event)
+{
+	emit this->mouseLeft();
 }

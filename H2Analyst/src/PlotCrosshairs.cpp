@@ -1,10 +1,13 @@
 #include "PlotCrosshairs.h"
 
-Crosshairs::Crosshairs(QCustomPlot* parentPlot, QString layerName, QCPLayer *layerBelow) : QObject(parentPlot),
-m_Parent(parentPlot)
+Crosshairs::Crosshairs(PlotWidget* parentPlot, QString layerName, QCPLayer *layerBelow) : QObject(parentPlot),
+m_Parent(parentPlot),
+m_Pos(0.0, 0.0)
 {
+
 	m_Parent->addLayer(layerName, layerBelow);
 	m_Layer = m_Parent->layer(layerName);
+	m_Layer->setMode(QCPLayer::lmBuffered);
 
 	m_LineH = new QCPItemLine(m_Parent);
 	m_LineH->setLayer(m_Layer);
@@ -29,7 +32,49 @@ m_Parent(parentPlot)
 	m_LabelY->setPositionAlignment(Qt::AlignVCenter | Qt::AlignLeft);
 	m_LabelY->position->setType(QCPItemPosition::ptPlotCoords);
 
+	connect(m_Parent, SIGNAL(mouseMoved(QMouseEvent*)), this, SLOT(update(QMouseEvent*)));
+	connect(m_Parent, SIGNAL(wheelMoved(QWheelEvent*)), this, SLOT(update(QWheelEvent*)));
+	connect(m_Parent, &PlotWidget::mouseLeft, [=]() { this->hide(); });
+
 	this->disable();
+}
+
+void Crosshairs::update()
+{
+	if (!m_Enabled) return;
+
+	// Check if cursor is within plot area of widget
+	if (m_Parent->xAxis->range().lower < m_Pos.x() &&
+		m_Pos.x() < m_Parent->xAxis->range().upper &&
+		m_Parent->yAxis->range().lower < m_Pos.y() &&
+		m_Pos.y() < m_Parent->yAxis->range().upper)
+	{
+		m_Layer->setVisible(true);
+		m_Parent->setCursor(Qt::BlankCursor);
+
+		// Crosshair lines
+		m_LineH->start->setCoords(m_Parent->xAxis->range().lower, m_Pos.y());
+		m_LineH->end->setCoords(m_Parent->xAxis->range().upper, m_Pos.y());
+		m_LineV->start->setCoords(m_Pos.x(), m_Parent->yAxis->range().upper);
+		m_LineV->end->setCoords(m_Pos.x(), m_Parent->yAxis->range().lower);
+
+		// Labels
+		m_LabelX->position->setCoords(m_Pos.x(), m_Parent->yAxis->range().lower);
+		std::stringstream stream;
+		stream << std::fixed << std::setprecision(2) << m_Pos.x();
+		m_LabelX->setText(QString(stream.str().c_str()));
+
+		m_LabelY->position->setCoords(m_Parent->xAxis->range().lower, m_Pos.y());
+		stream.str(""); // Clear stream
+		stream << std::fixed << std::setprecision(2) << m_Pos.y();
+		m_LabelY->setText(QString(stream.str().c_str()));
+
+		m_Layer->replot();
+	}
+	else
+	{
+		this->hide();
+	}
 }
 
 
@@ -37,43 +82,36 @@ void Crosshairs::update(QMouseEvent *event)
 {
 	// Coordinate calculation
 	m_Pos.setX(m_Parent->xAxis->pixelToCoord(event->pos().x()));
-	m_Pos.setY(m_Parent->yAxis->pixelToCoord(event->pos().y()));	
+	m_Pos.setY(m_Parent->yAxis->pixelToCoord(event->pos().y()));
 	this->update();
 }
 
-void Crosshairs::update()
+void Crosshairs::update(QWheelEvent* event)
 {
-	if (!m_Enabled) return;
-
-	// Crosshair lines
-	m_LineH->start->setCoords(m_Parent->xAxis->range().lower, m_Pos.y());
-	m_LineH->end->setCoords(m_Parent->xAxis->range().upper, m_Pos.y());
-	m_LineV->start->setCoords(m_Pos.x(), m_Parent->yAxis->range().upper);
-	m_LineV->end->setCoords(m_Pos.x(), m_Parent->yAxis->range().lower);
-
-	// Labels
-	m_LabelX->position->setCoords(m_Pos.x(), m_Parent->yAxis->range().lower);
-	std::stringstream stream;
-	stream << std::fixed << std::setprecision(2) << m_Pos.x();
-	m_LabelX->setText(QString(stream.str().c_str()));
-
-	m_LabelY->position->setCoords(m_Parent->xAxis->range().lower, m_Pos.y());
-	stream.str(""); // Clear stream
-	stream << std::fixed << std::setprecision(2) << m_Pos.y();
-	m_LabelY->setText(QString(stream.str().c_str()));
-
-	m_Layer->replot();
+	// Coordinate calculation
+	m_Pos.setX(m_Parent->xAxis->pixelToCoord(event->pos().x()));
+	m_Pos.setY(m_Parent->yAxis->pixelToCoord(event->pos().y()));
+	this->update();
 }
+
+
 
 void Crosshairs::enable()
 {
 	m_Enabled = true;
 	m_Layer->setVisible(true);
+	this->update();
+}
+
+void Crosshairs::hide()
+{
+	m_Layer->setVisible(false);
+	m_Parent->setCursor(Qt::ArrowCursor);
+	m_Layer->replot();
 }
 
 void Crosshairs::disable()
 {
 	m_Enabled = false;
-	m_Layer->setVisible(false);
-	m_Layer->replot(); // needed to clear crosshairs from plot
+	this->hide();
 }

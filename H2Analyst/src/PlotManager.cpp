@@ -21,7 +21,7 @@ m_BusyAligning(false)
 PlotWidget* PlotManager::createPlot()
 {
 	PlotWidget* plot = new PlotWidget(this);
-	connect(plot, SIGNAL(rangeChanged(PlotWidget*)), this, SLOT(plotTimeAxisChanged(PlotWidget*)));
+	connect(plot, SIGNAL(timeRangeChanged(PlotWidget*)), this, SLOT(plotTimeAxisChanged(PlotWidget*)));
 	connect(plot, &PlotWidget::resetViewsRequested, [=]() { this->resetViews(); });
 	m_Plots.push_back(plot);
 	return plot;

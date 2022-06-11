@@ -112,6 +112,7 @@
     <ClCompile Include="src\PlotCrosshairs.cpp" />
     <ClCompile Include="src\PlotLine.cpp" />
     <ClCompile Include="src\PlotManager.cpp" />
+    <ClCompile Include="src\Plottable.cpp" />
     <ClCompile Include="src\PlotWidget.cpp" />
     <ClCompile Include="src\Populator.cpp" />
     <ClCompile Include="src\qcustomplot.cpp" />
@@ -119,6 +120,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\TimeSeries.cpp" />
     <ClCompile Include="src\TreeView.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -137,7 +139,9 @@
     <QtMoc Include="include\PlotManager.h" />
     <QtMoc Include="include\PlotCrosshairs.h" />
     <QtMoc Include="include\PlotLine.h" />
+    <QtMoc Include="include\Plottable.h" />
     <ClInclude Include="include\stdafx.h" />
+    <QtMoc Include="include\TimeSeries.h" />
     <ClInclude Include="include\TreeView.h" />
     <QtMoc Include="include\qcustomplot.h" />
     <QtMoc Include="include\Populator.h" />
