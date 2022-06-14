@@ -13,6 +13,7 @@
 #include "DataStructures.h"
 #include "DataPanel.h"
 #include "TimeSeries.h"
+#include "XYSeries.h"
 #include "PlotCrosshairs.h"
 
 //class DataPanel;
@@ -35,8 +36,8 @@ private:
     PlotType m_Type;
 
     // Padding around min and max data on the ranges (fractional)
-    const float RANGE_PADDING_X = 0.05;
-    const float RANGE_PADDING_Y = 0.05;
+    const float RANGE_PADDING_X = 0.05f;
+    const float RANGE_PADDING_Y = 0.05f;
 
     const std::vector<QColor> k_PlotColors = {
     QColor(0, 114, 189),
@@ -61,8 +62,8 @@ private:
 
     void plot();
 
-    void setPlots(std::vector<const H2A::Dataset*> datasets, bool replot = true);
-    void addPlots(std::vector<const H2A::Dataset*> datasets, bool replot = true);
+    void setPlots(std::vector<const H2A::Dataset*> datasets, bool replot = true, PlotType type = PlotType::Time);
+    void addPlots(std::vector<const H2A::Dataset*> datasets, bool replot = true, PlotType type = PlotType::Time);
 
     void setAxisLabels();
 
@@ -90,7 +91,7 @@ signals:
 private slots:
     void clear();
     void showContextMenu(const QPoint& pos);
-    void plotSelected();
+    void plotSelected(PlotType type);
     void copyToClipboard();
     void restrictView(const QCPRange& oldRange, const QCPRange& newRange);
     void emitTimeRangeChanged() { emit this->timeRangeChanged(this); };

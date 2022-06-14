@@ -14,7 +14,7 @@
 
 namespace H2A
 {
-	const float INTCANLOG_SAMPLING_TIME = 1.e-4;
+	const float INTCANLOG_SAMPLING_TIME = 0.0001f;
 
 	namespace Parsers
 	{

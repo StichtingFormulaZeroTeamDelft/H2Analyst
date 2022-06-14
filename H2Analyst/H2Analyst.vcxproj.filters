@@ -79,6 +79,15 @@
     <ClCompile Include="src\TimeSeries.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="include\DataOperations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dialogs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XYSeries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="include\ControlPanel.h">
@@ -123,6 +132,9 @@
     <QtMoc Include="include\TimeSeries.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="include\XYSeries.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DataStructures.h">
@@ -132,6 +144,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\TreeView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DataOperations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Dialogs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -42,15 +42,31 @@ bool PlotWidget::isEmpty()
 
 void PlotWidget::setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel; }
 
-void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, bool replot)
+void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, bool replot, PlotType type)
 {
 	if (datasets.size() == 0) return;
 	this->clear();
-	this->addPlots(datasets, replot);
+	this->addPlots(datasets, replot, type);
 }
 
-void PlotWidget::addPlots(std::vector<const H2A::Dataset*> datasets, bool replot)
+void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, bool replot, PlotType type)
 {
+	// If this call is adding plots to existing plots, check if requested type is the same.
+	if (type != m_Type && m_Plottables.size() > 0)
+	{
+		H2A::Dialog::message("This plot already contains plots of a different type.");
+		return;
+	}
+	else
+	{
+		m_Type = type;
+	}
+
+	// Make sure datasets are populated
+	for (const auto& dataset : datasets)
+		if (!dataset->populated) m_DataPanel->requestDatasetPopulation(dataset, true);
+
+	// Add plots
 	switch (m_Type)
 	{
 	case PlotType::Time:
@@ -69,8 +85,6 @@ void PlotWidget::addPlots(std::vector<const H2A::Dataset*> datasets, bool replot
 			}
 			if (alreadyPlotted) continue;
 
-			if (!dataset->populated) m_DataPanel->requestDatasetPopulation(dataset, true);
-
 			TimeSeries* ts = new TimeSeries(this, dataset);
 			ts->setColor(k_PlotColors[m_Plottables.size() % k_PlotColors.size()]);
 			m_Plottables.push_back(ts);
@@ -79,6 +93,9 @@ void PlotWidget::addPlots(std::vector<const H2A::Dataset*> datasets, bool replot
 	}
 	case PlotType::XY:
 	{
+		XYSeries* series = new XYSeries(this, datasets);
+		series->setColor(k_PlotColors[m_Plottables.size() % k_PlotColors.size()]);
+		m_Plottables.push_back(series);
 		break;
 	}
 	}
@@ -87,22 +104,25 @@ void PlotWidget::addPlots(std::vector<const H2A::Dataset*> datasets, bool replot
 }
 
 
-void PlotWidget::plotSelected()
+void PlotWidget::plotSelected(PlotType type)
 {
-	this->setPlots(m_DataPanel->getSelectedDatasets(), true);
+	this->setPlots(m_DataPanel->getSelectedDatasets(), true, type);
 }
 
 // Set plot properties based on the plottables that have been added to it.
 void PlotWidget::plot()
 {
 	// Determine data range
-	double xmin = 0.0, xmax = 0.0, ymin = 0.0, ymax = 0.0;
-	for (const auto& plotLine : m_Plottables)
+	double xmin = m_Plottables.front()->rangeX().lower;
+	double xmax = m_Plottables.front()->rangeX().upper;
+	double ymin = m_Plottables.front()->rangeY().lower;
+	double ymax = m_Plottables.front()->rangeY().upper;
+	for (const auto& plottable : m_Plottables)
 	{
-		xmin = std::min({ xmin, plotLine->rangeX().lower });
-		xmax = std::max({ xmax, plotLine->rangeX().upper});
-		ymin = std::min({ ymin, plotLine->rangeY().lower});
-		ymax = std::max({ ymax, plotLine->rangeY().upper});
+		xmin = std::min({ xmin, plottable->rangeX().lower });
+		xmax = std::max({ xmax, plottable->rangeX().upper});
+		ymin = std::min({ ymin, plottable->rangeY().lower});
+		ymax = std::max({ ymax, plottable->rangeY().upper});
 	}
 
 	this->setAxisLabels();
@@ -110,9 +130,9 @@ void PlotWidget::plot()
 	// Store and set axis ranges and calculate paddings
 	m_RangeX = QCPRange(xmin, xmax);
 	m_RangeY = QCPRange(ymin, ymax);
-	if (m_RangeY.lower > 0.0) m_RangeY.lower = 0.0; // This (almost) always makes sense for visualization
-	m_PaddingX = (m_RangeX.upper - m_RangeX.lower) * RANGE_PADDING_X;
-	m_PaddingY = (m_RangeY.upper - m_RangeY.lower) * RANGE_PADDING_Y;
+	//if (m_RangeY.lower > 0.0) m_RangeY.lower = 0.0; // This (almost) always makes sense for visualization
+	m_PaddingX = m_RangeX.size() * RANGE_PADDING_X;
+	m_PaddingY = m_RangeY.size() * RANGE_PADDING_Y;
 
 	this->resetView();
 	
@@ -181,9 +201,13 @@ void PlotWidget::showContextMenu(const QPoint& pos)
 {
 	QMenu contextMenu(tr("Context menu"), this);
 
-	QAction acPlot("Plot", this);
-	connect(&acPlot, SIGNAL(triggered()), this, SLOT(plotSelected()));
-	contextMenu.addAction(&acPlot);
+	QAction acPlotTime("Plot", this);
+	connect(&acPlotTime, &QAction::triggered, this, [=]() {plotSelected(PlotType::Time); });
+	contextMenu.addAction(&acPlotTime);
+
+	QAction acPlotXY("Plot XY", this);
+	connect(&acPlotXY, &QAction::triggered, this, [=]() {plotSelected(PlotType::XY); });
+	contextMenu.addAction(&acPlotXY);
 
 	QAction acClear("Clear", this);
 	connect(&acClear, SIGNAL(triggered()), this, SLOT(clear()));
@@ -217,7 +241,7 @@ void PlotWidget::dragEnterEvent(QDragEnterEvent* event)
 }
 
 
-void PlotWidget::dropEvent(QDropEvent* event)
+void PlotWidget::dropEvent(QDropEvent*)
 {
 	// Datasets are dragged into this plot.
 	// If CTRL is pressed, add them to the existing datasets.
@@ -229,13 +253,13 @@ void PlotWidget::dropEvent(QDropEvent* event)
 	}
 	else
 	{
-		this->plotSelected();
+		this->plotSelected(PlotType::Time);
 	}
 }
 
 // Function that makes sure the axis ranges stay within limits to keep data in view.
 // It has a different behaviour for panning versus zooming (panning can not lead to zooming).
-void PlotWidget::restrictView(const QCPRange& oldRange, const QCPRange& newRange)
+void PlotWidget::restrictView(const QCPRange&, const QCPRange&)
 {
 	double padding;
 	QCPRange range;
@@ -294,7 +318,7 @@ void PlotWidget::wheelEvent(QWheelEvent* event)
 	emit this->wheelMoved(event);
 }
 
-void PlotWidget::leaveEvent(QEvent* event)
+void PlotWidget::leaveEvent(QEvent*)
 {
 	emit this->mouseLeft();
 }

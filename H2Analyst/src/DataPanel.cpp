@@ -99,7 +99,7 @@ void DataPanel::requestDatasetPopulation(const H2A::Dataset* dataset, bool block
 	if (!blocking) return;
 
 	// todo: add timeout to avoid infinite loops
-	while (!dataset->populated) {}
+	while (!dataset->populated);
 }
 
 void DataPanel::requestDatasetPopulation(std::vector<const H2A::Dataset*> datasets, bool blocking) const
@@ -110,7 +110,7 @@ void DataPanel::requestDatasetPopulation(std::vector<const H2A::Dataset*> datase
 
 	for (auto const& dataset : datasets)
 	{
-		while (!dataset->populated) {}
+		while (!dataset->populated);
 	}
 }
 
@@ -146,7 +146,6 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df)
 		for (uint8_t n_word = 2; n_word > 0; --n_word)
 		{
 
-			uint16_t hits = 0;
 			size_t i = 0;
 			while (i < datasets.size())
 			{

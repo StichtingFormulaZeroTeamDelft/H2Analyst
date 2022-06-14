@@ -48,7 +48,7 @@ void Populator::startNextDataset()
 		ds->populating = true;
 		ds->mutex.unlock();
 
-		QThread* thread = new QThread();
+		thread = new QThread();
 		PopulatorWorker* worker = new PopulatorWorker(ds);
 		worker->moveToThread(thread);
 
@@ -99,7 +99,7 @@ void PopulatorWorker::run()
 	m_ds->mutex.lock();
 
 	// Time vector
-	m_ds->timeVec = arma::conv_to<std::vector<float>>::from(m_ds->datafile->message_time->cols(mess_cols));
+	m_ds->timeVec = arma::conv_to<std::vector<double>>::from(m_ds->datafile->message_time->cols(mess_cols));
 
 	// Data vector
 	m_ds->dataVec = std::vector<double>(messages.n_cols);
@@ -185,6 +185,9 @@ void PopulatorWorker::run()
 
 	m_ds->populated = true;
 	m_ds->mutex.unlock();
+	
+	//std::cout << "Finished population of " << m_ds->name << std::endl;
+	
 	emit finished(m_ds);
 }
 

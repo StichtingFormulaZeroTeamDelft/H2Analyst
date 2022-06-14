@@ -31,7 +31,7 @@ void TreeView::mouseMoveEvent(QMouseEvent* event)
 	//mimeData->setData(mimeType, data);
 	drag->setMimeData(mimeData);
 
-	Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+	drag->exec(Qt::CopyAction | Qt::MoveAction);
 
 	event->accept(); // By accepting, the event is not propagated to QTreeView to disable item selection by dragging
 }

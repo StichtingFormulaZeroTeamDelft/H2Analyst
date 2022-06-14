@@ -2,7 +2,7 @@
 
 #include "Plottable.h"
 #include "DataStructures.h"
-
+#include "DataOperations.h"
 
 class TimeSeries : public Plottable
 {
@@ -10,7 +10,6 @@ class TimeSeries : public Plottable
 
 	QCPGraph* m_Graph;
 	QCPItemText* m_Label;
-
 	const H2A::Dataset* m_Dataset;
 
 public:
@@ -19,8 +18,6 @@ public:
 	~TimeSeries();
 
 	void setColor(QColor color);
-
-	const std::vector<const H2A::Dataset*> datasets() override;
 
 private slots:
 	void updateLabelPosition();

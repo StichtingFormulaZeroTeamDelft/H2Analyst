@@ -234,9 +234,10 @@ void ReadMessages(char* buffer, size_t& cursor, const std::vector<int32_t>& dime
 
 	// First dT value is the (negative) offset between the startTime and the first message
 	// This value is used to update the startTime of the dataset
-	int16_t t_offset = dt_row->at(0);
+	
+	// TODO: apply time offset on datafile startTime
+	// int16_t t_offset = dt_row->at(0);
 	dt_row->at(0) = 0;
-	// Todo: apply time offset on datafile startTime
 	arma::Row<float> *time_row = new arma::Row<float>(dt_row->size());
 	time_row->at(0) = 0.0;
 	for (size_t col = 1; col < dt_row->size(); ++col)

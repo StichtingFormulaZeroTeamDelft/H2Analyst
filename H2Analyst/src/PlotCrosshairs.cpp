@@ -89,8 +89,8 @@ void Crosshairs::update(QMouseEvent *event)
 void Crosshairs::update(QWheelEvent* event)
 {
 	// Coordinate calculation
-	m_Pos.setX(m_Parent->xAxis->pixelToCoord(event->pos().x()));
-	m_Pos.setY(m_Parent->yAxis->pixelToCoord(event->pos().y()));
+	m_Pos.setX(m_Parent->xAxis->pixelToCoord(event->position().x()));
+	m_Pos.setY(m_Parent->yAxis->pixelToCoord(event->position().y()));
 	this->update();
 }
 

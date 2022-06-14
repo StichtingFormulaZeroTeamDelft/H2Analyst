@@ -1,9 +1,10 @@
 #include "TimeSeries.h"
 
 
-TimeSeries::TimeSeries(QCustomPlot* plot, const H2A::Dataset* dataset) : Plottable(plot),
-m_Dataset(dataset)
+TimeSeries::TimeSeries(QCustomPlot* plot, const H2A::Dataset* dataset) : Plottable(plot)
 {
+	m_Datasets = std::vector<const H2A::Dataset*>({dataset});
+	m_Dataset = dataset;
 
 	// Create QVectors from dataset data
 	QVector<double> x(m_Dataset->timeVec.begin(), m_Dataset->timeVec.end());
@@ -50,12 +51,6 @@ void TimeSeries::setColor(QColor color)
 {
 	m_Graph->setPen(QPen(color));
 	m_Label->setPen(QPen(color));
-}
-
-// Required implementation that return vector with datasets in this plottable
-const std::vector<const H2A::Dataset*> TimeSeries::datasets()
-{
-	return std::vector<const H2A::Dataset*>({ m_Dataset });
 }
 
 // Destructor to make sure plottables are removed from the graph

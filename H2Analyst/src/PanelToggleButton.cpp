@@ -36,18 +36,18 @@ void PanelToggleButton::updateIcon()
     }
 }
 
-void PanelToggleButton::enterEvent(QEvent* event)
+void PanelToggleButton::enterEvent(QEvent*)
 {
     setCursor(Qt::PointingHandCursor);
 }
 
-void PanelToggleButton::leaveEvent(QEvent* event)
+void PanelToggleButton::leaveEvent(QEvent*)
 {
     setCursor(Qt::ArrowCursor);
 }
 
 
-void PanelToggleButton::mousePressEvent(QMouseEvent* event)
+void PanelToggleButton::mousePressEvent(QMouseEvent*)
 {
     emit clicked();
 }

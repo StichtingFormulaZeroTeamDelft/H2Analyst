@@ -30,11 +30,11 @@ namespace H2A
 		float offset = 0.0;
 		float scale = 0.0;
 
-		std::vector<float> timeVec = std::vector<float>();
+		std::vector<double> timeVec = std::vector<double>();
 		std::vector<double> dataVec = std::vector<double>();
 
-		bool populating = false;
-		bool populated = false;
+		bool volatile populating = false;
+		bool volatile populated = false;
 	};
 
 	struct Datafile

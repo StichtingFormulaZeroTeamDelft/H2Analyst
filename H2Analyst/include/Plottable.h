@@ -16,6 +16,7 @@ protected:
 	QCustomPlot* m_Plot;
 	QCPRange m_RangeX;
 	QCPRange m_RangeY;
+	std::vector<const H2A::Dataset*> m_Datasets;
 
 public:
 
@@ -24,7 +25,7 @@ public:
 
 	QCPRange rangeX() { return m_RangeX; };
 	QCPRange rangeY() { return m_RangeY; };
-	virtual const std::vector<const H2A::Dataset*> datasets();
+	const std::vector<const H2A::Dataset*> datasets() { return m_Datasets; };
 
 };
 
