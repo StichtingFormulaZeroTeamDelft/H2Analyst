@@ -9,7 +9,8 @@ m_RangeX(0.0, 10.0),
 m_RangeY(0.0, 10.0),
 m_PaddingX(0.0),
 m_PaddingY(0.0),
-m_LegendEnabled(true)
+m_LegendEnabled(true),
+m_RangeControlEnabled(true)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
 	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom)); // Sets comma as thousand-seperator and period as decimal-point.
@@ -42,14 +43,15 @@ bool PlotWidget::isEmpty()
 
 void PlotWidget::setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel; }
 
-void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, bool replot, PlotType type)
+void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, PlotType type)
 {
 	if (datasets.size() == 0) return;
 	this->clear();
-	this->addPlots(datasets, replot, type);
+	m_Type = type;
+	this->addPlots(datasets, type);
 }
 
-void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, bool replot, PlotType type)
+void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, PlotType type)
 {
 	// If this call is adding plots to existing plots, check if requested type is the same.
 	if (type != m_Type && m_Plottables.size() > 0)
@@ -57,10 +59,7 @@ void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, bool 
 		H2A::Dialog::message("This plot already contains plots of a different type.");
 		return;
 	}
-	else
-	{
-		m_Type = type;
-	}
+	else { m_Type = type; }
 
 	// Make sure datasets are populated
 	for (const auto& dataset : datasets)
@@ -100,13 +99,18 @@ void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, bool 
 	}
 	}
 
-	if (replot) this->plot();
+	this->plot();
+	this->resetView(!m_RangeControlEnabled, true);
 }
 
-
+/**
+* Slot that takes the currently selected datasets from the datapanel and plots them.
+* 
+* @param type Type of plot to create.
+**/
 void PlotWidget::plotSelected(PlotType type)
 {
-	this->setPlots(m_DataPanel->getSelectedDatasets(), true, type);
+	this->setPlots(m_DataPanel->getSelectedDatasets(), type);
 }
 
 // Set plot properties based on the plottables that have been added to it.
@@ -132,10 +136,7 @@ void PlotWidget::plot()
 	m_RangeY = QCPRange(ymin, ymax);
 	//if (m_RangeY.lower > 0.0) m_RangeY.lower = 0.0; // This (almost) always makes sense for visualization
 	m_PaddingX = m_RangeX.size() * RANGE_PADDING_X;
-	m_PaddingY = m_RangeY.size() * RANGE_PADDING_Y;
-
-	this->resetView();
-	
+	m_PaddingY = m_RangeY.size() * RANGE_PADDING_Y;	
 }
 
 void PlotWidget::clear()
@@ -242,20 +243,22 @@ void PlotWidget::dragEnterEvent(QDragEnterEvent* event)
 	event->acceptProposedAction();
 }
 
-
+/**
+* Function that handles what happens when a drag and drop action is released.
+**/
 void PlotWidget::dropEvent(QDropEvent*)
 {
-	// Datasets are dragged into this plot.
-	// If CTRL is pressed, add them to the existing datasets.
-	// Otherwise, replace the datasets by the dragged ones.
+	// Datasets can be dragged into this plot.
+	// If CTRL is pressed while the dropping, add them to the existing datasets.
+	// Otherwise, replace the datasets by the dragged ones and plot as time series.
 
 	if (QApplication::keyboardModifiers() & Qt::ControlModifier)
 	{
-		this->addPlots(m_DataPanel->getSelectedDatasets(), true);
+		this->addPlots(m_DataPanel->getSelectedDatasets(), m_Type);
 	}
 	else
 	{
-		this->plotSelected(PlotType::Time);
+		this->setPlots(m_DataPanel->getSelectedDatasets(), PlotType::Time);
 	}
 }
 
@@ -296,10 +299,11 @@ void PlotWidget::restrictView(const QCPRange&, const QCPRange&)
 }
 
 // Function to reset view to fit all data with padding included
-void PlotWidget::resetView()
+void PlotWidget::resetView(bool x, bool y)
 {
-	this->xAxis->setRange(m_RangeX.lower - m_PaddingX, m_RangeX.upper + m_PaddingX);
-	this->yAxis->setRange(m_RangeY.lower - m_PaddingY, m_RangeY.upper + m_PaddingY);
+	if (!x && !y) return;
+	if (x) this->xAxis->setRange(m_RangeX.lower - m_PaddingX, m_RangeX.upper + m_PaddingX);
+	if (y) this->yAxis->setRange(m_RangeY.lower - m_PaddingY, m_RangeY.upper + m_PaddingY);
 	this->replot();
 }
 

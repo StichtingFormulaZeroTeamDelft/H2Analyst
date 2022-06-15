@@ -132,6 +132,7 @@ void PlotManager::plotTimeAxisChanged(PlotWidget* source)
 void PlotManager::alignTimeAxis(bool align)
 {
 	m_AlignTimeAxis = align;
+	for (const auto& plot : m_Plots) plot->setRangeControlEnabled(m_AlignTimeAxis);
 
 	if (m_AlignTimeAxis && m_Plots.size() > 0) // m_Plots should always have at least 1 plot, but check it to be sure
 	{

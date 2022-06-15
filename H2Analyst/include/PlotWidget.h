@@ -58,12 +58,13 @@ private:
     QCPRange m_RangeY;
     double m_PaddingX;
     double m_PaddingY;
-    
+
+    bool m_RangeControlEnabled;    
 
     void plot();
 
-    void setPlots(std::vector<const H2A::Dataset*> datasets, bool replot = true, PlotType type = PlotType::Time);
-    void addPlots(std::vector<const H2A::Dataset*> datasets, bool replot = true, PlotType type = PlotType::Time);
+    void setPlots(std::vector<const H2A::Dataset*> datasets, PlotType type = PlotType::Time);
+    void addPlots(std::vector<const H2A::Dataset*> datasets, PlotType type = PlotType::Time);
 
     void setAxisLabels();
 
@@ -71,8 +72,9 @@ public:
     PlotWidget(QWidget* parent = nullptr);
 
     void setDataPanel(const DataPanel* datapanel);
+    void setRangeControlEnabled(bool rangeControl) { m_RangeControlEnabled = rangeControl; };
     bool isEmpty();
-    void resetView();
+    void resetView(bool x = true, bool y = true);
 
     const QCPRange currentRangeX() const { return this->xAxis->range(); };
     const QCPRange currentRangeY() const { return this->yAxis->range(); };
