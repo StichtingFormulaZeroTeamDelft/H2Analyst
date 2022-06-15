@@ -132,9 +132,19 @@ void PlotManager::plotTimeAxisChanged(PlotWidget* source)
 void PlotManager::alignTimeAxis(bool align)
 {
 	m_AlignTimeAxis = align;
-	if (align && m_Plots.size() > 0)
+
+	if (m_AlignTimeAxis && m_Plots.size() > 0) // m_Plots should always have at least 1 plot, but check it to be sure
 	{
-		this->plotTimeAxisChanged(m_Plots.front());
+		// Find plot that has smallest time range
+		PlotWidget* ref = m_Plots.front();
+		for (const auto plot : m_Plots)
+		{
+			if (plot->type() != PlotWidget::PlotType::Time) continue; // Only consider time-based plots
+			if (plot->currentRangeX().size() < ref->currentRangeX().size()) ref = plot;
+		}
+
+		// Call slot to align other axis
+		this->plotTimeAxisChanged(ref);
 	}
 }
 

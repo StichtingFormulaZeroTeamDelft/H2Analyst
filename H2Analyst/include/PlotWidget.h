@@ -74,6 +74,10 @@ public:
     bool isEmpty();
     void resetView();
 
+    const QCPRange currentRangeX() const { return this->xAxis->range(); };
+    const QCPRange currentRangeY() const { return this->yAxis->range(); };
+    const PlotWidget::PlotType type() const { return m_Type; };
+
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
