@@ -15,9 +15,9 @@
 #include "TimeSeries.h"
 #include "XYSeries.h"
 #include "PlotCrosshairs.h"
+#include "PlotManager.h"
 
-//class DataPanel;
-
+class PlotManager;
 class Crosshairs;
 
 class PlotWidget :
@@ -33,6 +33,7 @@ public:
 
 private:
 
+    PlotManager* m_PlotManager;
     PlotType m_Type;
 
     // Padding around min and max data on the ranges (fractional)
@@ -59,8 +60,6 @@ private:
     double m_PaddingX;
     double m_PaddingY;
 
-    bool m_RangeControlEnabled;    
-
     void plot();
 
     void setPlots(std::vector<const H2A::Dataset*> datasets, PlotType type = PlotType::Time);
@@ -69,10 +68,9 @@ private:
     void setAxisLabels();
 
 public:
-    PlotWidget(QWidget* parent = nullptr);
+    PlotWidget(PlotManager* plotManager);
 
     void setDataPanel(const DataPanel* datapanel);
-    void setRangeControlEnabled(bool rangeControl) { m_RangeControlEnabled = rangeControl; };
     bool isEmpty();
     void resetView(bool x = true, bool y = true);
 
@@ -93,6 +91,8 @@ signals:
     void mouseLeft();
     void timeRangeChanged(PlotWidget* source);
     void resetViewsRequested();
+    void dataAdded(PlotWidget* source);
+    void dataCleared(PlotWidget* source);
 
 private slots:
     void clear();

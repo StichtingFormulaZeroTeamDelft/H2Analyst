@@ -1,7 +1,8 @@
 #include "PlotWidget.h"
 
 
-PlotWidget::PlotWidget(QWidget* parent) : QCustomPlot(parent),
+PlotWidget::PlotWidget(PlotManager* plotManager) : QCustomPlot(plotManager),
+m_PlotManager(plotManager),
 m_Type(PlotType::Time),
 m_DataPanel(nullptr),
 m_Plottables(),
@@ -9,8 +10,7 @@ m_RangeX(0.0, 10.0),
 m_RangeY(0.0, 10.0),
 m_PaddingX(0.0),
 m_PaddingY(0.0),
-m_LegendEnabled(true),
-m_RangeControlEnabled(true)
+m_LegendEnabled(true)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
 	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom)); // Sets comma as thousand-seperator and period as decimal-point.
@@ -100,7 +100,9 @@ void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, PlotT
 	}
 
 	this->plot();
-	this->resetView(!m_RangeControlEnabled, true);
+	bool resetX = !m_PlotManager->aligningTimeAxis() || m_PlotManager->empty();
+	this->resetView(resetX, true);
+	emit this->dataAdded(this);
 }
 
 /**
@@ -155,6 +157,7 @@ void PlotWidget::clear()
 	this->yAxis->setRange(m_RangeY);
 
 	this->replot();
+	emit this->dataCleared(this);
 }
 
 void PlotWidget::setAxisLabels()

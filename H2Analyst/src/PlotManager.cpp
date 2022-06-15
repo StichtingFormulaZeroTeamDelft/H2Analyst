@@ -3,8 +3,10 @@
 PlotManager::PlotManager(QWidget* parent) : QWidget(parent),
 m_VLayout(new QVBoxLayout),
 m_DataPanel(nullptr),
+m_Empty(true),
 m_AlignTimeAxis(true),
-m_BusyAligning(false)
+m_BusyAligning(false),
+m_TimeRange(0.0, 10.0)
 {
 	// Create layouts
 	QHBoxLayout *HLayout = new QHBoxLayout();
@@ -23,6 +25,8 @@ PlotWidget* PlotManager::createPlot()
 	PlotWidget* plot = new PlotWidget(this);
 	connect(plot, SIGNAL(timeRangeChanged(PlotWidget*)), this, SLOT(plotTimeAxisChanged(PlotWidget*)));
 	connect(plot, &PlotWidget::resetViewsRequested, [=]() { this->resetViews(); });
+	connect(plot, SIGNAL(dataAdded(PlotWidget*)), this, SLOT(plotDataAdded(PlotWidget*)));
+	connect(plot, SIGNAL(dataCleared(PlotWidget*)), this, SLOT(plotDataRemoved(PlotWidget*)));
 	m_Plots.push_back(plot);
 	return plot;
 }
@@ -110,17 +114,18 @@ void PlotManager::clearLayout(QLayout* layout) {
 
 void PlotManager::plotTimeAxisChanged(PlotWidget* source)
 {
+	if (source->isEmpty()) return;
+
 	if (m_AlignTimeAxis && !m_BusyAligning)
 	{
 		m_BusyAligning = true;
-
-		const QCPRange newRange = source->xAxis->range();
+		m_TimeRange = source->xAxis->range();
 
 		// Change all plots
 		for (const auto& plot : m_Plots)
 		{
 			if (plot == source || plot->isEmpty()) continue;
-			plot->xAxis->setRange(newRange);
+			plot->xAxis->setRange(m_TimeRange);
 			plot->replot();
 		}
 
@@ -132,7 +137,6 @@ void PlotManager::plotTimeAxisChanged(PlotWidget* source)
 void PlotManager::alignTimeAxis(bool align)
 {
 	m_AlignTimeAxis = align;
-	for (const auto& plot : m_Plots) plot->setRangeControlEnabled(m_AlignTimeAxis);
 
 	if (m_AlignTimeAxis && m_Plots.size() > 0) // m_Plots should always have at least 1 plot, but check it to be sure
 	{
@@ -156,4 +160,40 @@ void PlotManager::resetViews()
 	{
 		plot->resetView();
 	}
+}
+
+/**
+* Slot that is called when data is added from any of the plots in this manager.
+* 
+* @param source PlotWidget where signal was triggered from.
+**/
+void PlotManager::plotDataAdded(PlotWidget* source)
+{
+	std::cout << m_TimeRange.lower << " - " << m_TimeRange.upper << std::endl;
+
+	// Set empty variable
+	m_Empty = true;
+	for (const auto& plot : m_Plots)
+		if (!plot->isEmpty()) m_Empty = false;
+
+	if (m_AlignTimeAxis && source->type() == PlotWidget::PlotType::Time)
+	{
+		source->xAxis->setRange(m_TimeRange);
+		source->replot();
+	}
+
+}
+
+/**
+* Slot that is called when data is removed from any of the plots in this manager.
+*
+* @param source PlotWidget where signal was triggered from.
+**/
+void PlotManager::plotDataRemoved(PlotWidget* source)
+{
+	// Set empty variable
+	m_Empty = true;
+	for (const auto& plot : m_Plots)
+		if (!plot->isEmpty()) m_Empty = false;
+
 }
