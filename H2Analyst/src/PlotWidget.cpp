@@ -152,6 +152,8 @@ void PlotWidget::clear()
 	m_RangeY = QCPRange(0.0, 10.0);
 	this->xAxis->setRange(m_RangeX);
 	this->yAxis->setRange(m_RangeY);
+
+	this->replot();
 }
 
 void PlotWidget::setAxisLabels()
