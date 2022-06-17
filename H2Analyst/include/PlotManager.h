@@ -24,35 +24,33 @@ private:
     std::vector<QHBoxLayout*> m_HLayouts;
 
     const DataPanel* m_DataPanel;
+    std::vector<PlotWidget*> m_Plots;
 
-    bool m_Empty;
     bool m_AlignTimeAxis;
     bool m_BusyAligning;
-    QCPRange m_TimeRange;
-
-    std::vector<PlotWidget*> m_Plots;
+    
+    double m_TimeCursorTime;
+    bool m_TimeCursorEnabled;
 
     PlotWidget* createPlot();
     void clearLayout(QLayout* layout);
     void setPlotLayoutRC(uint8_t rows, uint8_t cols);
     void resetViews();
 
-
 public:
 
     PlotManager(QWidget *parent = nullptr);
     void setDataPanel(const DataPanel* datapanel);
     bool aligningTimeAxis() { return m_AlignTimeAxis; };
-    bool empty() { return m_Empty; };
+    bool isEmpty();
 
 
 public slots:
     void setPlotLayoutDialog();
-    void plotTimeAxisChanged(PlotWidget* source);
-    void alignTimeAxis(bool align);
+    void alignTimeAxis(PlotWidget* source);
+    void setAlignTimeAxis(bool align);
+    void setTimeCursorEnabled(bool enabled);
+    void setTimeCursorTime(double time);
 
-private slots:
-    void plotDataAdded(PlotWidget* source);
-    void plotDataRemoved(PlotWidget* source);
 
 };

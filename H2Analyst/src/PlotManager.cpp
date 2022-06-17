@@ -3,10 +3,9 @@
 PlotManager::PlotManager(QWidget* parent) : QWidget(parent),
 m_VLayout(new QVBoxLayout),
 m_DataPanel(nullptr),
-m_Empty(true),
 m_AlignTimeAxis(true),
 m_BusyAligning(false),
-m_TimeRange(0.0, 10.0)
+m_TimeCursorTime(0.0)
 {
 	// Create layouts
 	QHBoxLayout *HLayout = new QHBoxLayout();
@@ -20,48 +19,56 @@ m_TimeRange(0.0, 10.0)
 	this->setLayout(m_VLayout);
 }
 
-PlotWidget* PlotManager::createPlot()
-{
+/**
+* Convenience function for creating a new plot, setting its members and connecting signals.
+**/
+PlotWidget* PlotManager::createPlot() {
 	PlotWidget* plot = new PlotWidget(this);
+	plot->setDataPanel(m_DataPanel);
+	m_Plots.push_back(plot);
+
 	connect(plot, SIGNAL(timeRangeChanged(PlotWidget*)), this, SLOT(plotTimeAxisChanged(PlotWidget*)));
 	connect(plot, &PlotWidget::resetViewsRequested, [=]() { this->resetViews(); });
 	connect(plot, SIGNAL(dataAdded(PlotWidget*)), this, SLOT(plotDataAdded(PlotWidget*)));
 	connect(plot, SIGNAL(dataCleared(PlotWidget*)), this, SLOT(plotDataRemoved(PlotWidget*)));
-	m_Plots.push_back(plot);
+	
 	return plot;
 }
 
-void PlotManager::setDataPanel(const DataPanel* datapanel)
-{
+/**
+* Function to set the DataPanel of this manager, as well as all its plots.
+**/
+void PlotManager::setDataPanel(const DataPanel* datapanel) {
 	m_DataPanel = datapanel;
 	for (const auto& plot : m_Plots)
-	{
 		plot->setDataPanel(m_DataPanel);
-	}
 }
 
-// This function changes the plot layout via the plot layout dialog
-void PlotManager::setPlotLayoutDialog()
-{
+/**
+* Function that creates and executes the dialog for setting the layout.
+**/
+void PlotManager::setPlotLayoutDialog() {
 	DialogPlotLayout dialog(this);
 	dialog.exec();
 	if (dialog.result() == QDialog::Accepted)
-	{
 		this->setPlotLayoutRC(dialog.m_SelectedLayout.front(), dialog.m_SelectedLayout.back());
-	}
 }
 
-// Used to set plot layout directly with a given number of rows and colums
-void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols)
-{
+/**
+* Function that sets the layout of plots to a given number of rows and colums.
+* It re-uses plots if they are available from the previous layout. If those do not fill the new layout, create new empty plots.
+*
+* @param rows Number of rows in new layout.
+* @param cols Number of cols in new layout.
+**/
+void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 	// Delete current layouts and remove plots (does not delete plots from memory, only hides them to re-use later)
 	this->clearLayout(m_VLayout);
 
 	// Delete empty plots from memory
 	m_Plots.erase(std::remove_if(m_Plots.begin(), m_Plots.end(), [](PlotWidget* plot) { return plot->isEmpty(); }), m_Plots.end());
 
-
-	// Add new horizontal layouts with empty plots
+	// Create new layout and fill it with existing or new plots
 	uint8_t plot_counter = 0;
 	for (uint8_t row_i = 0; row_i < rows; ++ row_i)
 	{
@@ -86,16 +93,17 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols)
 	// Delete plots that don't fit new layout from memory
 	if (m_Plots.size() > rows * cols)
 		m_Plots.erase(m_Plots.begin() + rows * cols, m_Plots.end());
-
-	// Set datapanel
-	this->setDataPanel(m_DataPanel);
 }
 
 
-// Recursive function to delete all layouts and items contained in a given layout
+/**
+* Recursive function to delete all layouts and items contained in a given layout.
+* 
+* @param layout Layout to clear.
+**/
 void PlotManager::clearLayout(QLayout* layout) {
-	if (layout == NULL)
-		return;
+	if (layout == nullptr) return;
+
 	QLayoutItem* item;
 	while ((item = layout->takeAt(0))) {
 		if (item->layout()) {
@@ -103,7 +111,6 @@ void PlotManager::clearLayout(QLayout* layout) {
 			delete item->layout();
 		}
 		else if (item->widget()) {
-			// Remove widget from layout and hide it.
 			layout->removeWidget(item->widget());
 			item->widget()->hide();
 		}
@@ -111,21 +118,27 @@ void PlotManager::clearLayout(QLayout* layout) {
 	delete item;
 }
 
-
-void PlotManager::plotTimeAxisChanged(PlotWidget* source)
-{
+/**
+* Slot that can be called to align the time axis of all plots to the time axis of the given plot.
+* 
+* @param source Plot to align time axis of other to.
+**/
+void PlotManager::alignTimeAxis(PlotWidget* source) {
 	if (source->isEmpty()) return;
 
 	if (m_AlignTimeAxis && !m_BusyAligning)
 	{
-		m_BusyAligning = true;
-		m_TimeRange = source->xAxis->range();
+		// Setting ranges of other plots causes this slots to be called recursively.
+		// m_BusyAligning is used to ignore the calls that are caused by the original call.
+		m_BusyAligning = true; 
 
-		// Change all plots
+		// Change time axis of all plots to match the source plot
 		for (const auto& plot : m_Plots)
 		{
-			if (plot == source || plot->isEmpty()) continue;
-			plot->xAxis->setRange(m_TimeRange);
+			// Check if plot should be time-aligned
+			if (plot == source || plot->isEmpty() || !plot->timeAxisAlignable()) continue;
+
+			plot->xAxis->setRange(source->xAxis->range());
 			plot->replot();
 		}
 
@@ -133,12 +146,15 @@ void PlotManager::plotTimeAxisChanged(PlotWidget* source)
 	}
 }
 
-
-void PlotManager::alignTimeAxis(bool align)
-{
+/**
+* Slot that enabled time axis alignment between the plots in this manager.
+*
+* @param align Enable time axis alignment.
+*/
+void PlotManager::setAlignTimeAxis(bool align) {
 	m_AlignTimeAxis = align;
 
-	if (m_AlignTimeAxis && m_Plots.size() > 0) // m_Plots should always have at least 1 plot, but check it to be sure
+	if (m_AlignTimeAxis && m_Plots.size() > 0) // m_Plots should be impossible to be empty, but check to be sure
 	{
 		// Find plot that has smallest time range
 		PlotWidget* ref = m_Plots.front();
@@ -149,51 +165,44 @@ void PlotManager::alignTimeAxis(bool align)
 		}
 
 		// Call slot to align other axis
-		this->plotTimeAxisChanged(ref);
+		this->alignTimeAxis(ref);
 	}
 }
 
-
-void PlotManager::resetViews()
-{
+/**
+* Function that reset the views of all plots in this manager.
+**/
+void PlotManager::resetViews() {
 	for (const auto& plot : m_Plots)
-	{
 		plot->resetView();
-	}
 }
 
 /**
-* Slot that is called when data is added from any of the plots in this manager.
-* 
-* @param source PlotWidget where signal was triggered from.
+* Function that return true if all plots in this manager are empty.
 **/
-void PlotManager::plotDataAdded(PlotWidget* source)
-{
-	std::cout << m_TimeRange.lower << " - " << m_TimeRange.upper << std::endl;
-
-	// Set empty variable
-	m_Empty = true;
+bool PlotManager::isEmpty() {
 	for (const auto& plot : m_Plots)
-		if (!plot->isEmpty()) m_Empty = false;
-
-	if (m_AlignTimeAxis && source->type() == PlotWidget::PlotType::Time)
-	{
-		source->xAxis->setRange(m_TimeRange);
-		source->replot();
-	}
-
+		if (!plot->isEmpty()) return false;
+	return true;
 }
 
 /**
-* Slot that is called when data is removed from any of the plots in this manager.
+* Function to set the time of the time cursors of the plots in this manager.
 *
-* @param source PlotWidget where signal was triggered from.
-**/
-void PlotManager::plotDataRemoved(PlotWidget* source)
-{
-	// Set empty variable
-	m_Empty = true;
+* @param time Time to set the time cursor to.
+*/
+void PlotManager::setTimeCursorTime(double time) {
+	m_TimeCursorTime = time;
 	for (const auto& plot : m_Plots)
-		if (!plot->isEmpty()) m_Empty = false;
+		plot->timeCursor()->setTime(time);
+}
 
+/**
+* Function to enable or disable the time cursors in the plots of this manager.
+*
+* @param enabled Enable time cursors.
+*/
+void PlotManager::setTimeCursorEnabled(bool enabled) {
+	for (const auto& plot : m_Plots)
+		plot->timeCursor()->setEnabled(enabled);
 }
