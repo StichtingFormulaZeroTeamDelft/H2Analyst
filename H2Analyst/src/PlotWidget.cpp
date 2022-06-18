@@ -373,3 +373,9 @@ void PlotWidget::updateRangeAndPadding() {
 	m_RangeLimitY = QCPRange(ySpan.lower - yPadding, ySpan.upper + yPadding);
 }
 
+/**
+*
+**/
+bool PlotWidget::timeAxisAlignable() {
+	return m_Type == PlotType::Time && !this->isEmpty();
+}

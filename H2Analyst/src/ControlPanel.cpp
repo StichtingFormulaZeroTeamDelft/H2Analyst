@@ -13,7 +13,7 @@ ControlPanel::ControlPanel(QWidget* parent) : QWidget(parent)
 
 	m_CbTimeAlign = new QCheckBox("Align time axis", this);
 	m_CbTimeAlign->setCheckState(Qt::Checked);
-	connect(m_CbTimeAlign, &QCheckBox::stateChanged, [=]() { emit timeAlignmentEnabled(m_CbTimeAlign->checkState() == Qt::Checked); });
+	connect(m_CbTimeAlign, &QCheckBox::stateChanged, [=]() { emit timeAlignEnable(m_CbTimeAlign->checkState() == Qt::Checked); });
 
 	m_CbTimeCursor = new QCheckBox("Enable time cursor", this);
 	m_CbTimeCursor->setCheckState(Qt::Unchecked);

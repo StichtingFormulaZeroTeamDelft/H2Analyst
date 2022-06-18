@@ -35,7 +35,7 @@ private:
     PlotWidget* createPlot();
     void clearLayout(QLayout* layout);
     void setPlotLayoutRC(uint8_t rows, uint8_t cols);
-    void alignTimeAxis(PlotWidget* ref);
+    void alignTimeAxis(PlotWidget* ref = nullptr);
 
 public:
 

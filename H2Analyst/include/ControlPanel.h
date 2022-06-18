@@ -36,7 +36,7 @@ signals:
     void pbLoad();
     void pbPlotLayout();
     void pbExport();
-    void timeAlignmentEnabled(bool align);
+    void timeAlignEnable(bool align);
     void timeCursorEnabled(bool align);
     void timeCursorSet(double time);
 

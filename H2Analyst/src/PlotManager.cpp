@@ -123,15 +123,34 @@ void PlotManager::clearLayout(QLayout* layout) {
 **/
 void PlotManager::alignTimeAxis(PlotWidget* ref) {
 	
-	if (!m_BusyAligning && !ref->isEmpty())
+	// Avoid aligning time axis when a plot is cleared
+	if (ref != nullptr) {
+		if (ref->isEmpty()) return;
+	}
+
+	if (!m_BusyAligning)
 	{
 		// Setting ranges of other plots causes this slots to be called recursively.
 		// m_BusyAligning is used to ignore the calls that will be caused by this original call.
 		m_BusyAligning = true;
 
+		// If no ref is given, find the plot with the smallest time axis range and use that.
+		if (ref == nullptr) {
+			QCPRange range(QCPRange::minRange, QCPRange::maxRange);
+			ref = nullptr;
+			for (const auto& plot : m_Plots) {
+				if (plot->timeAxisAlignable() && plot->xAxis->range().size() < range.size()) {
+					range = plot->xAxis->range();
+					ref = plot;
+				}
+			}
+			if (ref == nullptr) ref = m_Plots.front(); // To avoid errors
+		}
+
+		// Set plots to match the reference.
 		for (const auto& plot : m_Plots) {
 			// Check if plot should be time-aligned
-			if (plot->isEmpty() || !plot->timeAxisAlignable() || plot == ref) continue;
+			if (!plot->timeAxisAlignable() || plot == ref) continue;
 			plot->xAxis->setRange(ref->xAxis->range());
 			//plot->zoomYToData();
 			plot->replot();
@@ -148,10 +167,7 @@ void PlotManager::alignTimeAxis(PlotWidget* ref) {
 **/
 void PlotManager::setAlignTimeAxisEnabled(bool align) {
 	m_AlignTimeAxisEnabled = align;
-	if (m_AlignTimeAxisEnabled) {
-
-		//this->alignTimeAxis();
-	}
+	if (m_AlignTimeAxisEnabled) this->alignTimeAxis();
 }
 
 /**
@@ -212,7 +228,7 @@ void PlotManager::timeAxisChanged(PlotWidget* source) {
 bool PlotManager::getOtherTimeRange(PlotWidget* source, QCPRange& range) const {
 	if (!m_AlignTimeAxisEnabled) return false;
 	for (const auto& plot : m_Plots) {
-		if (plot != source && !plot->isEmpty() && plot->timeAxisAlignable()) {
+		if (plot != source && plot->timeAxisAlignable()) {
 			range = plot->xAxis->range();
 			return true;
 		}

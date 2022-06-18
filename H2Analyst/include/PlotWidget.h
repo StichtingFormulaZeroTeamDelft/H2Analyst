@@ -78,7 +78,7 @@ public:
     bool isEmpty();
     void zoomYToData();
     void resetView(bool x = true, bool y = true);
-    bool timeAxisAlignable() { return m_Type == PlotType::Time; };
+    bool timeAxisAlignable();
 
     const QCPRange currentRangeX() const { return this->xAxis->range(); };
     const QCPRange currentRangeY() const { return this->yAxis->range(); };
