@@ -3,11 +3,14 @@
 #include <QDialog>
 #include <QGridLayout>
 #include <QPushButton>
+#include <QStylePainter>
+#include <QStyleOptionButton>
+
 
 #include <iostream>
 #include <vector>
 
-class DialogPlotLayoutButton;
+class DPLButton;
 
 class DialogPlotLayout :
 	public QDialog
@@ -18,8 +21,8 @@ class DialogPlotLayout :
 	const uint8_t N_COLS = 4;
 	const uint8_t N_ROWS = 4;
 
-
 	QGridLayout* m_Layout;
+	std::vector<DPLButton*> m_Buttons;
 
 public:
 		
@@ -27,23 +30,33 @@ public:
 	DialogPlotLayout(QWidget* parent = nullptr);
 
 private slots:
-	void buttonClicked(DialogPlotLayoutButton* sender);
+	void btClicked(DPLButton* source);
+	void btEntered(DPLButton* source);
+	void btLeft(DPLButton* source);
 
 };
 
 
-class DialogPlotLayoutButton : public QPushButton
+class DPLButton : public QPushButton
 {
 
 	Q_OBJECT
 
 public:
-	uint8_t m_Row;
-	uint8_t m_Col;
-	DialogPlotLayoutButton(uint8_t& row, uint8_t& col, QWidget* parent = nullptr);
+	uint8_t row;
+	uint8_t col;
+	bool highlight;
+	DPLButton(uint8_t& r, uint8_t& c, DialogPlotLayout* parent = nullptr);
+
+protected:
+	void paintEvent(QPaintEvent* event) override;
+	void enterEvent(QEvent* event) override { emit this->btEntered(this); };
+	void leaveEvent(QEvent* event) override { emit this->btLeft(this); };
 
 signals:
-	void btClicked(DialogPlotLayoutButton* sender);
+	void btClicked(DPLButton* source);
+	void btEntered(DPLButton* source);
+	void btLeft(DPLButton* source);
 
 };
 
