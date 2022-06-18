@@ -5,6 +5,7 @@ m_VLayout(new QVBoxLayout),
 m_DataPanel(nullptr),
 m_AlignTimeAxisEnabled(true),
 m_BusyAligning(false),
+m_TimeCursorEnabled(false),
 m_TimeCursorTime(0.0)
 {
 	// Create layouts
@@ -196,6 +197,7 @@ void PlotManager::setTimeCursorTime(double time) {
 	m_TimeCursorTime = time;
 	for (const auto& plot : m_Plots)
 		plot->timeCursor()->setTime(time);
+	emit this->timeCursurTimeChanged(m_TimeCursorTime);
 }
 
 /**
@@ -204,6 +206,7 @@ void PlotManager::setTimeCursorTime(double time) {
 * @param enabled Enable time cursors.
 **/
 void PlotManager::setTimeCursorEnabled(bool enabled) {
+	m_TimeCursorEnabled = enabled;
 	for (const auto& plot : m_Plots)
 		plot->timeCursor()->setEnabled(enabled);
 }

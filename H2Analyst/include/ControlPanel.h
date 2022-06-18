@@ -36,11 +36,11 @@ signals:
     void pbLoad();
     void pbPlotLayout();
     void pbExport();
-    void timeAlignEnable(bool align);
-    void timeCursorEnabled(bool align);
-    void timeCursorSet(double time);
+    void setTimeAlignEnable(bool align);
+    void setTimeCursorEnable(bool align);
+    void setTimeCursorTime(double time);
 
 public slots:
-    void setTimeCursorTime(double time);
+    void setTimeCursorTimeInputbox(double time);
 };
 

@@ -19,7 +19,6 @@ class TimeCursor : public QObject
 	QCPItemLine* m_LineV;
 	std::vector<QCPItemText*> m_Labels;
 
-	void draw();
 
 public:
 
@@ -28,6 +27,7 @@ public:
 	bool enabled() { return m_Enabled; };
 
 public slots:
+	void draw();
 	void setEnabled(bool enabled);
 	void enable();
 	void disable();

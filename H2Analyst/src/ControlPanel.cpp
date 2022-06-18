@@ -13,15 +13,15 @@ ControlPanel::ControlPanel(QWidget* parent) : QWidget(parent)
 
 	m_CbTimeAlign = new QCheckBox("Align time axis", this);
 	m_CbTimeAlign->setCheckState(Qt::Checked);
-	connect(m_CbTimeAlign, &QCheckBox::stateChanged, [=]() { emit timeAlignEnable(m_CbTimeAlign->checkState() == Qt::Checked); });
+	connect(m_CbTimeAlign, &QCheckBox::stateChanged, [=]() { emit setTimeAlignEnable(m_CbTimeAlign->checkState() == Qt::Checked); });
 
 	m_CbTimeCursor = new QCheckBox("Enable time cursor", this);
 	m_CbTimeCursor->setCheckState(Qt::Unchecked);
-	connect(m_CbTimeCursor, &QCheckBox::stateChanged, [=]() { emit timeCursorEnabled(m_CbTimeCursor->checkState() == Qt::Checked); });
+	connect(m_CbTimeCursor, &QCheckBox::stateChanged, [=]() { emit setTimeCursorEnable(m_CbTimeCursor->checkState() == Qt::Checked); });
 
 	m_LeTimeCursor = new QLineEdit(this);
 	connect(m_LeTimeCursor, &QLineEdit::returnPressed, [=]() {
-		emit this->timeCursorSet(std::stod(m_LeTimeCursor->text().toStdString()));
+		emit this->setTimeCursorTime(std::stod(m_LeTimeCursor->text().toStdString()));
 		m_CbTimeCursor->setChecked(true);
 		});
 
@@ -37,7 +37,7 @@ ControlPanel::ControlPanel(QWidget* parent) : QWidget(parent)
 }
 
 
-void ControlPanel::setTimeCursorTime(double time) {
+void ControlPanel::setTimeCursorTimeInputbox(double time) {
 	std::stringstream ss;
 	ss << std::fixed << std::setprecision(2) << time;
 	m_LeTimeCursor->setText(QString(ss.str().c_str()));

@@ -53,10 +53,10 @@ H2Analyst::H2Analyst(QWidget* parent)
     connect(m_ControlPanel, SIGNAL(pbLoad()), this, SLOT(openFiles()));
     connect(m_ControlPanel, SIGNAL(pbPlotLayout()), m_PlotManager, SLOT(setPlotLayoutDialog()));
     connect(m_ControlPanel, SIGNAL(pbExport()), this, SLOT(exportDatasets()));
-    connect(m_ControlPanel, SIGNAL(timeAlignEnable(bool)), m_PlotManager, SLOT(setAlignTimeAxisEnabled(bool)));
-    connect(m_ControlPanel, SIGNAL(timeCursorEnabled(bool)), m_PlotManager, SIGNAL(setTimeCursorEnabled(bool)));
-    connect(m_ControlPanel, SIGNAL(timeCursorSet(double)), m_PlotManager, SLOT(setTimeCursor(double)));
-    connect(m_PlotManager, SIGNAL(timeCursorMoved(double)), m_ControlPanel, SLOT(setTimeCursorTime(double)));
+    connect(m_ControlPanel, SIGNAL(setTimeAlignEnable(bool)), m_PlotManager, SLOT(setAlignTimeAxisEnabled(bool)));
+    connect(m_ControlPanel, SIGNAL(setTimeCursorEnable(bool)), m_PlotManager, SLOT(setTimeCursorEnabled(bool)));
+    connect(m_ControlPanel, SIGNAL(setTimeCursorTime(double)), m_PlotManager, SLOT(setTimeCursorTime(double)));
+    connect(m_PlotManager, SIGNAL(timeCursurTimeChanged(double)), m_ControlPanel, SLOT(setTimeCursorTimeInputbox(double)));
 
 
     std::cout << "H2Analyst has been started" << std::endl;

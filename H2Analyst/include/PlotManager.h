@@ -44,6 +44,8 @@ public:
     bool aligningTimeAxis() { return m_AlignTimeAxisEnabled; };
     bool isEmpty();
     bool getOtherTimeRange(PlotWidget* source, QCPRange& range) const;
+    const bool timeCursorEnabled() const { return m_TimeCursorEnabled; };
+    const double timeCursorTime() const { return m_TimeCursorTime; };
 
 public slots:
     void setPlotLayoutDialog();
@@ -53,5 +55,7 @@ public slots:
     void resetAllViews();
     void timeAxisChanged(PlotWidget* source);
 
+signals:
+    void timeCursurTimeChanged(double time);
 
 };

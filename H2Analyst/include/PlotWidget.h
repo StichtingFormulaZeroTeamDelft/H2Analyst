@@ -74,8 +74,8 @@ private:
 public:
     PlotWidget(PlotManager* plotManager);
 
-    void setDataPanel(const DataPanel* datapanel);
-    bool isEmpty();
+    void setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel; };
+    bool isEmpty() { return m_Plottables.size() == 0; };
     void zoomYToData();
     void resetView(bool x = true, bool y = true);
     bool timeAxisAlignable();

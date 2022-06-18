@@ -13,17 +13,18 @@ m_Enabled(false)
 	m_LineV = new QCPItemLine(m_Plot);
 	m_LineV->setLayer(m_Layer);
 
-	connect(m_Plot, &PlotWidget::wheelMoved, this, &TimeCursor::draw);
-	connect(m_Plot->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(draw()));
-	connect(m_Plot->yAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(draw()));
+	connect(m_Plot, SIGNAL(afterReplot()), this, SLOT(draw()));
 
 }
 
+/**
+* Draw time cursor on its plot.
+**/
 void TimeCursor::draw()
 {
 	if (!m_Enabled) return;
 
-	// Remove horizontal lines
+	// Remove current labels
 	for (const auto& label : m_Labels)
 		m_Plot->removeItem(label);
 	m_Labels.clear();
@@ -74,12 +75,18 @@ void TimeCursor::draw()
 	m_Layer->replot();
 }
 
-
+/**
+* Set the time on which the time cursor is placed.
+**/
 void TimeCursor::setTime(double time) {
 	m_Time = time;
 	this->draw();
 }
 
+
+/**
+* Enable or disable time cursor.
+**/
 void TimeCursor::setEnabled(bool enable)
 {
 	m_Enabled = enable;
@@ -94,10 +101,16 @@ void TimeCursor::setEnabled(bool enable)
 	}
 }
 
+/**
+* Enable time cursor.
+**/
 void TimeCursor::enable() {
 	this->setEnabled(true);
 }
 
+/**
+* Disable time cursor.
+**/
 void TimeCursor::disable() {
 	this->setEnabled(false);
 }

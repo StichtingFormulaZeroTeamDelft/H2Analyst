@@ -19,6 +19,8 @@ m_LegendEnabled(true)
 
 	// Time cursor
 	m_TimeCursor = new TimeCursor(this);
+	m_TimeCursor->setEnabled(m_PlotManager->timeCursorEnabled());
+	m_TimeCursor->setTime(m_PlotManager->timeCursorTime());
 
 	// Right-click menu
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -33,17 +35,17 @@ m_LegendEnabled(true)
 	connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&, const QCPRange&)), this, SLOT(restrictViewX(const QCPRange&, const QCPRange&)));
 	connect(this->yAxis, SIGNAL(rangeChanged(const QCPRange&, const QCPRange&)), this, SLOT(restrictViewY(const QCPRange&, const QCPRange&)));
 
+	this->replot();
+
 }
 
-bool PlotWidget::isEmpty()
-{
-	return m_Plottables.size() == 0;
-}
-
-void PlotWidget::setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel; }
-
-void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, PlotType type)
-{
+/**
+* Function that clears the current plots and adds the supplied list of datasets as plots of given type.
+* 
+* @param datasets Vector of datasets to add.
+* @param type Type of plot to create.
+**/
+void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, PlotType type) {
 	if (datasets.size() == 0) return;
 	if (!this->isEmpty()) this->clear();
 	this->addPlots(datasets, type);
@@ -252,8 +254,9 @@ void PlotWidget::restrictView(const QCPRange& newRange, const QCPRange& oldRange
 	bool panning = std::abs(newRange.size() / oldRange.size() - 1) < 1e-5;
 	QCPRange limit = (axis == this->xAxis) ? m_RangeLimitX : m_RangeLimitY;
 	QCPRange correctedRange = newRange.bounded(limit.lower, limit.upper);
-	if (correctedRange != newRange)
+	if (correctedRange != newRange) {
 		axis->setRange(correctedRange);
+	}
 }
 
 /**
@@ -374,7 +377,8 @@ void PlotWidget::updateRangeAndPadding() {
 }
 
 /**
-*
+* This function returns whether this plot has a time axis that can be aligned.
+* Used by the plotManager when aligning time axis of all plots.
 **/
 bool PlotWidget::timeAxisAlignable() {
 	return m_Type == PlotType::Time && !this->isEmpty();
