@@ -52,8 +52,11 @@ H2Analyst::H2Analyst(QWidget* parent)
     
     connect(m_ControlPanel, SIGNAL(pbLoad()), this, SLOT(openFiles()));
     connect(m_ControlPanel, SIGNAL(pbPlotLayout()), m_PlotManager, SLOT(setPlotLayoutDialog()));
-    connect(m_ControlPanel, SIGNAL(alignTimeAxis(bool)), m_PlotManager, SLOT(alignTimeAxis(bool)));
-
+    connect(m_ControlPanel, SIGNAL(pbExport()), this, SLOT(exportDatasets()));
+    connect(m_ControlPanel, SIGNAL(timeAlignmentEnabled(bool)), m_PlotManager, SLOT(alignTimeAxis(bool)));
+    connect(m_ControlPanel, SIGNAL(timeCursorEnabled(bool)), m_PlotManager, SIGNAL(setTimeCursorEnabled(bool)));
+    connect(m_ControlPanel, SIGNAL(timeCursorSet(double)), m_PlotManager, SLOT(setTimeCursor(double)));
+    connect(m_PlotManager, SIGNAL(timeCursorMoved(double)), m_ControlPanel, SLOT(setTimeCursorTime(double)));
 
 
     std::cout << "H2Analyst has been started" << std::endl;
@@ -86,6 +89,15 @@ void H2Analyst::hideSidePanel()
     }
 }
 
+
+void H2Analyst::exportDatasets()
+{
+    const std::vector<const H2A::Dataset*> datasets = m_DataPanel->getSelectedDatasets();
+    for (const auto& dataset : datasets) {
+        if (!dataset->populated) m_DataPanel->requestDatasetPopulation(dataset, true);
+    }
+    H2A::Export::CSV(datasets, "test.csv");
+}
 
 void H2Analyst::openFiles()
 {

@@ -48,7 +48,7 @@ void H2A::resample(const H2A::Dataset* dataset, uint16_t freq, std::vector<doubl
 * @param time Time vector to resample data with (must contain ascending timestamps).
 * @param dataResampled Vector to store resampled data.
 **/
-void H2A::resample(const H2A::Dataset* dataset, std::vector<double>& time, std::vector<double>& dataResampled)
+void H2A::resample(const H2A::Dataset* dataset, std::vector<double> time, std::vector<double>& dataResampled, bool trimTime)
 {
 	// Get start and end time of dataset to be resampled for checking
 	auto minMaxTime = std::minmax_element(dataset->timeVec.begin(), dataset->timeVec.end());
@@ -66,9 +66,11 @@ void H2A::resample(const H2A::Dataset* dataset, std::vector<double>& time, std::
 		++step;
 
 	// Trim away unset datapoints
-	dataResampled.erase(dataResampled.begin(), dataResampled.begin() + step);
-	time.erase(time.begin(), time.begin() + step);
-	step = 0;
+	if (trimTime) {
+		dataResampled.erase(dataResampled.begin(), dataResampled.begin() + step);
+		time.erase(time.begin(), time.begin() + step);
+		step = 0;
+	}
 
 	// Actual resampling
 	size_t cursor = 1; // Start at 1 instead of 0 to prevent errors when setting data using '[cursor - 1]'

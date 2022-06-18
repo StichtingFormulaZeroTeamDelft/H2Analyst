@@ -26,8 +26,18 @@ XYSeries::XYSeries(QCustomPlot* plot, const std::vector<const H2A::Dataset*> dat
 	m_RangeX = QCPRange(*std::min_element(x.begin(), x.end()), *std::max_element(x.begin(), x.end()));
 	m_RangeY = QCPRange(*std::min_element(y.begin(), y.end()), *std::max_element(y.begin(), y.end()));
 
+	plot->setCurrentLayer("main");
 	m_Curve = new QCPCurve(m_Plot->xAxis, m_Plot->yAxis);
 	m_Curve->setData(x, y);
+
+	//QPixmap* bg = new QPixmap(":/plotBackgrounds/trackAssenSat");
+	plot->setCurrentLayer("background");
+	QCPItemPixmap* bg = new QCPItemPixmap(plot);
+	bg->setVisible(true);
+	bg->setScaled(true);
+	bg->setPixmap(QPixmap(":/plotBackgrounds/trackAssenSat"));
+	bg->topLeft->setCoords(0.924376602, 0.113494206);
+	bg->bottomRight->setCoords(0.924187618, 0.114060897);
 
 	this->setAxisLabels();
 
@@ -35,7 +45,8 @@ XYSeries::XYSeries(QCustomPlot* plot, const std::vector<const H2A::Dataset*> dat
 
 void XYSeries::setColor(QColor color)
 {
-	m_Curve->setPen(QPen(color));
+	m_Color = color;
+	m_Curve->setPen(QPen(m_Color));
 }
 
 void XYSeries::setAxisLabels()
@@ -55,4 +66,11 @@ XYSeries::~XYSeries()
 	{
 		//m_Plot->removeGraph(m_Graph);
 	}
+}
+
+
+const QPointF XYSeries::dataAt(double time) const
+{
+	// TODO: implementation
+	return QPointF(0.0, 0.0);
 }

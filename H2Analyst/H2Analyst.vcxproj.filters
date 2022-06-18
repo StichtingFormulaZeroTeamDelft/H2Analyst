@@ -88,6 +88,12 @@
     <ClCompile Include="src\XYSeries.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TimeCursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Exporters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="include\ControlPanel.h">
@@ -135,6 +141,9 @@
     <QtMoc Include="include\XYSeries.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="include\TimeCursor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DataStructures.h">
@@ -150,6 +159,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dialogs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Exporters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

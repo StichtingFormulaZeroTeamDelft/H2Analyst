@@ -49,16 +49,40 @@ void TimeSeries::updateLabelPosition()
 // Color setting
 void TimeSeries::setColor(QColor color)
 {
-	m_Graph->setPen(QPen(color));
-	m_Label->setPen(QPen(color));
+	m_Color = color;
+	m_Graph->setPen(QPen(m_Color));
+	m_Label->setPen(QPen(m_Color));
 }
 
 // Destructor to make sure plottables are removed from the graph
-TimeSeries::~TimeSeries()
-{
+TimeSeries::~TimeSeries() {
 	if (m_Plot->graphCount() > 0) // This check prevents warnings when program is closed
 	{
 		m_Plot->removeGraph(m_Graph);
 		m_Plot->removeItem(m_Label);
 	}
+}
+
+/**
+* Function that returns the intersection point of this plot at a given time.
+*
+* @param time Time to intersect plot at.
+**/
+const QPointF TimeSeries::dataAt(double time) const {
+	if (time < m_Dataset->timeVec.front())
+		return QPointF(0.0, 0.0);
+
+	for (size_t cursor = 1; cursor < m_Dataset->timeVec.size(); ++cursor) {
+		if (m_Dataset->timeVec[cursor] > time)
+			return QPointF(time, m_Dataset->dataVec[cursor - 1]);
+	}
+
+	return QPointF(0.0, 0.0);
+}
+
+const bool TimeSeries::boundedRangeY(const QCPRange bounds, QCPRange& range) const
+{
+	bool foundRange;
+	range = m_Graph->getValueRange(foundRange, QCP::sdBoth, bounds);
+	return foundRange;
 }

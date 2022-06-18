@@ -17,7 +17,10 @@ public:
 	TimeSeries(QCustomPlot* plot, const H2A::Dataset* dataset);
 	~TimeSeries();
 
-	void setColor(QColor color);
+	void setColor(QColor color) override;
+
+	const QPointF dataAt(double time) const override;
+	const bool boundedRangeY(const QCPRange bounds, QCPRange& range) const override;
 
 private slots:
 	void updateLabelPosition();

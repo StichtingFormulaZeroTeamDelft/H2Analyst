@@ -3,7 +3,7 @@
 PlotManager::PlotManager(QWidget* parent) : QWidget(parent),
 m_VLayout(new QVBoxLayout),
 m_DataPanel(nullptr),
-m_AlignTimeAxis(true),
+m_AlignTimeAxisEnabled(true),
 m_BusyAligning(false),
 m_TimeCursorTime(0.0)
 {
@@ -27,10 +27,7 @@ PlotWidget* PlotManager::createPlot() {
 	plot->setDataPanel(m_DataPanel);
 	m_Plots.push_back(plot);
 
-	connect(plot, SIGNAL(timeRangeChanged(PlotWidget*)), this, SLOT(plotTimeAxisChanged(PlotWidget*)));
-	connect(plot, &PlotWidget::resetViewsRequested, [=]() { this->resetViews(); });
-	connect(plot, SIGNAL(dataAdded(PlotWidget*)), this, SLOT(plotDataAdded(PlotWidget*)));
-	connect(plot, SIGNAL(dataCleared(PlotWidget*)), this, SLOT(plotDataRemoved(PlotWidget*)));
+	connect(plot, SIGNAL(timeAxisChanged(PlotWidget*)), this, SLOT(timeAxisChanged(PlotWidget*)));
 	
 	return plot;
 }
@@ -119,26 +116,24 @@ void PlotManager::clearLayout(QLayout* layout) {
 }
 
 /**
-* Slot that can be called to align the time axis of all plots to the time axis of the given plot.
+* Slot that can be called to align plots to match the given reference plot.
+* If no reference is supplied, align plots to match the one with currently the smallest data range.
 * 
-* @param source Plot to align time axis of other to.
+* @param reference Plot to align time axis of all plots to (dafault = nullptr).
 **/
-void PlotManager::alignTimeAxis(PlotWidget* source) {
-	if (source->isEmpty()) return;
-
-	if (m_AlignTimeAxis && !m_BusyAligning)
+void PlotManager::alignTimeAxis(PlotWidget* ref) {
+	
+	if (!m_BusyAligning && !ref->isEmpty())
 	{
 		// Setting ranges of other plots causes this slots to be called recursively.
-		// m_BusyAligning is used to ignore the calls that are caused by the original call.
-		m_BusyAligning = true; 
+		// m_BusyAligning is used to ignore the calls that will be caused by this original call.
+		m_BusyAligning = true;
 
-		// Change time axis of all plots to match the source plot
-		for (const auto& plot : m_Plots)
-		{
+		for (const auto& plot : m_Plots) {
 			// Check if plot should be time-aligned
-			if (plot == source || plot->isEmpty() || !plot->timeAxisAlignable()) continue;
-
-			plot->xAxis->setRange(source->xAxis->range());
+			if (plot->isEmpty() || !plot->timeAxisAlignable() || plot == ref) continue;
+			plot->xAxis->setRange(ref->xAxis->range());
+			//plot->zoomYToData();
 			plot->replot();
 		}
 
@@ -150,31 +145,21 @@ void PlotManager::alignTimeAxis(PlotWidget* source) {
 * Slot that enabled time axis alignment between the plots in this manager.
 *
 * @param align Enable time axis alignment.
-*/
-void PlotManager::setAlignTimeAxis(bool align) {
-	m_AlignTimeAxis = align;
+**/
+void PlotManager::setAlignTimeAxisEnabled(bool align) {
+	m_AlignTimeAxisEnabled = align;
+	if (m_AlignTimeAxisEnabled) {
 
-	if (m_AlignTimeAxis && m_Plots.size() > 0) // m_Plots should be impossible to be empty, but check to be sure
-	{
-		// Find plot that has smallest time range
-		PlotWidget* ref = m_Plots.front();
-		for (const auto plot : m_Plots)
-		{
-			if (plot->type() != PlotWidget::PlotType::Time) continue; // Only consider time-based plots
-			if (plot->currentRangeX().size() < ref->currentRangeX().size()) ref = plot;
-		}
-
-		// Call slot to align other axis
-		this->alignTimeAxis(ref);
+		//this->alignTimeAxis();
 	}
 }
 
 /**
 * Function that reset the views of all plots in this manager.
 **/
-void PlotManager::resetViews() {
+void PlotManager::resetAllViews() {
 	for (const auto& plot : m_Plots)
-		plot->resetView();
+		if (!plot->isEmpty()) plot->resetView();
 }
 
 /**
@@ -190,7 +175,7 @@ bool PlotManager::isEmpty() {
 * Function to set the time of the time cursors of the plots in this manager.
 *
 * @param time Time to set the time cursor to.
-*/
+**/
 void PlotManager::setTimeCursorTime(double time) {
 	m_TimeCursorTime = time;
 	for (const auto& plot : m_Plots)
@@ -201,8 +186,36 @@ void PlotManager::setTimeCursorTime(double time) {
 * Function to enable or disable the time cursors in the plots of this manager.
 *
 * @param enabled Enable time cursors.
-*/
+**/
 void PlotManager::setTimeCursorEnabled(bool enabled) {
 	for (const auto& plot : m_Plots)
 		plot->timeCursor()->setEnabled(enabled);
+}
+
+/**
+* Slot that is called when a time axis of any plot is changed.
+* 
+* @param source Plot that triggered the call of this slot.
+**/
+void PlotManager::timeAxisChanged(PlotWidget* source) {
+	if (m_AlignTimeAxisEnabled)
+		this->alignTimeAxis(source);
+}
+
+/**
+* This function is used by plots to get the time axis range of a different plot in the manager.
+* When using an empty plot, it needs this to set the time range to match the other when time alignment is enabled.
+* 
+* @param source Plot that is requesting a time range from a different one.
+* @param range Range object to store result in.
+**/
+bool PlotManager::getOtherTimeRange(PlotWidget* source, QCPRange& range) const {
+	if (!m_AlignTimeAxisEnabled) return false;
+	for (const auto& plot : m_Plots) {
+		if (plot != source && !plot->isEmpty() && plot->timeAxisAlignable()) {
+			range = plot->xAxis->range();
+			return true;
+		}
+	}
+	return false;
 }

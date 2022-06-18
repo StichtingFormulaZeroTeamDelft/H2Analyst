@@ -17,7 +17,9 @@ public:
 	~XYSeries();
 
 	void setAxisLabels();
-
 	void setColor(QColor color);
+
+	const QPointF dataAt(double time) const override;
+
 };
 

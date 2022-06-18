@@ -14,6 +14,7 @@
 #include "PlotManager.h"
 #include "Parsers.h"
 #include "PanelToggleButton.h"
+#include "Exporters.h"
 
 class PanelToggleButton;
 
@@ -42,8 +43,10 @@ private:
 public:
     H2Analyst(QWidget* parent = Q_NULLPTR);
 
+
 public slots:
     void hideSidePanel();
     void openFiles();
+    void exportDatasets();
 
 };

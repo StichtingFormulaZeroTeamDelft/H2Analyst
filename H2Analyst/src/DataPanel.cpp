@@ -95,23 +95,25 @@ void DataPanel::updateData()
 
 void DataPanel::requestDatasetPopulation(const H2A::Dataset* dataset, bool blocking) const
 {
-	m_DataStore->requestDatasetPopulation(dataset);
+	if (!dataset->populated) m_DataStore->requestDatasetPopulation(dataset);
+	
 	if (!blocking) return;
 
-	// todo: add timeout to avoid infinite loops
+	// Wait for dataset to be populated
 	while (!dataset->populated);
 }
 
 void DataPanel::requestDatasetPopulation(std::vector<const H2A::Dataset*> datasets, bool blocking) const
 {
+	// Request population for unpopulated datasets
 	for (auto const& dataset : datasets)
-		this->requestDatasetPopulation(dataset, false);
+		if (!dataset->populated) this->requestDatasetPopulation(dataset, false);
+	
 	if (!blocking) return;
 
+	// Wait for population to finish
 	for (auto const& dataset : datasets)
-	{
 		while (!dataset->populated);
-	}
 }
 
 

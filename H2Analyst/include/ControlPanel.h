@@ -1,11 +1,15 @@
 #pragma once
 
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <iomanip>
 
 #include <QWidget>
 #include <QPushButton>
 #include <QGridLayout>
 #include <QCheckBox>
+#include <QLineEdit>
 
 class H2Analyst;
 
@@ -20,16 +24,23 @@ public:
 
 private:
     QPushButton* m_BtLoad;
-    QPushButton* m_BtPlot;
     QPushButton* m_BtPlotLayout;
-    QCheckBox* m_Checkbox;
+    QPushButton* m_BtExport;
+    QCheckBox* m_CbTimeAlign;
+    QCheckBox* m_CbTimeCursor;
+    QLineEdit* m_LeTimeCursor;
     
     QGridLayout* m_Layout = new QGridLayout;
-
 
 signals:
     void pbLoad();
     void pbPlotLayout();
-    void alignTimeAxis(bool align);
+    void pbExport();
+    void timeAlignmentEnabled(bool align);
+    void timeCursorEnabled(bool align);
+    void timeCursorSet(double time);
+
+public slots:
+    void setTimeCursorTime(double time);
 };
 

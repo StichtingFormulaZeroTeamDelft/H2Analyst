@@ -28,7 +28,7 @@ class Crosshairs : public QObject
 
 public:
 
-	Crosshairs(PlotWidget* parentPlot, QString layerName, QCPLayer* layerBelow);
+	Crosshairs(PlotWidget* parentPlot);
 
 	void enable();
 	bool enabled() { return m_Enabled; };

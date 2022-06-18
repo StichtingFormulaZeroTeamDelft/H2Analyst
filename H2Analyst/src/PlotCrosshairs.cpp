@@ -1,12 +1,12 @@
 #include "PlotCrosshairs.h"
 
-Crosshairs::Crosshairs(PlotWidget* parentPlot, QString layerName, QCPLayer *layerBelow) : QObject(parentPlot),
+Crosshairs::Crosshairs(PlotWidget* parentPlot) : QObject(parentPlot),
 m_Parent(parentPlot),
 m_Pos(0.0, 0.0)
 {
 
-	m_Parent->addLayer(layerName, layerBelow);
-	m_Layer = m_Parent->layer(layerName);
+	m_Parent->addLayer("crosshairs", m_Parent->layer("axes"));
+	m_Layer = m_Parent->layer("crosshairs");
 	m_Layer->setMode(QCPLayer::lmBuffered);
 
 	m_LineH = new QCPItemLine(m_Parent);
