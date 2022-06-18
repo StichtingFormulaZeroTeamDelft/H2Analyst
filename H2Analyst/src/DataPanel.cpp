@@ -127,34 +127,28 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df)
 
 	// Create a map with the systems and their belonging datasets
 	std::map<std::string, std::vector<H2A::Dataset*>> system_map;
-	for (auto const& ds : df->datasets)
-	{
+	for (auto const& ds : df->datasets) {
 		boost::split(str_split, ds->name, boost::is_any_of("-"));
 		std::string str_system = str_split.front();
 		boost::trim(str_system);
-		if (system_map.find(str_system) == system_map.end()) {
+		if (system_map.find(str_system) == system_map.end())
 			system_map[str_system] = std::vector<H2A::Dataset*>();
-		}
 		system_map[str_system].push_back(ds);
 	}
 
 	// Iterate over the created map and create its items
-	for (auto const& [system, datasets] : system_map)
-	{
+	for (auto const& [system, datasets] : system_map) {
 		QStandardItem* system_item = this->createTreeItem(H2A::ItemType::kSystem, system);
 		datafile_item->appendRow(system_item);
 
 		// First loop looks for 2-worded subsystems, second loop for 1-worded subsystems
-		for (uint8_t n_word = 2; n_word > 0; --n_word)
-		{
+		for (uint8_t n_word = 2; n_word > 0; --n_word) {
 
 			size_t i = 0;
-			while (i < datasets.size())
-			{
+			while (i < datasets.size()) {
 				// Check if name is long enough to be part of an N-worded subsystem
 				boost::split(str_split, datasets[i]->name, boost::is_any_of(" "));
-				if (str_split.size() < n_word + 2)
-				{
+				if (str_split.size() < n_word + 2) {
 					++i;
 					continue;
 				};
@@ -165,24 +159,19 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df)
 
 				// Find datasets that match the pattern
 				std::vector<H2A::Dataset*> hits;
-				for (size_t j = i; j < datasets.size(); ++j)
-				{
+				for (size_t j = i; j < datasets.size(); ++j) {
 					if (datasets[j]->name.size() < str_pattern.size()) continue;
 					if (std::string(datasets[j]->name.begin(), datasets[j]->name.begin() + str_pattern.size()) == str_pattern)
-					{
 						hits.push_back(datasets[j]);
-					}
 				}
 
 				// If there are at least 3 hits, its enough to make a subsystem
-				if (hits.size() > 3)
-				{
+				if (hits.size() > 3) {
 					QStandardItem* subsys_item = this->createTreeItem(H2A::ItemType::kSubsystem, boost::join(std::vector<std::string>(vec_pattern.begin() + 2, vec_pattern.begin() + 2 + n_word), " "));
 					system_item->appendRow(subsys_item);
 
 					// Iterate over hits and add them to the tree
-					for (auto const& ds : hits)
-					{
+					for (auto const& ds : hits) {
 						boost::split(str_split, ds->name, boost::is_any_of(" "));						
 						subsys_item->appendRow(this->createTreeItem(H2A::ItemType::kDataset, boost::join(std::vector<std::string>(str_split.begin() + 2 + n_word, str_split.end()), " "), ds));
 
@@ -196,21 +185,25 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df)
 		}
 
 		// Any datasets that are still in the system_map do no belong to any sybsystem
-		for (auto const& ds : datasets)
-		{
+		for (auto const& ds : datasets) {
 			boost::split(str_split, ds->name, boost::is_any_of(" "));
 			system_item->appendRow(this->createTreeItem(H2A::ItemType::kDataset, boost::join(std::vector<std::string>(str_split.begin() + 2, str_split.end()), " "), ds));
 		}
 
 	}
 
-
 	return datafile_item;
-
 }
 
-QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::string& name, const H2A::Dataset* ds)
-{
+/**
+* Function that creates an item of given type with given name.
+* If the type is a dataset, the pointer to this dataset should be supplied as well.
+* 
+* @param type Type of item to create.
+* @param name Name to give the item.
+* @param ds Dataset that this item belongs to (default = nullptr).
+**/
+QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::string& name, const H2A::Dataset* ds) {
 	QStandardItem* item = new QStandardItem(QString(name.c_str()));
 	item->setEditable(false);
 		
@@ -225,59 +218,58 @@ QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::s
 		dataset_ptr = QVariant::fromValue(static_cast<const void*>(nullptr));
 	item->setData(dataset_ptr, H2A::ItemRole::kDatasetPtr);
 
-	// Create modified string for sorting
+	// Type specific operations
 	QString sort_name(name.c_str());
+	std::stringstream tt; // Tooltip
+	tt << "<p style = 'white-space:pre'>";
 
 	switch (type)
 	{
 	case H2A::ItemType::kDatafile:
 		sort_name = "AAAA_" + sort_name;
+		item->setData("", H2A::ItemRole::kFilter);
 		break;
 	case H2A::ItemType::kSystem:
 		sort_name = "AAA_" + sort_name;
+		item->setData("", H2A::ItemRole::kFilter);
 		break;
 	case H2A::ItemType::kSubsystem:
 		sort_name = "AA_" + sort_name;
 		item->setIcon(QIcon(":/icon/dataset"));
+		item->setData("", H2A::ItemRole::kFilter);
 		break;
 	case H2A::ItemType::kDataset:
 		sort_name = "A_" + sort_name;
 		item->setData(QString(ds->name.c_str()), H2A::ItemRole::kFilter);
-		item->setToolTip(createToolTip(ds));
+
+		//Tooltip
+		tt << "<b>Data:</b> " << ds->quantity << " [" << ds->unit << "]\n";
+		tt << "<b>UID:</b> " << ds->uid << "\n";
+		tt << "</p>";
+		item->setToolTip(tt.str().c_str());
+
 		break;
 	default: break;
 	}
+
 	item->setData(sort_name, H2A::ItemRole::kSorting);
 
 	return item;
-
 }
 
-
-const QString DataPanel::createToolTip(const H2A::Dataset* dataset)
-{
-	std::stringstream tt;
-
-	tt << "<p style = 'white-space:pre'>";
-	tt << "<b>Data:</b> " << dataset->quantity << " [" << dataset->unit << "]\n";
-	tt << "<b>UID:</b> " << dataset->uid << "\n";
-	tt << "</p>";
-
-	return QString(tt.str().c_str());
-}
-
-
-void DataPanel::applyFindFilter()
-{
+/**
+* Applies the filter from the input box.
+**/
+void DataPanel::applyFindFilter() {
 	QString input = m_SearchBox->text();
-
 	QRegExp regExp(input, Qt::CaseInsensitive, QRegExp::FixedString);
 	m_TreeProxyModel->setFilterRegExp(regExp);
 }
 
-// Used to apply filter after clear button has been pressed in search box
-void DataPanel::searchInputChanged()
-{
+/**
+* Function to apply filter after clear button has been pressed in search box.
+**/
+void DataPanel::searchInputChanged() {
 	if (m_SearchBox->text() == "") this->applyFindFilter();
 }
 

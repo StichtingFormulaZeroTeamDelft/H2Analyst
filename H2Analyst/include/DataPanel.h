@@ -45,8 +45,8 @@ class DataPanel :
 
 private:
 
+    DataStore* m_DataStore;
     QVBoxLayout* m_Layout;
-
     QLineEdit* m_SearchBox;
     
     QStandardItemModel* m_TreeItemModel;
@@ -54,17 +54,14 @@ private:
     QSortFilterProxyModel* m_TreeProxyModel;
     TreeView* m_TreeView;
 
-    QPoint m_DragStartPosition;
 
-    DataStore* m_DataStore;
+    QPoint m_DragStartPosition;
 
     QStandardItem* createTreeItemFromDatafile(const H2A::Datafile* df);
     QStandardItem* createTreeItem(const H2A::ItemType& type, const std::string& name, const H2A::Dataset* ds = nullptr);
     void addChildrenDatasets(const QStandardItem* item, std::vector<const H2A::Dataset*>& target) const;
 
     const H2A::Dataset* getDatasetFromItem(const QStandardItem* item) const;
-    const QString createToolTip(const H2A::Dataset* dataset);
-
     void applyFindFilter();
 
 
