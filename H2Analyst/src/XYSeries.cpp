@@ -5,8 +5,7 @@ XYSeries::XYSeries(QCustomPlot* plot, const std::vector<const H2A::Dataset*> dat
 {
 
 	// Check dataset vector contains 2 datasets
-	if (datasets.size() != 2)
-	{
+	if (datasets.size() != 2) {
 		std::stringstream ss;
 		ss << datasets.size() << " datasets selected. Please select 2 for XY plot.";
 		H2A::Dialog::message(QString(ss.str().c_str()));
@@ -30,27 +29,16 @@ XYSeries::XYSeries(QCustomPlot* plot, const std::vector<const H2A::Dataset*> dat
 	m_Curve = new QCPCurve(m_Plot->xAxis, m_Plot->yAxis);
 	m_Curve->setData(x, y);
 
-	//QPixmap* bg = new QPixmap(":/plotBackgrounds/trackAssenSat");
-	plot->setCurrentLayer("background");
-	QCPItemPixmap* bg = new QCPItemPixmap(plot);
-	bg->setVisible(true);
-	bg->setScaled(true);
-	bg->setPixmap(QPixmap(":/plotBackgrounds/trackAssenSat"));
-	bg->topLeft->setCoords(0.924376602, 0.113494206);
-	bg->bottomRight->setCoords(0.924187618, 0.114060897);
-
 	this->setAxisLabels();
 
 }
 
-void XYSeries::setColor(QColor color)
-{
+void XYSeries::setColor(QColor color) {
 	m_Color = color;
 	m_Curve->setPen(QPen(m_Color));
 }
 
-void XYSeries::setAxisLabels()
-{
+void XYSeries::setAxisLabels() {
 	std::stringstream ss;
 	ss << m_Datasets[0]->name << " (" << m_Datasets[0]->quantity << " [" << m_Datasets[0]->unit << "])";
 	m_Plot->xAxis->setLabel(QString(ss.str().c_str()));
@@ -60,17 +48,14 @@ void XYSeries::setAxisLabels()
 	m_Plot->yAxis->setLabel(QString(ss.str().c_str()));
 }
 
-XYSeries::~XYSeries()
-{
+XYSeries::~XYSeries() {
 	if (m_Plot->graphCount() > 0) // This check prevents warnings when program is closed
 	{
 		//m_Plot->removeGraph(m_Graph);
 	}
 }
 
-
-const QPointF XYSeries::dataAt(double time) const
-{
+const QPointF XYSeries::dataAt(double time) const {
 	// TODO: implementation
 	return QPointF(0.0, 0.0);
 }

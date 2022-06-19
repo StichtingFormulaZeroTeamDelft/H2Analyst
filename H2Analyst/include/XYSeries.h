@@ -5,6 +5,8 @@
 #include "DataOperations.h"
 #include "Dialogs.h"
 
+#include <algorithm>
+
 class XYSeries : public Plottable
 {
 	Q_OBJECT

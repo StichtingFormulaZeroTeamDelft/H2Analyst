@@ -11,12 +11,15 @@
 #include "qcustomplot.h"
 
 #include "DataStructures.h"
+#include "PlotDefinitions.h"
 #include "DataPanel.h"
 #include "TimeSeries.h"
 #include "XYSeries.h"
 #include "PlotCrosshairs.h"
 #include "PlotManager.h"
 #include "TimeCursor.h"
+#include "SpecialPlots.h"
+
 
 class PlotManager;
 class Crosshairs;
@@ -27,16 +30,10 @@ class PlotWidget :
 {
     Q_OBJECT
 
-public:
-    
-    enum class PlotType {
-        Time, XY
-    };
-
 private:
 
     PlotManager* m_PlotManager;
-    PlotType m_Type;
+    H2A::PlotType m_Type;
 
     // Padding around min and max data on the ranges (fractional)
     const float RANGE_PADDING_X = 0.05f;
@@ -61,8 +58,8 @@ private:
     QCPRange m_RangeLimitX;
     QCPRange m_RangeLimitY;
 
-    void setPlots(std::vector<const H2A::Dataset*> datasets, PlotType type = PlotType::Time);
-    void addPlots(std::vector<const H2A::Dataset*> datasets, PlotType type = PlotType::Time);
+    void setPlots(std::vector<const H2A::Dataset*> datasets, H2A::PlotType type = H2A::Time);
+    void addPlots(std::vector<const H2A::Dataset*> datasets, H2A::PlotType type = H2A::Time);
 
     void setAxisLabels();
     void restrictView(const QCPRange& oldRange, const QCPRange& newRange, QCPAxis* axis);
@@ -82,7 +79,7 @@ public:
 
     const QCPRange currentRangeX() const { return this->xAxis->range(); };
     const QCPRange currentRangeY() const { return this->yAxis->range(); };
-    const PlotWidget::PlotType type() const { return m_Type; };
+    const H2A::PlotType type() const { return m_Type; };
     const std::vector<Plottable*> plottables() const { return this->m_Plottables; };
     TimeCursor* timeCursor() { return m_TimeCursor; };
 
@@ -104,7 +101,7 @@ signals:
 private slots:
     void clear();
     void showContextMenu(const QPoint& pos);
-    void plotSelected(PlotType type);
+    void plotSelected(H2A::PlotType type);
     void copyToClipboard();
 
     // Slots to deal with axis value changing

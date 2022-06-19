@@ -37,7 +37,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>5.15.2_msvc2019_64</QtInstall>
-    <QtModules>core;gui;widgets;printsupport</QtModules>
+    <QtModules>core;xml;gui;widgets;printsupport</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -131,6 +131,7 @@
     <ClCompile Include="src\PlotWidget.cpp" />
     <ClCompile Include="src\Populator.cpp" />
     <ClCompile Include="src\qcustomplot.cpp" />
+    <ClCompile Include="src\SpecialPlots.cpp" />
     <ClCompile Include="src\TimeCursor.cpp" />
     <ClCompile Include="src\TimeSeries.cpp" />
     <ClCompile Include="src\TreeView.cpp" />
@@ -159,6 +160,8 @@
     <QtMoc Include="include\Plottable.h" />
     <QtMoc Include="include\TimeSeries.h" />
     <QtMoc Include="include\TimeCursor.h" />
+    <ClInclude Include="include\PlotDefinitions.h" />
+    <ClInclude Include="include\SpecialPlots.h" />
     <ClInclude Include="include\TreeView.h" />
     <QtMoc Include="include\qcustomplot.h" />
     <QtMoc Include="include\Populator.h" />

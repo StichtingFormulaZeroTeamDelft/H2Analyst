@@ -3,7 +3,7 @@
 
 PlotWidget::PlotWidget(PlotManager* plotManager) : QCustomPlot(plotManager),
 m_PlotManager(plotManager),
-m_Type(PlotType::Time),
+m_Type(H2A::Time),
 m_DataPanel(nullptr),
 m_Plottables(),
 m_RangeLimitX(0.0, 10.0),
@@ -45,9 +45,26 @@ m_LegendEnabled(true)
 * @param datasets Vector of datasets to add.
 * @param type Type of plot to create.
 **/
-void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, PlotType type) {
+void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, H2A::PlotType type) {
 	if (datasets.size() == 0) return;
 	if (!this->isEmpty()) this->clear();
+
+	// Check if datasets form a special plot (e.g. GPS track, compressor map, etc.)
+	H2A::specialPlot sp;
+	if (isSpecial(datasets, type, sp)) {
+		std::cout << "Special plot: " << sp.name << std::endl;
+		orderDatasets(datasets, sp);
+
+		this->setCurrentLayer("background");
+		QCPItemPixmap* bg = new QCPItemPixmap(this);
+		bg->setVisible(true);
+		bg->setScaled(true);
+		bg->setPixmap(QPixmap(":/plotBackgrounds/trackAssenSat"));
+		bg->bottomRight->setCoords(0.114032727, 0.924176466);
+		bg->topLeft->setCoords(0.113590635, 0.92443837);
+		this->setCurrentLayer("main");
+;	}
+
 	this->addPlots(datasets, type);
 }
 
@@ -57,7 +74,7 @@ void PlotWidget::setPlots(std::vector<const H2A::Dataset*> datasets, PlotType ty
 * @param datasets Datasets to add.
 * @param type Type of plot to create.
 **/
-void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, PlotType type) {
+void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, H2A::PlotType type) {
 	// If this call is adding plots to existing plots, check if requested type is the same.
 	if (type != m_Type && m_Plottables.size() > 0) {
 		H2A::Dialog::message("This plot already contains plots of a different type.");
@@ -74,7 +91,7 @@ void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, PlotT
 	// Add plots
 	switch (m_Type)
 	{
-	case PlotType::Time:
+	case H2A::Time:
 	{
 		for (auto const& dataset : datasets) {
 			// Check if this dataset is not already plotted
@@ -94,7 +111,7 @@ void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, PlotT
 		}
 		break;
 	}
-	case PlotType::XY:
+	case H2A::XY:
 	{
 		XYSeries* series = new XYSeries(this, datasets);
 		series->setColor(this->nextColor());
@@ -123,7 +140,7 @@ void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, PlotT
 * 
 * @param type Type of plot to create.
 **/
-void PlotWidget::plotSelected(PlotType type) {
+void PlotWidget::plotSelected(H2A::PlotType type) {
 	this->setPlots(m_DataPanel->getSelectedDatasets(), type);
 }
 
@@ -151,7 +168,7 @@ void PlotWidget::clear() {
 void PlotWidget::setAxisLabels() {
 	switch (m_Type)
 	{
-		case PlotType::Time:
+		case H2A::Time:
 		{
 			// Create unique list of quantities of datasets
 			std::vector<std::string> units;
@@ -175,7 +192,7 @@ void PlotWidget::setAxisLabels() {
 			this->yAxis->setLabel(QString(label.str().c_str()));
 			this->xAxis->setLabel("Time [sec]");
 		}
-		case PlotType::XY:
+		case H2A::XY:
 		{
 
 		}
@@ -191,11 +208,11 @@ void PlotWidget::showContextMenu(const QPoint& pos) {
 	QMenu contextMenu(tr("Context menu"), this);
 
 	QAction acPlotTime("Plot", this);
-	connect(&acPlotTime, &QAction::triggered, this, [=]() {plotSelected(PlotType::Time); });
+	connect(&acPlotTime, &QAction::triggered, this, [=]() {plotSelected(H2A::Time); });
 	contextMenu.addAction(&acPlotTime);
 
 	QAction acPlotXY("Plot XY", this);
-	connect(&acPlotXY, &QAction::triggered, this, [=]() {plotSelected(PlotType::XY); });
+	connect(&acPlotXY, &QAction::triggered, this, [=]() {plotSelected(H2A::XY); });
 	contextMenu.addAction(&acPlotXY);
 
 	QAction acClear("Clear", this);
@@ -243,7 +260,7 @@ void PlotWidget::dropEvent(QDropEvent*) {
 	if (QApplication::keyboardModifiers() & Qt::ControlModifier)
 		this->addPlots(m_DataPanel->getSelectedDatasets(), m_Type);
 	else
-		this->setPlots(m_DataPanel->getSelectedDatasets(), PlotType::Time);
+		this->setPlots(m_DataPanel->getSelectedDatasets(), H2A::Time);
 }
 
 /**
@@ -330,7 +347,7 @@ void PlotWidget::leaveEvent(QEvent*) {
 void PlotWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 	// Time cursor placement
 	if (this->isEmpty()) return;
-	if (m_Type == PlotType::Time)
+	if (m_Type == H2A::Time)
 	{
 		double coordX = this->xAxis->pixelToCoord(event->pos().x());
 		double coordY = this->yAxis->pixelToCoord(event->pos().y());
@@ -381,5 +398,5 @@ void PlotWidget::updateRangeAndPadding() {
 * Used by the plotManager when aligning time axis of all plots.
 **/
 bool PlotWidget::timeAxisAlignable() {
-	return m_Type == PlotType::Time && !this->isEmpty();
+	return m_Type == H2A::Time && !this->isEmpty();
 }
