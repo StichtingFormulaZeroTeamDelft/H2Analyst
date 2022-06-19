@@ -11,9 +11,19 @@ ControlPanel::ControlPanel(QWidget* parent) : QWidget(parent)
 	m_BtExport = new QPushButton(tr("Export"));
 	connect(m_BtExport, SIGNAL(clicked()), this, SIGNAL(pbExport()));
 
+	/*
 	m_CbTimeAlign = new QCheckBox("Align time axis", this);
 	m_CbTimeAlign->setCheckState(Qt::Checked);
 	connect(m_CbTimeAlign, &QCheckBox::stateChanged, [=]() { emit setTimeAlignEnable(m_CbTimeAlign->checkState() == Qt::Checked); });
+	*/
+
+	m_TbTimeAlign = new QToolButton(this);
+	m_TbTimeAlign->setCheckable(true);
+	m_TbTimeAlign->setAutoRaise(true);
+	m_TbTimeAlign->setChecked(true);
+	m_TbTimeAlign->setIcon(QIcon(QPixmap(":/icons/tb-time-align")));
+	m_TbTimeAlign->setToolTip("Align time axis of all plots");
+	connect(m_TbTimeAlign, &QToolButton::clicked, [=]() { emit setTimeAlignEnable(m_TbTimeAlign->isChecked()); });
 
 	m_CbTimeCursor = new QCheckBox("Enable time cursor", this);
 	m_CbTimeCursor->setCheckState(Qt::Unchecked);
@@ -28,7 +38,8 @@ ControlPanel::ControlPanel(QWidget* parent) : QWidget(parent)
 	m_Layout->addWidget(m_BtLoad);
 	m_Layout->addWidget(m_BtPlotLayout);
 	m_Layout->addWidget(m_BtExport);
-	m_Layout->addWidget(m_CbTimeAlign);
+	//m_Layout->addWidget(m_CbTimeAlign);
+	m_Layout->addWidget(m_TbTimeAlign);
 	m_Layout->addWidget(m_CbTimeCursor);
 	m_Layout->addWidget(m_LeTimeCursor);
 

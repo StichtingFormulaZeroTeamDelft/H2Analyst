@@ -6,6 +6,7 @@
         <file>icons/H2Analyst.ico</file>
         <file alias="left-arrow">icons/left-arrow.png</file>
         <file alias="right-arrow">icons/right-arrow.png</file>
+        <file alias="tb-time-align">icons/time-align.png</file>
     </qresource>
     <qresource prefix="/plotBackgrounds">
         <file alias="trackAssenSat">plot_backgrounds/TrackAssenSat.jpg</file>

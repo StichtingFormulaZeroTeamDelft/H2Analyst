@@ -10,6 +10,7 @@
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QToolButton>
 
 class H2Analyst;
 
@@ -27,6 +28,7 @@ private:
     QPushButton* m_BtPlotLayout;
     QPushButton* m_BtExport;
     QCheckBox* m_CbTimeAlign;
+    QToolButton* m_TbTimeAlign;
     QCheckBox* m_CbTimeCursor;
     QLineEdit* m_LeTimeCursor;
     
