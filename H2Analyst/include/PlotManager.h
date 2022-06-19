@@ -5,8 +5,8 @@
 #include "DialogPlotLayout.h"
 
 #include <QWidget>
-#include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QSplitter>
 
 #include <vector>
 
@@ -20,8 +20,9 @@ class PlotManager :
 
 private:        
 
-    QVBoxLayout* m_VLayout;
-    std::vector<QHBoxLayout*> m_HLayouts;
+    QVBoxLayout* m_Layout;
+    QSplitter* m_VSplitter;
+    std::vector<QSplitter*> m_HSplitters;
 
     const DataPanel* m_DataPanel;
     std::vector<PlotWidget*> m_Plots;

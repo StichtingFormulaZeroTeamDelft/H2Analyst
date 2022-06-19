@@ -1,23 +1,21 @@
 #include "PlotManager.h"
 
 PlotManager::PlotManager(QWidget* parent) : QWidget(parent),
-m_VLayout(new QVBoxLayout),
+m_Layout(new QVBoxLayout(this)),
+m_VSplitter(new QSplitter(Qt::Vertical, parent)),
+m_HSplitters(),
 m_DataPanel(nullptr),
 m_AlignTimeAxisEnabled(true),
 m_BusyAligning(false),
 m_TimeCursorEnabled(false),
 m_TimeCursorTime(0.0)
 {
-	// Create layouts
-	QHBoxLayout *HLayout = new QHBoxLayout();
-	m_HLayouts.push_back(HLayout);
-	m_VLayout->addLayout(m_HLayouts.back());
+	m_VSplitter->setChildrenCollapsible(false);
 
 	// Init single plot
-	PlotWidget* plot = this->createPlot();
-	m_HLayouts.back()->addWidget(plot);
+	this->setPlotLayoutRC(1, 1);
 
-	this->setLayout(m_VLayout);
+	this->layout()->addWidget(m_VSplitter);
 }
 
 /**
@@ -60,8 +58,13 @@ void PlotManager::setPlotLayoutDialog() {
 * @param cols Number of cols in new layout.
 **/
 void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
-	// Delete current layouts and remove plots (does not delete plots from memory, only hides them to re-use later)
-	this->clearLayout(m_VLayout);
+	// Remove all plots from the current vertical splitter and after that, remove the empty splitters.
+	// Plots are not deleted at this point, but only given a new parent so they are not deleted when the splitter is deleted.
+	for (const auto& splitter : m_HSplitters) {
+		while (splitter->count() > 0)
+			splitter->widget(0)->setParent(this);
+	}
+	m_HSplitters.clear();
 
 	// Delete empty plots from memory
 	m_Plots.erase(std::remove_if(m_Plots.begin(), m_Plots.end(), [](PlotWidget* plot) { return plot->isEmpty(); }), m_Plots.end());
@@ -70,50 +73,32 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 	uint8_t plot_counter = 0;
 	for (uint8_t row_i = 0; row_i < rows; ++ row_i)
 	{
-		QHBoxLayout* layout = new QHBoxLayout();
+		QSplitter* HSplitter = new QSplitter(Qt::Horizontal);
+		HSplitter->setChildrenCollapsible(false);
+		m_HSplitters.push_back(HSplitter);
+		QList<int> sizes; // Used to reset the widths of plots to be equal
 		for (uint8_t col_i = 0; col_i < cols; ++col_i)
 		{
+			sizes.push_back(1);
 			// Use existing plot if possible, otherwise make a new one
 			if (m_Plots.size() >= plot_counter + 1)
 			{
-				layout->addWidget(m_Plots[plot_counter]);
+				HSplitter->addWidget(m_Plots[plot_counter]);
 				m_Plots[plot_counter]->show();
 			}
 			else {
 				PlotWidget* plot = this->createPlot();
-				layout->addWidget(plot);
+				HSplitter->addWidget(plot);
 			}
 			++plot_counter;
 		}
-		m_VLayout->addLayout(layout);
+		HSplitter->setSizes(sizes); // Make all plots have equal width
+		m_VSplitter->addWidget(HSplitter);
 	}
 
 	// Delete plots that don't fit new layout from memory
 	if (m_Plots.size() > rows * cols)
 		m_Plots.erase(m_Plots.begin() + rows * cols, m_Plots.end());
-}
-
-
-/**
-* Recursive function to delete all layouts and items contained in a given layout.
-* 
-* @param layout Layout to clear.
-**/
-void PlotManager::clearLayout(QLayout* layout) {
-	if (layout == nullptr) return;
-
-	QLayoutItem* item;
-	while ((item = layout->takeAt(0))) {
-		if (item->layout()) {
-			this->clearLayout(item->layout());
-			delete item->layout();
-		}
-		else if (item->widget()) {
-			layout->removeWidget(item->widget());
-			item->widget()->hide();
-		}
-	}
-	delete item;
 }
 
 /**
