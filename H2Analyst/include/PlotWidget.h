@@ -18,12 +18,14 @@
 #include "PlotCrosshairs.h"
 #include "PlotManager.h"
 #include "TimeCursor.h"
+#include "PlotRubberband.h"
 #include "SpecialPlots.h"
 
 
 class PlotManager;
 class Crosshairs;
 class TimeCursor;
+class Rubberband;
 
 class PlotWidget :
     public QCustomPlot
@@ -53,6 +55,8 @@ private:
     std::vector<Plottable*> m_Plottables;
     Crosshairs* m_Crosshairs;
     TimeCursor* m_TimeCursor;
+    Rubberband* m_Rubberband;
+    bool m_Rubberbanding;
     bool m_LegendEnabled;
 
     QCPRange m_RangeLimitX;
@@ -84,8 +88,11 @@ public:
     TimeCursor* timeCursor() { return m_TimeCursor; };
 
 protected:
+    void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;

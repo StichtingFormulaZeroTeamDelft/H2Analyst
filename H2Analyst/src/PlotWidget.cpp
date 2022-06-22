@@ -5,22 +5,28 @@ PlotWidget::PlotWidget(PlotManager* plotManager) : QCustomPlot(plotManager),
 m_PlotManager(plotManager),
 m_Type(H2A::Time),
 m_DataPanel(nullptr),
+m_Crosshairs(new Crosshairs(this)),
+m_TimeCursor(new TimeCursor(this)),
+m_Rubberband(new Rubberband(this)),
 m_Plottables(),
 m_RangeLimitX(0.0, 10.0),
 m_RangeLimitY(0.01, 10.0),
-m_LegendEnabled(true)
+m_LegendEnabled(true),
+m_Rubberbanding(false)
 {
 	this->setMouseTracking(true); // Should be default for QCustomPlot, but to be sure
 	this->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom)); // Sets comma as thousand-seperator and period as decimal-point.
 
 	// Cursor crosshairs
-	m_Crosshairs = new Crosshairs(this);
 	m_Crosshairs->enable();
 
 	// Time cursor
-	m_TimeCursor = new TimeCursor(this);
 	m_TimeCursor->setEnabled(m_PlotManager->timeCursorEnabled());
 	m_TimeCursor->setTime(m_PlotManager->timeCursorTime());
+
+	// Rubberband
+	m_Rubberband->hide();
+
 
 	// Right-click menu
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -290,6 +296,9 @@ void PlotWidget::resetView(bool x, bool y) {
 	this->replot();
 }
 
+/**
+* Function that find the Y data range in the current view and zooms to it (with some padding).
+**/
 void PlotWidget::zoomYToData() {
 	// Find data range in current xAxis range
 	QCPRange maxRange;
@@ -309,6 +318,22 @@ void PlotWidget::zoomYToData() {
 }
 
 /**
+* Function that overrides QWidget and is called when the user clicks in this widget.
+* 
+* @param event Event that caused this call. Passed by signal.
+**/
+void PlotWidget::mousePressEvent(QMouseEvent* event) {
+
+	// Check if CTRL is held down. If so, execute rubberband functionality.
+	if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
+		m_Rubberband->start(event->pos());
+	}
+	else {
+		QCustomPlot::mousePressEvent(event);
+	}
+}
+
+/**
 * Function that overrides QWidget and is called when the mouse is moved while it is over this widget.
 *
 * @param event Event that caused this function to get triggered.
@@ -318,6 +343,38 @@ void PlotWidget::mouseMoveEvent(QMouseEvent* event) {
 	if (!this->isEmpty()) QCustomPlot::mouseMoveEvent(event);
 
 	emit this->mouseMoved(event);
+}
+
+/**
+* Function that overrides QWidget and is called when the mouse is released after it was pressed on the widget.
+*
+* @param event Event that caused this function to get triggered.
+**/
+void PlotWidget::mouseReleaseEvent(QMouseEvent* event) {
+
+	// If rubberband was active, get its ranges and set it.
+	if (m_Rubberband->isEnabled()) {
+		QCPRange xRange, yRange;
+		m_Rubberband->end(xRange, yRange);
+		this->xAxis->setRange(xRange.bounded(m_RangeLimitX.lower, m_RangeLimitX.upper));
+		this->yAxis->setRange(yRange.bounded(m_RangeLimitY.lower, m_RangeLimitY.upper));
+		this->replot();
+	}
+
+	QCustomPlot::mouseReleaseEvent(event);
+}
+
+/**
+* Function that overrides QWidget and is called when a key (not mouse) is released while hovering the widget.
+*
+* @param event Event that caused this function to get triggered.
+**/
+void PlotWidget::keyReleaseEvent(QKeyEvent* event) {
+	if (m_Rubberband->isEnabled()) {
+		if (event->key() == Qt::Key_Control) m_Rubberband->cancel();
+	}
+
+	QCustomPlot::keyReleaseEvent(event);
 }
 
 /**

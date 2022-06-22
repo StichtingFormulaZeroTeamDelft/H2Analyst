@@ -97,6 +97,9 @@
     <ClCompile Include="src\SpecialPlots.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\PlotRubberband.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="include\ControlPanel.h">
@@ -145,6 +148,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\TimeCursor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\PlotRubberband.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

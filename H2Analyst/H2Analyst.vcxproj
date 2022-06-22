@@ -127,6 +127,7 @@
     <ClCompile Include="src\PlotCrosshairs.cpp" />
     <ClCompile Include="src\PlotLine.cpp" />
     <ClCompile Include="src\PlotManager.cpp" />
+    <ClCompile Include="src\PlotRubberband.cpp" />
     <ClCompile Include="src\Plottable.cpp" />
     <ClCompile Include="src\PlotWidget.cpp" />
     <ClCompile Include="src\Populator.cpp" />
@@ -161,6 +162,7 @@
     <QtMoc Include="include\TimeSeries.h" />
     <QtMoc Include="include\TimeCursor.h" />
     <ClInclude Include="include\PlotDefinitions.h" />
+    <QtMoc Include="include\PlotRubberband.h" />
     <ClInclude Include="include\SpecialPlots.h" />
     <ClInclude Include="include\TreeView.h" />
     <QtMoc Include="include\qcustomplot.h" />
