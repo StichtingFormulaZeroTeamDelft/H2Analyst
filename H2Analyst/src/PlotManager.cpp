@@ -71,15 +71,17 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 
 	// Create new layout and fill it with existing or new plots
 	uint8_t plot_counter = 0;
+	QList<int> sizesV; // Used to reset the widths of plots to be equal
 	for (uint8_t row_i = 0; row_i < rows; ++ row_i)
 	{
 		QSplitter* HSplitter = new QSplitter(Qt::Horizontal);
 		HSplitter->setChildrenCollapsible(false);
 		m_HSplitters.push_back(HSplitter);
-		QList<int> sizes; // Used to reset the widths of plots to be equal
+		QList<int> sizesH; // Used to reset the widths of plots to be equal
+		sizesH.clear();
 		for (uint8_t col_i = 0; col_i < cols; ++col_i)
 		{
-			sizes.push_back(1);
+			sizesH.push_back(INT_MAX);
 			// Use existing plot if possible, otherwise make a new one
 			if (m_Plots.size() >= plot_counter + 1)
 			{
@@ -92,9 +94,11 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 			}
 			++plot_counter;
 		}
-		HSplitter->setSizes(sizes); // Make all plots have equal width
 		m_VSplitter->addWidget(HSplitter);
+		HSplitter->setSizes(sizesH); // Make all plots have equal width
+		sizesV.push_back(INT_MAX);
 	}
+	m_VSplitter->setSizes(sizesV);
 
 	// Delete plots that don't fit new layout from memory
 	if (m_Plots.size() > rows * cols)
