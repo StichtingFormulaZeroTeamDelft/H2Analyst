@@ -211,6 +211,23 @@ void PlotManager::timeAxisChanged(PlotWidget* source) {
 }
 
 /**
+* When this slot is called, it removes the given widget from the layout and deletes it.
+**/
+void PlotManager::deletePlot(PlotWidget* source) {
+	if (source == nullptr) return;
+
+	// Check if source is not the last one.
+	if (m_Plots.size() < 2) {
+		H2A::Dialog::message("Plotting data becomes quite hard without a single plot...");
+		return;
+	}
+
+	source->hide();
+	m_Plots.erase(std::remove(m_Plots.begin(), m_Plots.end(), source), m_Plots.end());
+	source->deleteLater();
+}
+
+/**
 * This function is used by plots to get the time axis range of a different plot in the manager.
 * When using an empty plot, it needs this to set the time range to match the other when time alignment is enabled.
 * 

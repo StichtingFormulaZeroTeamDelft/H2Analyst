@@ -212,14 +212,20 @@ void PlotWidget::setAxisLabels() {
 **/
 void PlotWidget::showContextMenu(const QPoint& pos) {
 	QMenu contextMenu(tr("Context menu"), this);
+	QMenu plotMenu(tr("Other plots"), this);
 
 	QAction acPlotTime("Plot", this);
 	connect(&acPlotTime, &QAction::triggered, this, [=]() {plotSelected(H2A::Time); });
 	contextMenu.addAction(&acPlotTime);
 
-	QAction acPlotXY("Plot XY", this);
+	// Other plots submenu
+
+	QAction acPlotXY("XY", this);
 	connect(&acPlotXY, &QAction::triggered, this, [=]() {plotSelected(H2A::XY); });
-	contextMenu.addAction(&acPlotXY);
+	plotMenu.addAction(&acPlotXY);
+	
+	contextMenu.addMenu(&plotMenu);
+	plotMenu.addSeparator();
 
 	QAction acClear("Clear", this);
 	connect(&acClear, SIGNAL(triggered()), this, SLOT(clear()));
@@ -236,6 +242,10 @@ void PlotWidget::showContextMenu(const QPoint& pos) {
 	QAction acClip("Clip", this);
 	connect(&acClip, SIGNAL(triggered()), this, SLOT(copyToClipboard()));
 	contextMenu.addAction(&acClip);
+
+	QAction acDelete("Delete", this);
+	connect(&acDelete, &QAction::triggered, this, [=]() {m_PlotManager->deletePlot(this); });
+	contextMenu.addAction(&acDelete);
 
 	contextMenu.exec(mapToGlobal(pos));
 }

@@ -3,6 +3,7 @@
 #include "PlotWidget.h"
 #include "DataPanel.h"
 #include "DialogPlotLayout.h"
+#include "Dialogs.h"
 
 #include <QWidget>
 #include <QVBoxLayout>
@@ -55,6 +56,7 @@ public slots:
     void setTimeCursorTime(double time);
     void resetAllViews();
     void timeAxisChanged(PlotWidget* source);
+    void deletePlot(PlotWidget* source);
 
 signals:
     void timeCursurTimeChanged(double time);
