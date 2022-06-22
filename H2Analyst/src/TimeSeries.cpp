@@ -17,6 +17,7 @@ TimeSeries::TimeSeries(QCustomPlot* plot, const H2A::Dataset* dataset) : Plottab
 	// Add graph and data
 	m_Graph = m_Plot->addGraph();
 	m_Graph->setLineStyle(QCPGraph::lsStepLeft);
+	m_Graph->setAntialiased(true);
 	m_Graph->setData(x, y);
 
 	// Create label (legend)
@@ -31,6 +32,7 @@ TimeSeries::TimeSeries(QCustomPlot* plot, const H2A::Dataset* dataset) : Plottab
 	this->updateLabelPosition();
 	connect(m_Plot->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(updateLabelPosition()));
 	connect(m_Plot->yAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(updateLabelPosition()));
+
 }
 
 // Function that places the legend label at the correct spot, namely

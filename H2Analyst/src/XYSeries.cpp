@@ -27,6 +27,7 @@ XYSeries::XYSeries(QCustomPlot* plot, const std::vector<const H2A::Dataset*> dat
 
 	plot->setCurrentLayer("main");
 	m_Curve = new QCPCurve(m_Plot->xAxis, m_Plot->yAxis);
+	m_Curve->setAntialiased(true);
 	m_Curve->setData(x, y);
 
 	this->setAxisLabels();

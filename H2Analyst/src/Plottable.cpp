@@ -11,13 +11,11 @@ Plottable::~Plottable()
 	// Purely virtual
 }
 
-void Plottable::setColor(QColor color)
-{
+void Plottable::setColor(QColor color) {
 	m_Color = color;
 }
 
-const QPointF Plottable::dataAt(double time) const
-{
+const QPointF Plottable::dataAt(double time) const {
 	return QPointF(0.0, 0.0);
 }
 
