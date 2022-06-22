@@ -37,7 +37,6 @@ m_Rubberbanding(false)
 	this->setAcceptDrops(true);
 
 	// Other signals and slots
-	connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(emitTimeAxisChanged()));
 	connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&, const QCPRange&)), this, SLOT(restrictViewX(const QCPRange&, const QCPRange&)));
 	connect(this->yAxis, SIGNAL(rangeChanged(const QCPRange&, const QCPRange&)), this, SLOT(restrictViewY(const QCPRange&, const QCPRange&)));
 
@@ -128,6 +127,10 @@ void PlotWidget::addPlots(const std::vector<const H2A::Dataset*> datasets, H2A::
 
 	this->setAxisLabels();
 	this->updateRangeAndPadding();
+
+	// Make sure time-range-change signal is connected if necessary and disconnected otherwise
+	if (this->timeAxisAlignable()) connect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(emitTimeAxisChanged()));
+	else disconnect(this->xAxis, SIGNAL(rangeChanged(const QCPRange&)), this, SLOT(emitTimeAxisChanged()));
 
 	// Setting the axis to correct ranges
 	QCPRange range = m_RangeLimitX;
