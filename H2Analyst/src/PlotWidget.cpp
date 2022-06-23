@@ -213,34 +213,26 @@ void PlotWidget::setAxisLabels() {
 * @param pos Position of the mouse when right-mouse was clicked (passed by signal).
 **/
 void PlotWidget::showContextMenu(const QPoint& pos) {
-	QMenu contextMenu(tr("Context menu"), this);
+
+	bool enabled;
+	
+	// -------- Other plot menu --------
+
 	QMenu plotMenu(tr("Other plots"), this);
-	QMenu insertPlotMenu(tr("Insert plot"), this);
-
-	QAction acPlotTime("Plot", this);
-	connect(&acPlotTime, &QAction::triggered, this, [=]() { plotSelected(H2A::Time); });
-	contextMenu.addAction(&acPlotTime);
-
-	// Other plots submenu
+	plotMenu.setIcon(QIcon(QPixmap(":/icons/more-information")));
+	plotMenu.setToolTipsVisible(true);
 
 	QAction acPlotXY("XY", this);
+	enabled = m_DataPanel->getSelectedDatasets().size() == 2;
+	acPlotXY.setEnabled(enabled);
+	if (!enabled) acPlotXY.setToolTip("Select 2 datasets");
 	connect(&acPlotXY, &QAction::triggered, this, [=]() { plotSelected(H2A::XY); });
 	plotMenu.addAction(&acPlotXY);
-	
-	contextMenu.addMenu(&plotMenu);
-	plotMenu.addSeparator();
 
-	QAction acClear("Clear", this);
-	connect(&acClear, SIGNAL(triggered()), this, SLOT(clear()));
-	contextMenu.addAction(&acClear);
+	// -------- Insert plot menu --------
 
-	QAction acReset("Reset view", this);
-	connect(&acReset, &QAction::triggered, [=]() { this->resetView(); });
-	contextMenu.addAction(&acReset);
-
-	QAction acResetAll("Reset all views", this);
-	connect(&acResetAll, SIGNAL(triggered()), m_PlotManager, SLOT(resetAllViews()));
-	contextMenu.addAction(&acResetAll);
+	QMenu insertPlotMenu(tr("Insert plot"), this);
+	insertPlotMenu.setIcon(QIcon(QPixmap(":/icons/plus")));
 
 	QAction acAddPlotAbove("Above", this);
 	connect(&acAddPlotAbove, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::up); });
@@ -258,13 +250,50 @@ void PlotWidget::showContextMenu(const QPoint& pos) {
 	connect(&acAddPlotRight, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::right); });
 	insertPlotMenu.addAction(&acAddPlotRight);
 
+	// -------- Main menu --------
+
+	QMenu contextMenu(tr("Context menu"), this);
+	contextMenu.setToolTipsVisible(true);
+
+	QAction acPlotTime("Plot", this);
+	enabled = m_DataPanel->getSelectedDatasets().size() > 0;
+	acPlotTime.setEnabled(enabled);
+	if (!enabled) acPlotTime.setToolTip("Select at least 1 dataset");
+	connect(&acPlotTime, &QAction::triggered, this, [=]() { plotSelected(H2A::Time); });
+	contextMenu.addAction(&acPlotTime);
+	
+	contextMenu.addMenu(&plotMenu);
+	
+	plotMenu.addSeparator();
+
+	QAction acClear("Clear", this);
+	acClear.setEnabled(!this->isEmpty());
+	connect(&acClear, SIGNAL(triggered()), this, SLOT(clear()));
+	contextMenu.addAction(&acClear);
+
+	QAction acReset("Reset view", this);
+	acReset.setEnabled(!this->isEmpty());
+	acReset.setIcon(QIcon(QPixmap(":/icons/undo")));
+	connect(&acReset, &QAction::triggered, [=]() { this->resetView(); });
+	contextMenu.addAction(&acReset);
+
+	QAction acResetAll("Reset all views", this);
+	connect(&acResetAll, SIGNAL(triggered()), m_PlotManager, SLOT(resetAllViews()));
+	contextMenu.addAction(&acResetAll);
+
 	contextMenu.addMenu(&insertPlotMenu);
 
 	QAction acClip("Clip", this);
+	acClip.setEnabled(!this->isEmpty());
+	acClip.setToolTip("Screenshot to clipboard");
+	acClip.setIcon(QIcon(QPixmap(":/icons/screenshot")));
 	connect(&acClip, SIGNAL(triggered()), this, SLOT(copyToClipboard()));
 	contextMenu.addAction(&acClip);
 
+	plotMenu.addSeparator();
+
 	QAction acDelete("Delete", this);
+	acDelete.setIcon(QIcon(QPixmap(":/icons/remove")));
 	connect(&acDelete, &QAction::triggered, this, [=]() { m_PlotManager->deletePlot(this); });
 	contextMenu.addAction(&acDelete);
 

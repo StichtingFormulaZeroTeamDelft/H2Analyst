@@ -7,6 +7,11 @@
         <file alias="left-arrow">icons/left-arrow.png</file>
         <file alias="right-arrow">icons/right-arrow.png</file>
         <file alias="tb-time-align">icons/time-align.png</file>
+        <file alias="remove">icons/remove.png</file>
+        <file alias="plus">icons/plus.png</file>
+        <file alias="screenshot">icons/screenshot.png</file>
+        <file alias="undo">icons/undo.png</file>
+        <file alias="more-information">icons/more-information.png</file>
     </qresource>
     <qresource prefix="/plotBackgrounds">
         <file alias="trackAssenSat">plot_backgrounds/TrackAssenSat.jpg</file>
