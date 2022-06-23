@@ -41,7 +41,6 @@ m_Rubberbanding(false)
 	connect(this->yAxis, SIGNAL(rangeChanged(const QCPRange&, const QCPRange&)), this, SLOT(restrictViewY(const QCPRange&, const QCPRange&)));
 
 	this->replot();
-
 }
 
 /**

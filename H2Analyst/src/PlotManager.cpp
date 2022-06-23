@@ -2,7 +2,7 @@
 
 PlotManager::PlotManager(QWidget* parent) : QWidget(parent),
 m_Layout(new QVBoxLayout(this)),
-m_VSplitter(new QSplitter(Qt::Vertical, parent)),
+m_VSplitter(new QSplitter(Qt::Vertical, this)),
 m_HSplitters(),
 m_DataPanel(nullptr),
 m_AlignTimeAxisEnabled(true),
@@ -58,30 +58,35 @@ void PlotManager::setPlotLayoutDialog() {
 * @param cols Number of cols in new layout.
 **/
 void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
-	// Remove all plots from the current vertical splitter and after that, remove the empty splitters.
-	// Plots are not deleted at this point, but only given a new parent so they are not deleted when the splitter is deleted.
-	for (const auto& splitter : m_HSplitters) {
-		while (splitter->count() > 0)
-			splitter->widget(0)->setParent(this);
+	// Reparent plots so they are not deleted from memory
+	for (const auto& plot : m_Plots) {
+		plot->setParent(this);
 	}
+
+	// Delete all splitters
+	delete m_VSplitter;
 	m_HSplitters.clear();
+	m_VSplitter = new QSplitter(Qt::Vertical, this);
+	this->layout()->addWidget(m_VSplitter);
 
 	// Delete empty plots from memory
-	m_Plots.erase(std::remove_if(m_Plots.begin(), m_Plots.end(), [](PlotWidget* plot) { return plot->isEmpty(); }), m_Plots.end());
+	auto plotIt = m_Plots.begin();
+	while (plotIt != m_Plots.end()) {
+		if ((*plotIt)->isEmpty()) { delete* plotIt; plotIt = m_Plots.erase(plotIt); }
+		else plotIt++;
+	}
 
 	// Create new layout and fill it with existing or new plots
 	uint8_t plot_counter = 0;
-	QList<int> sizesV; // Used to reset the widths of plots to be equal
+	QList<int> sizesV, sizesH; // Used to reset the widths of plots to be equal
 	for (uint8_t row_i = 0; row_i < rows; ++ row_i)
 	{
 		QSplitter* HSplitter = new QSplitter(Qt::Horizontal);
 		HSplitter->setChildrenCollapsible(false);
 		m_HSplitters.push_back(HSplitter);
-		QList<int> sizesH; // Used to reset the widths of plots to be equal
-		sizesH.clear();
 		for (uint8_t col_i = 0; col_i < cols; ++col_i)
 		{
-			sizesH.push_back(INT_MAX);
+			if (row_i == 0) sizesH.push_back(QGuiApplication::primaryScreen()->virtualSize().width());
 			// Use existing plot if possible, otherwise make a new one
 			if (m_Plots.size() >= plot_counter + 1)
 			{
@@ -94,9 +99,9 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 			}
 			++plot_counter;
 		}
+		HSplitter->setSizes(sizesH);
 		m_VSplitter->addWidget(HSplitter);
-		HSplitter->setSizes(sizesH); // Make all plots have equal width
-		sizesV.push_back(INT_MAX);
+		sizesV.push_back(QGuiApplication::primaryScreen()->virtualSize().height());
 	}
 	m_VSplitter->setSizes(sizesV);
 
