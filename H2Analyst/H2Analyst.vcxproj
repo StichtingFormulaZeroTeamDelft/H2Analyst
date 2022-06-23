@@ -154,6 +154,7 @@
     <QtMoc Include="include\PanelToggleButton.h" />
     <ClInclude Include="include\Dialogs.h" />
     <ClInclude Include="include\Exporters.h" />
+    <ClInclude Include="include\Namespace.h" />
     <ClInclude Include="include\Parsers.h" />
     <QtMoc Include="include\PlotManager.h" />
     <QtMoc Include="include\PlotCrosshairs.h" />
