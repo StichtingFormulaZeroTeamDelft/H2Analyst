@@ -123,7 +123,7 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df)
 	
 	// Create item for datafile and set its name
 	boost::split(str_split, df->name, boost::is_any_of("."));
-	QStandardItem* datafile_item = this->createTreeItem(H2A::ItemType::kDatafile, str_split.front().c_str());
+	QStandardItem* datafile_item = this->createTreeItem(H2A::ItemType::kDatafile, str_split.front());
 
 	// Create a map with the systems and their belonging datasets
 	std::map<std::string, std::vector<H2A::Dataset*>> system_map;
@@ -219,15 +219,28 @@ QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::s
 	item->setData(dataset_ptr, H2A::ItemRole::kDatasetPtr);
 
 	// Type specific operations
+	std::vector<std::string> str_split;
+	std::stringstream ttStream, nameStream;
+	
+	ttStream << "<p style = 'white-space:pre'>";
 	QString sort_name(name.c_str());
-	std::stringstream tt; // Tooltip
-	tt << "<p style = 'white-space:pre'>";
 
 	switch (type)
 	{
 	case H2A::ItemType::kDatafile:
 		sort_name = "AAAA_" + sort_name;
 		item->setData("", H2A::ItemRole::kFilter);
+
+		// Format name to something smaller
+		boost::split(str_split, name, boost::is_any_of("-"));
+		for (const auto& str : std::vector<std::string>(str_split.begin() + 2, str_split.end())) {
+			nameStream << str;
+			if (str != str_split.back()) nameStream << "-";
+		}
+		nameStream << " " << str_split[1].substr(0, 4) << "-" << str_split[1].substr(4, 2) << "-" << str_split[1].substr(6, 2) << " " <<
+			str_split[1].substr(9, 2) << ":" << str_split[1].substr(11, 2) << ":" << str_split[1].substr(13, 2);
+		item->setText(QString(nameStream.str().c_str()));
+
 		break;
 	case H2A::ItemType::kSystem:
 		sort_name = "AAA_" + sort_name;
@@ -243,10 +256,10 @@ QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::s
 		item->setData(QString(ds->name.c_str()), H2A::ItemRole::kFilter);
 
 		//Tooltip
-		tt << "<b>Data:</b> " << ds->quantity << " [" << ds->unit << "]\n";
-		tt << "<b>UID:</b> " << ds->uid << "\n";
-		tt << "</p>";
-		item->setToolTip(tt.str().c_str());
+		ttStream << "<b>Data:</b> " << ds->quantity << " [" << ds->unit << "]\n";
+		ttStream << "<b>UID:</b> " << ds->uid << "\n";
+		ttStream << "</p>";
+		item->setToolTip(ttStream.str().c_str());
 
 		break;
 	default: break;
