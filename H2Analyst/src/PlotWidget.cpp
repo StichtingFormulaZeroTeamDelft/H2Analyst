@@ -215,15 +215,16 @@ void PlotWidget::setAxisLabels() {
 void PlotWidget::showContextMenu(const QPoint& pos) {
 	QMenu contextMenu(tr("Context menu"), this);
 	QMenu plotMenu(tr("Other plots"), this);
+	QMenu insertPlotMenu(tr("Insert plot"), this);
 
 	QAction acPlotTime("Plot", this);
-	connect(&acPlotTime, &QAction::triggered, this, [=]() {plotSelected(H2A::Time); });
+	connect(&acPlotTime, &QAction::triggered, this, [=]() { plotSelected(H2A::Time); });
 	contextMenu.addAction(&acPlotTime);
 
 	// Other plots submenu
 
 	QAction acPlotXY("XY", this);
-	connect(&acPlotXY, &QAction::triggered, this, [=]() {plotSelected(H2A::XY); });
+	connect(&acPlotXY, &QAction::triggered, this, [=]() { plotSelected(H2A::XY); });
 	plotMenu.addAction(&acPlotXY);
 	
 	contextMenu.addMenu(&plotMenu);
@@ -234,19 +235,37 @@ void PlotWidget::showContextMenu(const QPoint& pos) {
 	contextMenu.addAction(&acClear);
 
 	QAction acReset("Reset view", this);
-	connect(&acReset, &QAction::triggered, [=]() {this->resetView(); });
+	connect(&acReset, &QAction::triggered, [=]() { this->resetView(); });
 	contextMenu.addAction(&acReset);
 
 	QAction acResetAll("Reset all views", this);
 	connect(&acResetAll, SIGNAL(triggered()), m_PlotManager, SLOT(resetAllViews()));
 	contextMenu.addAction(&acResetAll);
 
+	QAction acAddPlotAbove("Above", this);
+	connect(&acAddPlotAbove, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::up); });
+	insertPlotMenu.addAction(&acAddPlotAbove);
+
+	QAction acAddPlotBelow("Below", this);
+	connect(&acAddPlotBelow, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::down); });
+	insertPlotMenu.addAction(&acAddPlotBelow);
+
+	QAction acAddPlotLeft("Left", this);
+	connect(&acAddPlotLeft, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::left); });
+	insertPlotMenu.addAction(&acAddPlotLeft);
+
+	QAction acAddPlotRight("Right", this);
+	connect(&acAddPlotRight, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::right); });
+	insertPlotMenu.addAction(&acAddPlotRight);
+
+	contextMenu.addMenu(&insertPlotMenu);
+
 	QAction acClip("Clip", this);
 	connect(&acClip, SIGNAL(triggered()), this, SLOT(copyToClipboard()));
 	contextMenu.addAction(&acClip);
 
 	QAction acDelete("Delete", this);
-	connect(&acDelete, &QAction::triggered, this, [=]() {m_PlotManager->deletePlot(this); });
+	connect(&acDelete, &QAction::triggered, this, [=]() { m_PlotManager->deletePlot(this); });
 	contextMenu.addAction(&acDelete);
 
 	contextMenu.exec(mapToGlobal(pos));

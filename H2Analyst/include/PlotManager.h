@@ -4,6 +4,7 @@
 #include "DataPanel.h"
 #include "DialogPlotLayout.h"
 #include "Dialogs.h"
+#include "Namespace.h"
 
 #include <QWidget>
 #include <QVBoxLayout>
@@ -57,7 +58,8 @@ public slots:
     void resetAllViews();
     void timeAxisChanged(PlotWidget* source);
     void deletePlot(PlotWidget* source);
-
+    void insertPlot(PlotWidget* source, H2A::Direction dir);
+    
 signals:
     void timeCursurTimeChanged(double time);
 

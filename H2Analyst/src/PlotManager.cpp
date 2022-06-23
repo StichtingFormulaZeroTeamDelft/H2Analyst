@@ -233,6 +233,40 @@ void PlotManager::deletePlot(PlotWidget* source) {
 }
 
 /**
+* This slot can be called to add plot(s) relative to an existing one.
+* 
+* @param source Reference plot.
+* @param dir Direction to add the plot, relative to the reference plot.
+**/
+void PlotManager::insertPlot(PlotWidget* source, H2A::Direction dir)
+{
+	// Find splitter in which the source widget lives
+	QSplitter* refSplitter = qobject_cast<QSplitter*>(source->parent());
+	if (refSplitter == nullptr) return;
+	
+	// Add the plot
+	QList<int> sizes;
+	PlotWidget* plot = this->createPlot();
+	if (dir == H2A::up || dir == H2A::down) { 
+		QSplitter* splitter = new QSplitter(Qt::Horizontal);
+		splitter->addWidget(plot);
+		auto refSplitterIndex = std::find(m_HSplitters.begin(), m_HSplitters.end(), refSplitter);
+		if (refSplitterIndex == m_HSplitters.end()) return;
+		m_HSplitters.insert(refSplitterIndex, splitter);
+		uint8_t offset = (dir == H2A::up) ? 0 : 1;
+		m_VSplitter->insertWidget(m_VSplitter->indexOf(refSplitter) + offset, splitter);
+		for (int i = 0; i < m_VSplitter->count(); ++i) sizes.push_back(QGuiApplication::primaryScreen()->virtualSize().height());
+		m_VSplitter->setSizes(sizes);
+	}
+	else {
+		uint8_t offset = (dir == H2A::left) ? 0 : 1;
+		refSplitter->insertWidget(refSplitter->indexOf(source) + offset, plot);
+		for (int i = 0; i < refSplitter->count(); ++i) sizes.push_back(QGuiApplication::primaryScreen()->virtualSize().width());
+		refSplitter->setSizes(sizes);
+	}
+}
+
+/**
 * This function is used by plots to get the time axis range of a different plot in the manager.
 * When using an empty plot, it needs this to set the time range to match the other when time alignment is enabled.
 * 
