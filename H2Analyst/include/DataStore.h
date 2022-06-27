@@ -11,6 +11,7 @@
 #include "Parsers.h"
 #include "DataStructures.h"
 #include "Populator.h"
+#include "Dialogs.h"
 
 
 class DataStore : public QObject
@@ -18,10 +19,13 @@ class DataStore : public QObject
 
 	Q_OBJECT
 
-private:
+
 	std::vector<H2A::Datafile*> m_Datafiles;
 
-	void loadFileFromName(const std::string& filename);
+	H2A::Datafile* loadFileFromName(const std::string& filename);
+	void createPopulator(H2A::Datafile* datafile);
+	void alignTimeVectors(std::vector<H2A::Datafile*> datafiles);
+	H2A::Datafile* mergeData(std::vector<H2A::Datafile*> datafiles);
 
 public:
 
@@ -29,7 +33,7 @@ public:
 
 	const std::vector<H2A::Datafile*>& getDatafiles();
 	void requestDatasetPopulation(const H2A::Dataset* dataset);
-	void loadFiles(QStringList &files);
+	void loadFiles(const QStringList &files);
 
 signals:
 	void fileLoaded();

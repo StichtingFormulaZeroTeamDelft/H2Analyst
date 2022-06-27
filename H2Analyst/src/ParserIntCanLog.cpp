@@ -8,6 +8,7 @@ It reads the file as a binary stream and reads the StartTime, Datasets and Messa
 
 */
 
+const double Ts = 1.0E-4;
 
 struct Tag {
 	uint32_t type, size;
@@ -226,7 +227,7 @@ void ReadMessages(char* buffer, size_t& cursor, const std::vector<int32_t>& dime
 		// Concatenate row 0 with 1 and 2 with 3 to form 16bit values for the message IDs and dTs
 		id_row->at(col) = static_cast<uint16_t>(static_cast<uint8_t>(buffer[cursor + col * 12 + 1]) << 8) | static_cast<uint8_t>(buffer[cursor + col * 12 + 0]);
 		dt_row->at(col) = static_cast<int16_t>(static_cast<uint8_t>(buffer[cursor + col * 12 + 3]) << 8) | static_cast<uint8_t>(buffer[cursor + col * 12 + 2]);
-		
+
 		// Message data
 		for (uint8_t row = 0; row < 8; row++)
 			message_mat->at(row, col) = static_cast<uint8_t>(buffer[cursor + static_cast<size_t>(col) * 12 + row + 4]);;
@@ -234,22 +235,27 @@ void ReadMessages(char* buffer, size_t& cursor, const std::vector<int32_t>& dime
 
 	// First dT value is the (negative) offset between the startTime and the first message
 	// This value is used to update the startTime of the dataset
-	
-	// TODO: apply time offset on datafile startTime
-	// int16_t t_offset = dt_row->at(0);
+	boost::posix_time::time_duration offset;
+	offset += boost::posix_time::milliseconds(dt_row->at(0));
+	df->startTime.timePoint += offset;
+
+	// Generate time vector by performing a cumulative sum on the dT vector
 	dt_row->at(0) = 0;
-	arma::Row<float> *time_row = new arma::Row<float>(dt_row->size());
+	arma::Row<double> *time_row = new arma::Row<double>(dt_row->size());
 	time_row->at(0) = 0.0;
 	for (size_t col = 1; col < dt_row->size(); ++col)
-	{
-		//time_row->at(col) = time_row->at(col - 1) + (1.e-3 / H2A::INTCANLOG_SAMPLING_TIME) * static_cast<float>(dt_row->at(col));
-		time_row->at(col) = time_row->at(col - 1) + 1.e-3 * static_cast<float>(dt_row->at(col));
-	}
+		time_row->at(col) = time_row->at(col - 1) + static_cast<double>(1.0e-3) * static_cast<double>(dt_row->at(col));
 
+	// Based on time vector, determine timestamp at which data ends
+	boost::posix_time::time_duration duration;
+	duration += boost::posix_time::microseconds(static_cast<long>(std::floor(time_row->back() * 1000000.0f)));
+	df->endTime = df->startTime + duration;
+
+	// Store data in datafile
 	df->message_ids = id_row;
 	df->message_time = time_row;
 	df->messages = message_mat;
-
+	
 }
 
 
@@ -276,7 +282,7 @@ void H2A::Parsers::IntCanLog(const std::string& filename, H2A::Datafile *datafil
 
 		// Determine file size and read to buffer
 		filesize = input_file.tellg();
-		std::cout << "Filesize: " << filesize << " bytes" << std::endl;
+		std::cout << "\tFilesize: " << filesize << " bytes" << std::endl;
 		input_file.seekg(0, std::ios::beg);
 		data = new char[filesize];
 		cursor = 0;
@@ -325,19 +331,20 @@ void H2A::Parsers::IntCanLog(const std::string& filename, H2A::Datafile *datafil
 		// Start time
 		if (element_name == "startTime") {
 			std::vector<uint16_t> start_time = ReadElement<uint16_t>(buffer, subcursor, byte_swap);
-			datafile->startTime = start_time;
+			datafile->startTime.set(start_time);
+			std::cout << "\tStart time: " << datafile->startTime << std::endl;
 		}
 		
 		// Datasets
 		else if (element_name == "datasets") {
 			ReadDatasets(buffer, subcursor, tag.size, datafile, byte_swap);
-			std::cout << "Datasets: " << datafile->datasets.size() << " read" << std::endl;
+			std::cout << "\tDatasets: " << datafile->datasets.size() << " read" << std::endl;
 		}
 		
 		// Messages
 		else if (element_name == "messages") {
 			ReadMessages(buffer, subcursor, dimensions, datafile, byte_swap);
-			std::cout << "Messages: " << datafile->messages->n_cols << " read" << std::endl;;
+			std::cout << "\tMessages: " << datafile->messages->n_cols << " read" << std::endl;;
 		}
 	}
 

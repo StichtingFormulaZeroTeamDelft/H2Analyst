@@ -8,7 +8,8 @@ m_Label(nullptr),
 m_Color(Qt::black)
 {
 	// Create QVectors from dataset data
-	QVector<double> x(m_Dataset->timeVec.begin(), m_Dataset->timeVec.end());
+	std::vector<double> timeVec = m_Dataset->timeVec();
+	QVector<double> x(timeVec.begin(), timeVec.end());
 	QVector<double> y(m_Dataset->dataVec.begin(), m_Dataset->dataVec.end());
 
 	// Save data range

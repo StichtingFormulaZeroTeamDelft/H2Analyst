@@ -117,6 +117,7 @@
     <ClCompile Include="src\ControlPanel.cpp" />
     <ClCompile Include="src\DataPanel.cpp" />
     <ClCompile Include="src\DataStore.cpp" />
+    <ClCompile Include="src\DataStructures.cpp" />
     <ClCompile Include="src\DialogPlotLayout.cpp" />
     <ClCompile Include="src\Dialogs.cpp" />
     <ClCompile Include="src\Exporters.cpp" />
@@ -135,6 +136,7 @@
     <ClCompile Include="src\SpecialPlots.cpp" />
     <ClCompile Include="src\TimeCursor.cpp" />
     <ClCompile Include="src\TimeSeries.cpp" />
+    <ClCompile Include="src\Timestamp.cpp" />
     <ClCompile Include="src\TreeView.cpp" />
     <ClCompile Include="src\XYSeries.cpp" />
   </ItemGroup>
@@ -165,6 +167,7 @@
     <ClInclude Include="include\PlotDefinitions.h" />
     <QtMoc Include="include\PlotRubberband.h" />
     <ClInclude Include="include\SpecialPlots.h" />
+    <ClInclude Include="include\Timestamp.h" />
     <ClInclude Include="include\TreeView.h" />
     <QtMoc Include="include\qcustomplot.h" />
     <QtMoc Include="include\Populator.h" />

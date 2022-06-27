@@ -10,7 +10,6 @@ namespace H2A
 	{
 
 		void message(QString message);
-
+		bool question(QString message);
 	}
-
 }

@@ -49,7 +49,6 @@ H2Analyst::H2Analyst(QWidget* parent)
     // Connect signals to slots
     connect(m_PbHidePanel, SIGNAL(clicked()), this, SLOT(hideSidePanel()));
     connect(m_DataStore, SIGNAL(fileLoaded()), m_DataPanel, SLOT(updateData()));
-    
     connect(m_ControlPanel, SIGNAL(pbLoad()), this, SLOT(openFiles()));
     connect(m_ControlPanel, SIGNAL(pbPlotLayout()), m_PlotManager, SLOT(setPlotLayoutDialog()));
     connect(m_ControlPanel, SIGNAL(pbExport()), this, SLOT(exportDatasets()));
@@ -99,16 +98,18 @@ void H2Analyst::exportDatasets()
     H2A::Export::CSV(datasets, "test.csv");
 }
 
-void H2Analyst::openFiles()
-{
+/**
+* Open the file dialog to choose which files to load.
+* After files are chosen, load thim into the dataStore.
+**/
+void H2Analyst::openFiles() {
     QFileDialog dialog(this);
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setFileMode(QFileDialog::ExistingFiles);
     dialog.setNameFilter("Car data (*.mat)");
 
     QStringList filenames;
-    if (dialog.exec())
-    {
+    if (dialog.exec()) {
         filenames = dialog.selectedFiles();
     }
 

@@ -11,7 +11,8 @@
 void H2A::resample(const H2A::Dataset* dataset, uint16_t freq, std::vector<double>& timeResampled, std::vector<double>& dataResampled)
 {
 	double dt = 1.0 / freq;
-	float duration = dataset->timeVec.back() - dataset->timeVec.front();
+	std::vector<double> timeVec = dataset->timeVec();
+	float duration = timeVec.back() - timeVec.front();
 	size_t nSteps = std::floor(duration / dt);
 	std::cout << nSteps << std::endl;
 
@@ -25,9 +26,9 @@ void H2A::resample(const H2A::Dataset* dataset, uint16_t freq, std::vector<doubl
 	for (size_t step = 0; step < nSteps; ++ step)
 	{
 		// Set cursor to first index where time in original data is later than current resampled index
-		while (dataset->timeVec[cursor] < time[step])
+		while (timeVec[cursor] < time[step])
 		{
-			if (cursor < dataset->timeVec.size())
+			if (cursor < timeVec.size())
 				++cursor;
 			else
 				break;
@@ -51,7 +52,8 @@ void H2A::resample(const H2A::Dataset* dataset, uint16_t freq, std::vector<doubl
 void H2A::resample(const H2A::Dataset* dataset, std::vector<double> time, std::vector<double>& dataResampled, bool trimTime)
 {
 	// Get start and end time of dataset to be resampled for checking
-	auto minMaxTime = std::minmax_element(dataset->timeVec.begin(), dataset->timeVec.end());
+	std::vector<double> timeVec = dataset->timeVec();
+	auto minMaxTime = std::minmax_element(timeVec.begin(), timeVec.end());
 	double tStart = *minMaxTime.first;
 	double tEnd = *minMaxTime.second;
 
@@ -80,9 +82,9 @@ void H2A::resample(const H2A::Dataset* dataset, std::vector<double> time, std::v
 		if (time[step] >= tEnd) break; // End of dataset datapoints reached, rest of resampled data keeps their initial values
 
 		// Set cursor to first index where time in original data is later than current resampled index
-		while (dataset->timeVec[cursor] < time[step])
+		while (timeVec[cursor] < time[step])
 		{
-			if (cursor < dataset->timeVec.size())
+			if (cursor < timeVec.size())
 				++cursor;
 			else
 				break;
@@ -135,16 +137,14 @@ void H2A::resample(const std::vector<const H2A::Dataset*> datasets, std::vector<
 
 	// First, the dataset overlap in time is calculated.
 	// This overlap is used to generate the new timevector that will be used for resampling.
-	auto minMaxTime = std::minmax_element(
-		datasets.front()->timeVec.begin(),
-		datasets.front()->timeVec.end());
+	std::vector<double> timeVec = datasets.front()->timeVec();
+	auto minMaxTime = std::minmax_element(timeVec.begin(),timeVec.end());
 	double tStart = *minMaxTime.first;
 	double tEnd = *minMaxTime.second;
 	for (size_t i = 1; i < datasets.size(); ++ i) // First dataset used to set initial values
 	{
-		minMaxTime = std::minmax_element(
-			datasets[i]->timeVec.begin(),
-			datasets[i]->timeVec.end());
+		std::vector<double> timeVec = datasets[i]->timeVec();
+		minMaxTime = std::minmax_element(timeVec.begin(), timeVec.end());
 		tStart = std::max({ tStart, *minMaxTime.first });
 		tEnd = std::min({ tEnd, *minMaxTime.second });
 	}
@@ -173,8 +173,9 @@ void H2A::resample(const std::vector<const H2A::Dataset*> datasets, std::vector<
 uint16_t H2A::samplingFreq(const H2A::Dataset* dataset)
 {
 	// Assuming time vector might not be monotonically increasing
-	auto minMaxTime = std::minmax_element(dataset->timeVec.begin(), dataset->timeVec.end());
+	std::vector<double> timeVec = dataset->timeVec();
+	auto minMaxTime = std::minmax_element(timeVec.begin(), timeVec.end());
 	double duration = *minMaxTime.second - *minMaxTime.first;
-	return round(dataset->timeVec.size() / duration);
+	return round(timeVec.size() / duration);
 }
 

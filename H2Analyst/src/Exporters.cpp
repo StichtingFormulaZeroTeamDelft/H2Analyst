@@ -22,10 +22,12 @@ void H2A::Export::CSV(const std::vector<const H2A::Dataset*> datasets, const std
 	file << "\n";
 
 	// Determine time span of datasets and create resampled time vector
-	double tStart = datasets.front()->timeVec.front();
-	double tEnd = datasets.front()->timeVec.back();
+	std::vector<double> timeVec = datasets.front()->timeVec();
+	double tStart = timeVec.front();
+	double tEnd = timeVec.back();
 	for (const auto& dataset : datasets) {
-		auto minMaxTime = std::minmax_element(dataset->timeVec.begin(), dataset->timeVec.end());
+		std::vector<double> timeVec = dataset->timeVec();
+		auto minMaxTime = std::minmax_element(timeVec.begin(), timeVec.end());
 		tStart = std::min({ tStart, *minMaxTime.first });
 		tEnd = std::max({ tEnd, *minMaxTime.second });
 	}

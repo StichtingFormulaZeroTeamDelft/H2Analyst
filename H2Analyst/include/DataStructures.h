@@ -8,13 +8,22 @@
 
 #include <armadillo>
 
+#include "Timestamp.h"
+
 namespace H2A
 {
-
+	
 	struct Datafile;
 
-	struct Dataset // A Dataset contains one timeseries of a single signal.
+	/**
+	* A Dataset contains one timeseries of a single signal.
+	**/
+	struct Dataset
 	{
+	private:
+		std::vector<double> timeVector = std::vector<double>();
+
+	public:
 		QMutex mutex = QMutex(QMutex::NonRecursive); // Mutex for multi-thread protection
 
 		Datafile* datafile = nullptr;
@@ -30,28 +39,35 @@ namespace H2A
 		float offset = 0.0;
 		float scale = 0.0;
 
-		std::vector<double> timeVec = std::vector<double>();
+		void setTimeVec(std::vector<double> time) { timeVector = time; };
+		const std::vector<double> timeVec() const;
+
 		std::vector<double> dataVec = std::vector<double>();
 
 		bool volatile populating = false;
 		bool volatile populated = false;
 	};
 
+	/**
+	* A Datafile is a bundle of Datasets that belong to each other.
+	**/
 	struct Datafile
-		// A Datafile is a bundle of Datasets that belong to each other.
 	{
 		QMutex mutex = QMutex(QMutex::NonRecursive); // Mutex for multi-thread protection
 
 		std::string name = "Not set";
-		std::vector<uint16_t> startTime = std::vector<uint16_t>();
+		Timestamp startTime;
+		Timestamp endTime;
+		double timeOffset = 0.0;
 		std::vector<Dataset*> datasets = std::vector<Dataset*>();
 
 		arma::Row<uint16_t>* message_ids = nullptr;
-		arma::Row<float> *message_time = nullptr;
+		arma::Row<double> *message_time = nullptr;
 		arma::Mat<uint8_t> *messages = nullptr;
 
+		bool volatile populationStarted = false;
+		QThread* populationThread;
 		std::vector<Dataset*> populationPrioList = std::vector<Dataset*>();
 	};
-
 }
 

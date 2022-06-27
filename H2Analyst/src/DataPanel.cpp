@@ -232,6 +232,7 @@ QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::s
 		item->setData("", H2A::ItemRole::kFilter);
 
 		// Format name to something smaller
+		/*
 		boost::split(str_split, name, boost::is_any_of("-"));
 		for (const auto& str : std::vector<std::string>(str_split.begin() + 2, str_split.end())) {
 			nameStream << str;
@@ -240,6 +241,8 @@ QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::s
 		nameStream << " " << str_split[1].substr(0, 4) << "-" << str_split[1].substr(4, 2) << "-" << str_split[1].substr(6, 2) << " " <<
 			str_split[1].substr(9, 2) << ":" << str_split[1].substr(11, 2) << ":" << str_split[1].substr(13, 2);
 		item->setText(QString(nameStream.str().c_str()));
+		*/
+		item->setText(QString(name.c_str()));
 
 		break;
 	case H2A::ItemType::kSystem:

@@ -7,7 +7,8 @@ TimeSeries::TimeSeries(QCustomPlot* plot, const H2A::Dataset* dataset) : Plottab
 	m_Dataset = dataset;
 
 	// Create QVectors from dataset data
-	QVector<double> x(m_Dataset->timeVec.begin(), m_Dataset->timeVec.end());
+	std::vector<double> time = m_Dataset->timeVec();
+	QVector<double> x(time.begin(), time.end());
 	QVector<double> y(m_Dataset->dataVec.begin(), m_Dataset->dataVec.end());
 
 	// Save data range
@@ -71,11 +72,12 @@ TimeSeries::~TimeSeries() {
 * @param time Time to intersect plot at.
 **/
 const QPointF TimeSeries::dataAt(double time) const {
-	if (time < m_Dataset->timeVec.front())
+	std::vector<double> timeVec = m_Dataset->timeVec();
+	if (time < timeVec.front())
 		return QPointF(0.0, 0.0);
 
-	for (size_t cursor = 1; cursor < m_Dataset->timeVec.size(); ++cursor) {
-		if (m_Dataset->timeVec[cursor] > time)
+	for (size_t cursor = 1; cursor < timeVec.size(); ++cursor) {
+		if (timeVec[cursor] > time)
 			return QPointF(time, m_Dataset->dataVec[cursor - 1]);
 	}
 

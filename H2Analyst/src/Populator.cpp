@@ -9,6 +9,7 @@ Populator::Populator(H2A::Datafile* datafile) : QObject()
 void Populator::run()
 {
 	// Create threadpool used to populate datasets, always keeping at least 2 threads free for the other tasks on the system
+	m_datafile->populationStarted = true;
 	std::cout << "Starting population of " << m_datafile->name << std::endl;
 	this->startNextDataset();
 }
@@ -99,7 +100,7 @@ void PopulatorWorker::run()
 	m_ds->mutex.lock();
 
 	// Time vector
-	m_ds->timeVec = arma::conv_to<std::vector<double>>::from(m_ds->datafile->message_time->cols(mess_cols));
+	m_ds->setTimeVec(arma::conv_to<std::vector<double>>::from(m_ds->datafile->message_time->cols(mess_cols)));
 
 	// Data vector
 	m_ds->dataVec = std::vector<double>(messages.n_cols);
