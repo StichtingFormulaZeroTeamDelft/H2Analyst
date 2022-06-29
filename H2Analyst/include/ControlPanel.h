@@ -41,6 +41,9 @@ signals:
     void setTimeCursorEnable(bool align);
     void setTimeCursorTime(double time);
 
+private slots:
+    void timeCursorTimeEntered();
+
 public slots:
     void setTimeCursorTimeInputbox(double time);
 };

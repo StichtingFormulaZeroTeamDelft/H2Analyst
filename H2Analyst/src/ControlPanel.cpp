@@ -24,10 +24,7 @@ ControlPanel::ControlPanel(QWidget* parent) : QWidget(parent)
 	connect(m_CbTimeCursor, &QCheckBox::stateChanged, [=]() { emit setTimeCursorEnable(m_CbTimeCursor->checkState() == Qt::Checked); });
 
 	m_LeTimeCursor = new QLineEdit(this);
-	connect(m_LeTimeCursor, &QLineEdit::returnPressed, [=]() {
-		emit this->setTimeCursorTime(std::stod(m_LeTimeCursor->text().toStdString()));
-		m_CbTimeCursor->setChecked(true);
-		});
+	connect(m_LeTimeCursor, SIGNAL(returnPressed()), this, SLOT(timeCursorTimeEntered()));
 
 	m_Layout->addWidget(m_BtLoad);
 	m_Layout->addWidget(m_BtPlotLayout);
@@ -46,4 +43,21 @@ void ControlPanel::setTimeCursorTimeInputbox(double time) {
 	ss << std::fixed << std::setprecision(2) << time;
 	m_LeTimeCursor->setText(QString(ss.str().c_str()));
 	m_CbTimeCursor->setChecked(true);
+}
+
+
+/**
+* Used to check if input time is valid and if so, set cursor to this time.
+**/
+void ControlPanel::timeCursorTimeEntered() {
+
+	double time = 0.0;
+
+	// Check if input is a valid double
+	char* end;
+	time = std::strtod(m_LeTimeCursor->text().toStdString().c_str(), &end);
+
+	// Check box and set time
+	m_CbTimeCursor->setChecked(true);
+	emit this->setTimeCursorTime(time);
 }
