@@ -22,7 +22,7 @@ m_Enabled(false)
 **/
 void TimeCursor::draw()
 {
-	if (!m_Enabled) return;
+	if (!m_Enabled || m_Plot->isEmpty()) return;
 
 	// Remove current labels
 	for (const auto& label : m_Labels)
