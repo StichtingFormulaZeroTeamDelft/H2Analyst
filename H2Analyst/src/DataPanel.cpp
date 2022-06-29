@@ -31,26 +31,33 @@ m_TreeProxyModel(new QSortFilterProxyModel(this))
 	this->setLayout(m_Layout);
 }
 
-void DataPanel::setDataStore(DataStore* datastore)
-{
+/**
+* Datastore setter
+* 
+* @param datastore New DataStore
+**/
+void DataPanel::setDataStore(DataStore* datastore) {
 	// Todo: make sure it is safe to change datastore after one has already been connected
 	m_DataStore = datastore;
 }
 
-
-const H2A::Dataset* DataPanel::getDatasetFromItem(const QStandardItem* item) const
-{
+/**
+* Function to find the Dataset object based on the given QStandardItem.
+* 
+* @param item Item to find dataset of.
+**/
+const H2A::Dataset* DataPanel::getDatasetFromItem(const QStandardItem* item) const {
 	return static_cast<const H2A::Dataset*>(item->data(H2A::ItemRole::kDatasetPtr).value<const void*>());
 }
 
-
-std::vector<const H2A::Dataset*> DataPanel::getSelectedDatasets() const
-{
+/**
+* Returns the Dataset objects of the item that are currently selected.
+**/
+std::vector<const H2A::Dataset*> DataPanel::getSelectedDatasets() const {
 	QModelIndexList indices = m_TreeSelectionModel->selectedIndexes();
 
 	std::vector<const H2A::Dataset*> datasets;
-	for (auto const& index : indices)
-	{
+	for (auto const& index : indices) {
 		QStandardItem* item = m_TreeItemModel->itemFromIndex(m_TreeProxyModel->mapToSource(index));
 		this->addChildrenDatasets(item, datasets);
 	}
@@ -58,12 +65,15 @@ std::vector<const H2A::Dataset*> DataPanel::getSelectedDatasets() const
 	return datasets;
 }
 
-
-void DataPanel::addChildrenDatasets(const QStandardItem* item, std::vector<const H2A::Dataset*>& target) const
-{
+/**
+* Takes the given item and adds its children datasets to the given vector.
+* 
+* @param item Item to add children datasets of.
+* @param target Vector in which children are placed.
+**/
+void DataPanel::addChildrenDatasets(const QStandardItem* item, std::vector<const H2A::Dataset*>& target) const {
 	
-	if (item->data(H2A::ItemRole::kItemType).value<H2A::ItemType>() == H2A::ItemType::kDataset)
-	{
+	if (item->data(H2A::ItemRole::kItemType).value<H2A::ItemType>() == H2A::ItemType::kDataset) {
 		// This is a dataset, so simply add it to the list of datasets
 		const H2A::Dataset* item_ds = this->getDatasetFromItem(item);
 		// For good measure, make sure the dataset is not already in the target list (should never occur)
@@ -73,52 +83,55 @@ void DataPanel::addChildrenDatasets(const QStandardItem* item, std::vector<const
 
 	// Add all children of this item as well
 	for (auto i = 0; i < item->rowCount(); ++i)
-	{
 		this->addChildrenDatasets(item->child(i), target);
-	}
 }
 
-
-void DataPanel::updateData()
-{
+/**
+* Re-generates the item views.
+**/
+void DataPanel::updateData() {
 	m_TreeItemModel->clear();
 
 	QStandardItem *root = m_TreeItemModel->invisibleRootItem();
 	for (auto const& df : m_DataStore->getDatafiles())
-	{
 		root->appendRow(this->createTreeItemFromDatafile(df));
-	}
 
 	m_TreeItemModel->sort(0);
 }
 
 
-void DataPanel::requestDatasetPopulation(const H2A::Dataset* dataset, bool blocking) const
-{
-	if (!dataset->populated) m_DataStore->requestDatasetPopulation(dataset);
-	
+/**
+* Requests priority population for given dataset. Optionally, block until the dataset is finished populating.
+* 
+* @param dataset Dataset to populate.
+* @param blocking Enable blocking until finished populating (default = false)
+**/
+void DataPanel::requestDatasetPopulation(const H2A::Dataset* dataset, bool blocking) const {
+	if (!dataset->populated) m_DataStore->requestDatasetPopulation(dataset);	
 	if (!blocking) return;
-
-	// Wait for dataset to be populated
 	while (!dataset->populated);
 }
 
-void DataPanel::requestDatasetPopulation(std::vector<const H2A::Dataset*> datasets, bool blocking) const
-{
-	// Request population for unpopulated datasets
+/**
+* Requests priority population for given datasets. Optionally, block until the datasets are finished populating.
+*
+* @param datasets Datasets to populate.
+* @param blocking Enable blocking until finished populating (default = false)
+**/
+void DataPanel::requestDatasetPopulation(std::vector<const H2A::Dataset*> datasets, bool blocking) const {
 	for (auto const& dataset : datasets)
-		if (!dataset->populated) this->requestDatasetPopulation(dataset, false);
-	
+		if (!dataset->populated) this->requestDatasetPopulation(dataset, false);	
 	if (!blocking) return;
-
-	// Wait for population to finish
 	for (auto const& dataset : datasets)
 		while (!dataset->populated);
 }
 
-
-QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df)
-{
+/**
+* Function that generates the tree items for a given datafile.
+* 
+* @param df Datafile to create tree items for.
+**/
+QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df) {
 	std::vector<std::string> str_split;
 	
 	// Create item for datafile and set its name
@@ -280,6 +293,10 @@ void DataPanel::applyFindFilter() {
 	QString input = m_SearchBox->text();
 	QRegExp regExp(input, Qt::CaseInsensitive, QRegExp::FixedString);
 	m_TreeProxyModel->setFilterRegExp(regExp);
+
+	int nDatasets = this->countRows(m_TreeView->rootIndex());
+	if (nDatasets <= H2A::TREEVIEW_FILTER_EXPAND_THRESHOLD)
+		m_TreeView->expandRecursively(m_TreeView->rootIndex());
 }
 
 /**
@@ -287,5 +304,19 @@ void DataPanel::applyFindFilter() {
 **/
 void DataPanel::searchInputChanged() {
 	if (m_SearchBox->text() == "") this->applyFindFilter();
+}
+
+/**
+* Function that recursively counts the number of rows (including children) of an index.
+* 
+* @param index Index of item to count rows of.
+**/
+int DataPanel::countRows(const QModelIndex& index) {
+	int count = 0;
+	int rowCount = m_TreeProxyModel->rowCount(index);
+	count += rowCount;
+	for (int r = 0; r < rowCount; ++r)
+		count += this->countRows(m_TreeProxyModel->index(r, 0, index));
+	return count;
 }
 

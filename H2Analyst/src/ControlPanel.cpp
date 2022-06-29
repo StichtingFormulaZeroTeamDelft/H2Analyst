@@ -24,6 +24,7 @@ ControlPanel::ControlPanel(QWidget* parent) : QWidget(parent)
 	connect(m_CbTimeCursor, &QCheckBox::stateChanged, [=]() { emit setTimeCursorEnable(m_CbTimeCursor->checkState() == Qt::Checked); });
 
 	m_LeTimeCursor = new QLineEdit(this);
+	m_LeTimeCursor->setClearButtonEnabled(true);
 	connect(m_LeTimeCursor, SIGNAL(returnPressed()), this, SLOT(timeCursorTimeEntered()));
 
 	m_Layout->addWidget(m_BtLoad);

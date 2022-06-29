@@ -19,20 +19,7 @@
 #include "DataStore.h"
 #include "DataStructures.h"
 #include "TreeView.h"
-
-namespace H2A
-{
-    enum class ItemType : uint8_t {
-        kDatafile, kSystem, kSubsystem, kDataset,
-    };
-
-    namespace ItemRole {
-        const uint32_t kItemType = Qt::UserRole + 1;
-        const uint32_t kSorting = Qt::UserRole + 2;
-        const uint32_t kDatasetPtr = Qt::UserRole + 3;
-        const uint32_t kFilter = Qt::UserRole + 4;
-    };
-}
+#include "Namespace.h"
 
 Q_DECLARE_METATYPE(const void*)
 Q_DECLARE_METATYPE(H2A::ItemType)
@@ -63,6 +50,7 @@ private:
 
     const H2A::Dataset* getDatasetFromItem(const QStandardItem* item) const;
     void applyFindFilter();
+    int DataPanel::countRows(const QModelIndex& index = QModelIndex());
 
 
 public:
