@@ -2,7 +2,7 @@
 
 
 DataStore::DataStore() :
-m_Datafiles() {
+	m_Datafiles() {
 }
 
 const std::vector<H2A::Datafile*>& DataStore::getDatafiles() {
@@ -26,7 +26,7 @@ void DataStore::requestDatasetPopulation(const H2A::Dataset* dataset) {
 
 /**
 * Load the file with given filename into the dataStore.
-* 
+*
 * @param filename Filename of file to load.
 **/
 H2A::Datafile* DataStore::loadFileFromName(const std::string& filename) {
@@ -63,44 +63,42 @@ void DataStore::createPopulator(H2A::Datafile* datafile) {
 
 /**
 * Load the given list files into the datastore.
-* 
+*
 * @param files Files to load.
 **/
-void DataStore::loadFiles(const QStringList &files) {
+void DataStore::loadFiles(const QStringList& files) {
 	if (files.size() == 0) return;
 
 	std::vector<H2A::Datafile*> datafiles;
 
 	// If more than 1 datafile is in the list, ask to align and/or merge time vectors
-	bool alignTime = false;
 	bool mergeData = false;
-	if (files.size() > 1 || m_Datafiles.size() > 0) {
-		alignTime = H2A::Dialog::question("Align time vector?");
-		if (alignTime) mergeData = H2A::Dialog::question("Merge datasets?");
-	}
+	bool alignTime = false;
+	if (files.size() > 1)
+		mergeData = H2A::Dialog::question("Merge datasets?");
 
-	// Load files
+	if ((files.size() > 1 || m_Datafiles.size() > 0) && !mergeData)
+		alignTime = H2A::Dialog::question("Align time vectors?");
+
+	// Load files (does not start data population yet)
 	for (const auto& file : files)
 		datafiles.push_back(this->loadFileFromName(file.toStdString()));
 
-	// If requested, align time and merge
+	// If requested, merge and/or align data
 	if (mergeData) {
 		this->alignTimeVectors(datafiles);
 		m_Datafiles.push_back(this->mergeData(datafiles));
 	}
 	else {
 		m_Datafiles.insert(m_Datafiles.end(), datafiles.begin(), datafiles.end());
-		if (alignTime) {
+		if (alignTime)
 			this->alignTimeVectors(m_Datafiles);
-		}
 	}
-
 	emit fileLoaded();
 
 	// Start population of all datafiles that are not being populated yet
-	for (const auto& datafile : m_Datafiles) {
+	for (const auto& datafile : m_Datafiles)
 		if (!datafile->populationStarted) datafile->populationThread->start();
-	}
 
 }
 
@@ -124,7 +122,6 @@ void DataStore::alignTimeVectors(std::vector<H2A::Datafile*> datafiles) {
 		boost::posix_time::time_duration diff = datafile->startTime - first->startTime;
 		long ms = diff.total_milliseconds();
 		datafile->timeOffset = static_cast<double>(std::floor(ms / 1000) + (static_cast<double>(ms % 1000)) / 1000.0);
-		//datafile->startTime = first->startTime;
 	}
 }
 
@@ -139,7 +136,10 @@ H2A::Datafile* DataStore::mergeData(std::vector<H2A::Datafile*> datafiles)
 
 	// Create new datafile
 	H2A::Datafile* df = new H2A::Datafile;
-	df->name = "Merged";
+	std::stringstream name;
+	name << "Merged_" << std::setw(2) << std::setfill('0') << std::to_string(m_MergeCounter);
+	++ m_MergeCounter;
+	df->name = name.str();
 	df->startTime = datafiles.front()->startTime;
 	df->endTime = datafiles.back()->endTime;
 

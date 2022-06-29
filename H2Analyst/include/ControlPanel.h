@@ -27,7 +27,6 @@ private:
     QPushButton* m_BtLoad;
     QPushButton* m_BtPlotLayout;
     QPushButton* m_BtExport;
-    QCheckBox* m_CbTimeAlign;
     QToolButton* m_TbTimeAlign;
     QCheckBox* m_CbTimeCursor;
     QLineEdit* m_LeTimeCursor;

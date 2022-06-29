@@ -19,6 +19,7 @@ class DataStore : public QObject
 
 	Q_OBJECT
 
+	uint8_t m_MergeCounter = 1;
 
 	std::vector<H2A::Datafile*> m_Datafiles;
 

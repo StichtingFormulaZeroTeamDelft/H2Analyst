@@ -49,6 +49,7 @@ public:
     bool getOtherTimeRange(PlotWidget* source, QCPRange& range) const;
     const bool timeCursorEnabled() const { return m_TimeCursorEnabled; };
     const double timeCursorTime() const { return m_TimeCursorTime; };
+    size_t numberOfPlots() { return m_Plots.size(); };
 
 public slots:
     void setPlotLayoutDialog();

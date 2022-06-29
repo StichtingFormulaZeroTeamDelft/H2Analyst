@@ -3,7 +3,7 @@
         <file alias="forze_logo">forze_logo.png</file>
     </qresource>
     <qresource prefix="/icons">
-        <file>icons/H2Analyst.ico</file>
+        <file alias="app-icon">icons/H2Analyst.ico</file>
         <file alias="left-arrow">icons/left-arrow.png</file>
         <file alias="right-arrow">icons/right-arrow.png</file>
         <file alias="tb-time-align">icons/time-align.png</file>
@@ -12,6 +12,9 @@
         <file alias="screenshot">icons/screenshot.png</file>
         <file alias="undo">icons/undo.png</file>
         <file alias="more-information">icons/more-information.png</file>
+        <file alias="circular">icons/circular.png</file>
+        <file alias="up-arrow">icons/up-arrow.png</file>
+        <file alias="down-arrow">icons/down-arrow.png</file>
     </qresource>
     <qresource prefix="/plotBackgrounds">
         <file alias="trackAssenSat">plot_backgrounds/TrackAssenSat.jpg</file>

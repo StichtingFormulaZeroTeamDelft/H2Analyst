@@ -235,18 +235,22 @@ void PlotWidget::showContextMenu(const QPoint& pos) {
 	insertPlotMenu.setIcon(QIcon(QPixmap(":/icons/plus")));
 
 	QAction acAddPlotAbove("Above", this);
+	acAddPlotAbove.setIcon(QIcon(QPixmap(":/icons/up-arrow")));
 	connect(&acAddPlotAbove, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::up); });
 	insertPlotMenu.addAction(&acAddPlotAbove);
 
 	QAction acAddPlotBelow("Below", this);
+	acAddPlotBelow.setIcon(QIcon(QPixmap(":/icons/down-arrow")));
 	connect(&acAddPlotBelow, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::down); });
 	insertPlotMenu.addAction(&acAddPlotBelow);
 
 	QAction acAddPlotLeft("Left", this);
+	acAddPlotLeft.setIcon(QIcon(QPixmap(":/icons/left-arrow")));
 	connect(&acAddPlotLeft, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::left); });
 	insertPlotMenu.addAction(&acAddPlotLeft);
 
 	QAction acAddPlotRight("Right", this);
+	acAddPlotRight.setIcon(QIcon(QPixmap(":/icons/right-arrow")));
 	connect(&acAddPlotRight, &QAction::triggered, this, [=]() { m_PlotManager->insertPlot(this, H2A::right); });
 	insertPlotMenu.addAction(&acAddPlotRight);
 
@@ -278,6 +282,7 @@ void PlotWidget::showContextMenu(const QPoint& pos) {
 	contextMenu.addAction(&acReset);
 
 	QAction acResetAll("Reset all views", this);
+	acResetAll.setIcon(QIcon(QPixmap(":/icons/circular")));
 	connect(&acResetAll, SIGNAL(triggered()), m_PlotManager, SLOT(resetAllViews()));
 	contextMenu.addAction(&acResetAll);
 
@@ -293,6 +298,7 @@ void PlotWidget::showContextMenu(const QPoint& pos) {
 	plotMenu.addSeparator();
 
 	QAction acDelete("Delete", this);
+	acDelete.setEnabled(m_PlotManager->numberOfPlots() > 1);
 	acDelete.setIcon(QIcon(QPixmap(":/icons/remove")));
 	connect(&acDelete, &QAction::triggered, this, [=]() { m_PlotManager->deletePlot(this); });
 	contextMenu.addAction(&acDelete);
