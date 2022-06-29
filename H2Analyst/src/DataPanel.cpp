@@ -155,7 +155,7 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df)
 
 				// Create pattern of first N words of current name
 				std::vector<std::string> vec_pattern(str_split.begin(), str_split.begin() + 2 + n_word);
-				std::string str_pattern = boost::join(vec_pattern, " ");
+				std::string str_pattern = boost::join(vec_pattern, " ") + " ";
 
 				// Find datasets that match the pattern
 				std::vector<H2A::Dataset*> hits;
