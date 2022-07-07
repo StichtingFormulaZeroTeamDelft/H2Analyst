@@ -115,3 +115,4 @@ void H2Analyst::openFiles() {
 
     m_DataStore->loadFiles(filenames);
 }
+

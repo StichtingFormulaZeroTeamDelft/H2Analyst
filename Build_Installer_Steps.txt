@@ -1,6 +1,6 @@
 - Switch configuration to Release and build application.
 
-- Copy generated .exe to data folder in installer file structure.
+- Copy generated .exe to packages\com.forze.h2analyst\data folder in installer file structure.
 
 - In package data folder:
   C:\Qt\5.15.2\msvc2019_64\bin\windeployqt.exe H2Analyst.exe --compiler-runtime

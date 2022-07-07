@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMessageBox>
+#include "Namespace.h"
 
 
 namespace H2A

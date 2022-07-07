@@ -11,6 +11,7 @@
 #include "ControlPanel.h"
 #include "DataStore.h"
 #include "DataPanel.h"
+#include "Dialogs.h"
 #include "PlotManager.h"
 #include "Parsers.h"
 #include "PanelToggleButton.h"
