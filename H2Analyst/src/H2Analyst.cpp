@@ -7,6 +7,7 @@ H2Analyst::H2Analyst(QWidget* parent)
     m_ControlPanel(new ControlPanel),
     m_DataPanel(new DataPanel),
     m_PlotManager(new PlotManager),
+    m_SettingsManager(new SettingsManager),
     m_VLayout(new QVBoxLayout),
     m_HLayout(new QHBoxLayout),
     m_PbHidePanel(new PanelToggleButton(24)),

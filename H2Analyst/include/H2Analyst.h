@@ -13,6 +13,7 @@
 #include "DataPanel.h"
 #include "Dialogs.h"
 #include "PlotManager.h"
+#include "Settings.h"
 #include "Parsers.h"
 #include "PanelToggleButton.h"
 #include "Exporters.h"
@@ -36,6 +37,7 @@ private:
     ControlPanel* m_ControlPanel;
     DataPanel* m_DataPanel;
     PlotManager* m_PlotManager;
+    SettingsManager* m_SettingsManager;
 
     PanelToggleButton* m_PbHidePanel;
 

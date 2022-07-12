@@ -133,6 +133,7 @@
     <ClCompile Include="src\PlotWidget.cpp" />
     <ClCompile Include="src\Populator.cpp" />
     <ClCompile Include="src\qcustomplot.cpp" />
+    <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\SpecialPlots.cpp" />
     <ClCompile Include="src\TimeCursor.cpp" />
     <ClCompile Include="src\TimeSeries.cpp" />
@@ -166,6 +167,7 @@
     <QtMoc Include="include\TimeCursor.h" />
     <ClInclude Include="include\PlotDefinitions.h" />
     <QtMoc Include="include\PlotRubberband.h" />
+    <QtMoc Include="include\Settings.h" />
     <ClInclude Include="include\SpecialPlots.h" />
     <ClInclude Include="include\Timestamp.h" />
     <ClInclude Include="include\TreeView.h" />
