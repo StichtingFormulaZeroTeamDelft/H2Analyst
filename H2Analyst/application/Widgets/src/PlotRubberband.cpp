@@ -1,12 +1,12 @@
 #include "PlotRubberband.h"
 
 
-Rubberband::Rubberband(PlotWidget* parent) : QRubberBand(QRubberBand::Rectangle, parent),
+Rubberband::Rubberband(AbstractPlot* parent) : QRubberBand(QRubberBand::Rectangle, parent),
 m_Plot(parent),
 m_Origin(),
 m_Enabled(false)
 {
-	connect(m_Plot, &PlotWidget::mouseMoved, this, &Rubberband::mouseMoveEvent);
+	connect(m_Plot, &AbstractPlot::mouseMoved, this, &Rubberband::mouseMoveEvent);
 }
 
 /**

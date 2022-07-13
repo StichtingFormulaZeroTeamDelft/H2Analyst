@@ -73,9 +73,6 @@
     <QtMoc Include="application\Widgets\include\Plottable.h">
       <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="application\Widgets\include\PlotWidget.h">
-      <Filter>Header Files\Widgets</Filter>
-    </QtMoc>
     <QtMoc Include="application\Widgets\include\qcustomplot.h">
       <Filter>Header Files\Widgets</Filter>
     </QtMoc>
@@ -197,9 +194,6 @@
     <ClCompile Include="application\Widgets\src\Plottable.cpp">
       <Filter>Source Files\Widgets</Filter>
     </ClCompile>
-    <ClCompile Include="application\Widgets\src\PlotWidget.cpp">
-      <Filter>Source Files\Widgets</Filter>
-    </ClCompile>
     <ClCompile Include="application\Widgets\src\qcustomplot.cpp">
       <Filter>Source Files\Widgets</Filter>
     </ClCompile>
@@ -216,6 +210,9 @@
       <Filter>Source Files\Widgets</Filter>
     </ClCompile>
     <ClCompile Include="application\Widgets\src\XYSeries.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\AbstractPlot.cpp">
       <Filter>Source Files\Widgets</Filter>
     </ClCompile>
   </ItemGroup>

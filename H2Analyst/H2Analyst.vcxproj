@@ -135,7 +135,6 @@
     <QtMoc Include="application\Widgets\include\PlotManager.h" />
     <QtMoc Include="application\Widgets\include\PlotRubberband.h" />
     <QtMoc Include="application\Widgets\include\Plottable.h" />
-    <QtMoc Include="application\Widgets\include\PlotWidget.h" />
     <QtMoc Include="application\Widgets\include\qcustomplot.h" />
     <ClInclude Include="application\Widgets\include\SpecialPlots.h" />
     <QtMoc Include="application\Widgets\include\TimeCursor.h" />
@@ -154,6 +153,7 @@
     <ClCompile Include="application\Utilities\src\ParserIntCanLog.cpp" />
     <ClCompile Include="application\Utilities\src\Populator.cpp" />
     <ClCompile Include="application\Utilities\src\Timestamp.cpp" />
+    <ClCompile Include="application\Widgets\src\AbstractPlot.cpp" />
     <ClCompile Include="application\Widgets\src\ControlPanel.cpp" />
     <ClCompile Include="application\Widgets\src\DataPanel.cpp" />
     <ClCompile Include="application\Widgets\src\DialogPlotLayout.cpp" />
@@ -164,7 +164,6 @@
     <ClCompile Include="application\Widgets\src\PlotManager.cpp" />
     <ClCompile Include="application\Widgets\src\PlotRubberband.cpp" />
     <ClCompile Include="application\Widgets\src\Plottable.cpp" />
-    <ClCompile Include="application\Widgets\src\PlotWidget.cpp" />
     <ClCompile Include="application\Widgets\src\qcustomplot.cpp" />
     <ClCompile Include="application\Widgets\src\SpecialPlots.cpp" />
     <ClCompile Include="application\Widgets\src\TimeCursor.cpp" />

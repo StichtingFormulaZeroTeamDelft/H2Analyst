@@ -1,6 +1,6 @@
 #include "TimeCursor.h"
 
-TimeCursor::TimeCursor(PlotWidget* plot) : QObject(plot),
+TimeCursor::TimeCursor(AbstractPlot* plot) : QObject(plot),
 m_Plot(plot),
 m_Enabled(false)
 {
@@ -20,8 +20,7 @@ m_Enabled(false)
 /**
 * Draw time cursor on its plot.
 **/
-void TimeCursor::draw()
-{
+void TimeCursor::draw() {
 	if (!m_Enabled || m_Plot->isEmpty()) return;
 
 	// Remove current labels
@@ -49,6 +48,7 @@ void TimeCursor::draw()
 	m_Labels.push_back(label);
 
 	// Data y values
+	/*
 	QPointF point;
 	for (const auto& plottable : m_Plot->plottables())
 	{
@@ -70,6 +70,7 @@ void TimeCursor::draw()
 		label->setText(QString(ss.str().c_str()));
 		m_Labels.push_back(label);
 	}
+	*/
 
 	m_Layer->setVisible(true);
 	m_Layer->replot();
@@ -87,8 +88,7 @@ void TimeCursor::setTime(double time) {
 /**
 * Enable or disable time cursor.
 **/
-void TimeCursor::setEnabled(bool enable)
-{
+void TimeCursor::setEnabled(bool enable) {
 	m_Enabled = enable;
 	if (m_Enabled)
 	{
@@ -101,16 +101,3 @@ void TimeCursor::setEnabled(bool enable)
 	}
 }
 
-/**
-* Enable time cursor.
-**/
-void TimeCursor::enable() {
-	this->setEnabled(true);
-}
-
-/**
-* Disable time cursor.
-**/
-void TimeCursor::disable() {
-	this->setEnabled(false);
-}

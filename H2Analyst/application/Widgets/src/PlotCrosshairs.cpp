@@ -1,7 +1,7 @@
 #include "PlotCrosshairs.h"
 
-Crosshairs::Crosshairs(PlotWidget* parentPlot) : QObject(parentPlot),
-m_Parent(parentPlot),
+Crosshairs::Crosshairs(AbstractPlot* parent) : QObject(parent),
+m_Parent(parent),
 m_Pos(0.0, 0.0)
 {
 
@@ -34,7 +34,7 @@ m_Pos(0.0, 0.0)
 
 	connect(m_Parent, SIGNAL(mouseMoved(QMouseEvent*)), this, SLOT(update(QMouseEvent*)));
 	connect(m_Parent, SIGNAL(wheelMoved(QWheelEvent*)), this, SLOT(update(QWheelEvent*)));
-	connect(m_Parent, &PlotWidget::mouseLeft, [=]() { this->hide(); });
+	connect(m_Parent, &AbstractPlot::mouseLeft, [=]() { this->hide(); });
 
 	this->disable();
 }

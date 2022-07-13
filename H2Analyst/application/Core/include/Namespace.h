@@ -1,10 +1,35 @@
 #pragma once
 
+#include <QColor>
+
+#include <vector>
+
 namespace H2A
 {
+    /**
+    * General
+    **/
 	enum Direction { left, right, up, down };
 
-    // ****** Datapanel ******
+    /**
+    * Plots
+    **/
+    enum PlotType { Abstract, Time, XY };
+
+    const std::vector<QColor> PlotColors = {
+        QColor(0, 114, 189),
+        QColor(217, 83, 25),
+        QColor(237, 177, 32),
+        QColor(126, 47, 142),
+        QColor(119, 172, 48),
+        QColor(77, 190, 238),
+        QColor(162, 20, 47),
+    };
+
+
+    /**
+    * DataPanel
+    **/
     enum class ItemType : uint8_t {
         kDatafile, kSystem, kSubsystem, kDataset,
     };

@@ -1,8 +1,9 @@
 #pragma once
 
+#include "AbstractPlot.h"
+
 #include <QRubberband>
 
-#include "PlotWidget.h"
 
 class Rubberband : public QRubberBand
 {
@@ -11,7 +12,7 @@ class Rubberband : public QRubberBand
 
 	const double SNAP_POINT = 20;
 
-	PlotWidget* m_Plot;
+	AbstractPlot* m_Plot;
 	QPoint m_Origin;
 	QPoint m_Mouse;
 
@@ -21,7 +22,7 @@ class Rubberband : public QRubberBand
 
 public:
 
-	Rubberband(PlotWidget* parent);
+	Rubberband(AbstractPlot* parent);
 
 	void start(QPoint origin);
 	void end(QCPRange& xRange, QCPRange& yRange);

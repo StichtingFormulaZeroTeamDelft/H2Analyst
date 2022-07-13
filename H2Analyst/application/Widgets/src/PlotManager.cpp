@@ -5,7 +5,7 @@ m_Layout(new QVBoxLayout(this)),
 m_VSplitter(new QSplitter(Qt::Vertical, this)),
 m_HSplitters(),
 m_DataPanel(nullptr),
-m_AlignTimeAxisEnabled(true),
+m_TimeAlignEnabled(true),
 m_BusyAligning(false),
 m_TimeCursorEnabled(false),
 m_TimeCursorTime(0.0)
@@ -21,23 +21,11 @@ m_TimeCursorTime(0.0)
 /**
 * Convenience function for creating a new plot, setting its members and connecting signals.
 **/
-PlotWidget* PlotManager::createPlot() {
-	PlotWidget* plot = new PlotWidget(this);
-	plot->setDataPanel(m_DataPanel);
+AbstractPlot* PlotManager::createPlot() {
+	AbstractPlot* plot = new AbstractPlot(this);
 	m_Plots.push_back(plot);
-
-	connect(plot, SIGNAL(timeAxisChanged(PlotWidget*)), this, SLOT(timeAxisChanged(PlotWidget*)));
-	
+	connect(plot, SIGNAL(timeAxisChanged(AbstractPlot*)), this, SLOT(timeAxisChanged(AbstractPlot*)));
 	return plot;
-}
-
-/**
-* Function to set the DataPanel of this manager, as well as all its plots.
-**/
-void PlotManager::setDataPanel(const DataPanel* datapanel) {
-	m_DataPanel = datapanel;
-	for (const auto& plot : m_Plots)
-		plot->setDataPanel(m_DataPanel);
 }
 
 /**
@@ -58,10 +46,10 @@ void PlotManager::setPlotLayoutDialog() {
 * @param cols Number of cols in new layout.
 **/
 void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
-	// Reparent plots so they are not deleted from memory
-	for (const auto& plot : m_Plots) {
-		plot->setParent(this);
-	}
+	// When plots were added to the layout, the layout became their parent.
+	// If the layout would be deleted, the plots are also deleted from memory.
+	// To avoid this, their parent is changed to be this manager so they can be re-used later.
+	for (const auto& plot : m_Plots) plot->setParent(this);
 
 	// Delete all splitters
 	delete m_VSplitter;
@@ -94,7 +82,7 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 				m_Plots[plot_counter]->show();
 			}
 			else {
-				PlotWidget* plot = this->createPlot();
+				auto plot = this->createPlot();
 				HSplitter->addWidget(plot);
 			}
 			++plot_counter;
@@ -116,36 +104,31 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 * 
 * @param reference Plot to align time axis of all plots to (dafault = nullptr).
 **/
-void PlotManager::alignTimeAxis(PlotWidget* ref) {
+void PlotManager::alignTimeAxis(AbstractPlot* ref) {
 	
 	// Avoid aligning time axis when a plot is cleared
-	if (ref != nullptr) {
-		if (ref->isEmpty()) return;
-	}
+	if (ref != nullptr) { if (ref->isEmpty()) return; }
 
-	if (!m_BusyAligning)
-	{
+	if (!m_BusyAligning) {
 		// Setting ranges of other plots causes this slots to be called recursively.
-		// m_BusyAligning is used to ignore the calls that will be caused by this original call.
+		// m_BusyAligning is used to ignore recursive calls to this function.
 		m_BusyAligning = true;
 
-		// If no ref is given, find the plot with the smallest time axis range and use that.
+		// If no ref is given, find the plot with the smallest time axis range and use that to set the others.
 		if (ref == nullptr) {
 			QCPRange range(QCPRange::minRange, QCPRange::maxRange);
-			ref = nullptr;
 			for (const auto& plot : m_Plots) {
-				if (plot->timeAxisAlignable() && plot->xAxis->range().size() < range.size()) {
+				if (plot->type() == H2A::Time && plot->xAxis->range().size() < range.size()) {
 					range = plot->xAxis->range();
 					ref = plot;
 				}
 			}
-			if (ref == nullptr) ref = m_Plots.front(); // To avoid errors
+			if (ref == nullptr) ref = m_Plots.front(); // Should never be reached, but to avoid errors.
 		}
 
 		// Set plots to match the reference.
 		for (const auto& plot : m_Plots) {
-			// Check if plot should be time-aligned
-			if (!plot->timeAxisAlignable() || plot == ref) continue;
+			if (!plot->type() == H2A::Time || plot == ref) continue;
 			plot->xAxis->setRange(ref->xAxis->range());
 			//plot->zoomYToData();
 			plot->replot();
@@ -160,9 +143,9 @@ void PlotManager::alignTimeAxis(PlotWidget* ref) {
 *
 * @param align Enable time axis alignment.
 **/
-void PlotManager::setAlignTimeAxisEnabled(bool align) {
-	m_AlignTimeAxisEnabled = align;
-	if (m_AlignTimeAxisEnabled) this->alignTimeAxis();
+void PlotManager::setTimeAlignEnabled(bool align) {
+	m_TimeAlignEnabled = align;
+	if (m_TimeAlignEnabled) this->alignTimeAxis();
 }
 
 /**
@@ -176,7 +159,7 @@ void PlotManager::resetAllViews() {
 /**
 * Function that return true if all plots in this manager are empty.
 **/
-bool PlotManager::isEmpty() {
+bool PlotManager::allPlotsEmpty() {
 	for (const auto& plot : m_Plots)
 		if (!plot->isEmpty()) return false;
 	return true;
@@ -189,9 +172,8 @@ bool PlotManager::isEmpty() {
 **/
 void PlotManager::setTimeCursorTime(double time) {
 	m_TimeCursorTime = time;
-	for (const auto& plot : m_Plots)
-		plot->timeCursor()->setTime(time);
-	emit this->timeCursurTimeChanged(m_TimeCursorTime);
+	for (const auto& plot : m_Plots) plot->setTimeCursor(time);
+	emit this->timeCursorMoved(m_TimeCursorTime);
 }
 
 /**
@@ -202,7 +184,7 @@ void PlotManager::setTimeCursorTime(double time) {
 void PlotManager::setTimeCursorEnabled(bool enabled) {
 	m_TimeCursorEnabled = enabled;
 	for (const auto& plot : m_Plots)
-		plot->timeCursor()->setEnabled(enabled);
+		plot->enableTimeCursor(enabled);
 }
 
 /**
@@ -210,15 +192,15 @@ void PlotManager::setTimeCursorEnabled(bool enabled) {
 * 
 * @param source Plot that triggered the call of this slot.
 **/
-void PlotManager::timeAxisChanged(PlotWidget* source) {
-	if (m_AlignTimeAxisEnabled)
+void PlotManager::timeAxisChanged(AbstractPlot* source) {
+	if (m_TimeAlignEnabled)
 		this->alignTimeAxis(source);
 }
 
 /**
 * When this slot is called, it removes the given widget from the layout and deletes it.
 **/
-void PlotManager::deletePlot(PlotWidget* source) {
+void PlotManager::deletePlot(AbstractPlot* source) {
 	if (source == nullptr) return;
 
 	// Check if source is not the last one.
@@ -227,6 +209,7 @@ void PlotManager::deletePlot(PlotWidget* source) {
 		return;
 	}
 
+	// Hide plot so layout can adapt and delete it from memory.
 	source->hide();
 	m_Plots.erase(std::remove(m_Plots.begin(), m_Plots.end(), source), m_Plots.end());
 	source->deleteLater();
@@ -235,18 +218,18 @@ void PlotManager::deletePlot(PlotWidget* source) {
 /**
 * This slot can be called to add plot(s) relative to an existing one.
 * 
-* @param source Reference plot.
+* @param ref Reference plot.
 * @param dir Direction to add the plot, relative to the reference plot.
 **/
-void PlotManager::insertPlot(PlotWidget* source, H2A::Direction dir)
+void PlotManager::insertPlot(AbstractPlot* ref, H2A::Direction dir)
 {
 	// Find splitter in which the source widget lives
-	QSplitter* refSplitter = qobject_cast<QSplitter*>(source->parent());
-	if (refSplitter == nullptr) return;
+	QSplitter* refSplitter = qobject_cast<QSplitter*>(ref->parent());
+	if (refSplitter == nullptr) return; // Should be impossible, but to avoid errors.
 	
 	// Add the plot
 	QList<int> sizes;
-	PlotWidget* plot = this->createPlot();
+	auto plot = this->createPlot();
 	if (dir == H2A::up || dir == H2A::down) { 
 		QSplitter* splitter = new QSplitter(Qt::Horizontal);
 		splitter->addWidget(plot);
@@ -260,7 +243,7 @@ void PlotManager::insertPlot(PlotWidget* source, H2A::Direction dir)
 	}
 	else {
 		uint8_t offset = (dir == H2A::left) ? 0 : 1;
-		refSplitter->insertWidget(refSplitter->indexOf(source) + offset, plot);
+		refSplitter->insertWidget(refSplitter->indexOf(ref) + offset, plot);
 		for (int i = 0; i < refSplitter->count(); ++i) sizes.push_back(QGuiApplication::primaryScreen()->virtualSize().width());
 		refSplitter->setSizes(sizes);
 	}
@@ -273,10 +256,10 @@ void PlotManager::insertPlot(PlotWidget* source, H2A::Direction dir)
 * @param source Plot that is requesting a time range from a different one.
 * @param range Range object to store result in.
 **/
-bool PlotManager::getOtherTimeRange(PlotWidget* source, QCPRange& range) const {
-	if (!m_AlignTimeAxisEnabled) return false;
+bool PlotManager::getOtherTimeRange(AbstractPlot* source, QCPRange& range) const {
+	if (!m_TimeAlignEnabled) return false;
 	for (const auto& plot : m_Plots) {
-		if (plot != source && plot->timeAxisAlignable()) {
+		if (plot != source && plot->type() == H2A::Time) {
 			range = plot->xAxis->range();
 			return true;
 		}

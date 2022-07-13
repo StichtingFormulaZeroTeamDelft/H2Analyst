@@ -1,18 +1,22 @@
 #pragma once
 
-#include <QObject>
+#include "AbstractPlot.h"
 
 #include "qcustomplot.h"
 
-#include "PlotWidget.h"
+#include <QObject>
 
-class PlotWidget;
+#include <sstream>
+#include <iomanip> // Used to set presision of stringstream
+
+// Forward declarations
+class AbstractPlot;
 
 class TimeCursor : public QObject
 {
 	Q_OBJECT
 
-	PlotWidget* m_Plot;
+	AbstractPlot* m_Plot;
 	QCPLayer* m_Layer;
 	double m_Time;
 	bool m_Enabled;
@@ -22,15 +26,15 @@ class TimeCursor : public QObject
 
 public:
 
-	TimeCursor(PlotWidget* plot);
+	TimeCursor(AbstractPlot* plot);
 
 	bool enabled() { return m_Enabled; };
 
 public slots:
 	void draw();
 	void setEnabled(bool enabled);
-	void enable();
-	void disable();
+	void enable() { this->setEnabled(true); };
+	void disable() { this->setEnabled(false); };
 	void setTime(double time);
 
 };

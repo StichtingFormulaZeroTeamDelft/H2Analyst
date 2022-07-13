@@ -1,10 +1,12 @@
 #pragma once
 
-#include "PlotWidget.h"
+#include "AbstractPlot.h"
 #include "DataPanel.h"
 #include "DialogPlotLayout.h"
 #include "Dialogs.h"
 #include "Namespace.h"
+
+#include "qcustomplot.h"
 
 #include <QWidget>
 #include <QVBoxLayout>
@@ -12,7 +14,7 @@
 
 #include <vector>
 
-class PlotWidget;
+class AbstractPlot;
 
 class PlotManager :
     public QWidget
@@ -27,41 +29,41 @@ private:
     std::vector<QSplitter*> m_HSplitters;
 
     const DataPanel* m_DataPanel;
-    std::vector<PlotWidget*> m_Plots;
+    std::vector<AbstractPlot*> m_Plots;
 
-    bool m_AlignTimeAxisEnabled;
+    bool m_TimeAlignEnabled;
     bool m_BusyAligning;
     
     double m_TimeCursorTime;
     bool m_TimeCursorEnabled;
 
-    PlotWidget* createPlot();
+    AbstractPlot* createPlot();
     void clearLayout(QLayout* layout);
     void setPlotLayoutRC(uint8_t rows, uint8_t cols);
-    void alignTimeAxis(PlotWidget* ref = nullptr);
+    void alignTimeAxis(AbstractPlot* ref = nullptr);
 
 public:
 
     PlotManager(QWidget *parent = nullptr);
-    void setDataPanel(const DataPanel* datapanel);
-    bool aligningTimeAxis() { return m_AlignTimeAxisEnabled; };
-    bool isEmpty();
-    bool getOtherTimeRange(PlotWidget* source, QCPRange& range) const;
+    void setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel; };
+    bool aligningTime() { return m_TimeAlignEnabled; };
+    bool allPlotsEmpty();
+    bool getOtherTimeRange(AbstractPlot* source, QCPRange& range) const;
     const bool timeCursorEnabled() const { return m_TimeCursorEnabled; };
     const double timeCursorTime() const { return m_TimeCursorTime; };
     size_t numberOfPlots() { return m_Plots.size(); };
 
 public slots:
     void setPlotLayoutDialog();
-    void setAlignTimeAxisEnabled(bool align);
+    void setTimeAlignEnabled(bool align);
     void setTimeCursorEnabled(bool enabled);
     void setTimeCursorTime(double time);
     void resetAllViews();
-    void timeAxisChanged(PlotWidget* source);
-    void deletePlot(PlotWidget* source);
-    void insertPlot(PlotWidget* source, H2A::Direction dir);
+    void timeAxisChanged(AbstractPlot* source);
+    void deletePlot(AbstractPlot* source);
+    void insertPlot(AbstractPlot* source, H2A::Direction dir);
     
 signals:
-    void timeCursurTimeChanged(double time);
+    void timeCursorMoved(double time);
 
 };

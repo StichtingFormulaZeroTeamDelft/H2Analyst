@@ -6,15 +6,15 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip> // Used to format double in string with set precision (crosshair labels)
-#include "PlotWidget.h"
+#include "AbstractPlot.h"
 
-class PlotWidget;
+class AbstractPlot;
 
 class Crosshairs : public QObject
 {
 	Q_OBJECT
 
-	PlotWidget* m_Parent;
+	AbstractPlot* m_Parent;
 	QCPLayer* m_Layer;
 	QPointF m_Pos;
 	bool m_Enabled;
@@ -28,7 +28,7 @@ class Crosshairs : public QObject
 
 public:
 
-	Crosshairs(PlotWidget* parentPlot);
+	Crosshairs(AbstractPlot* parent);
 
 	void enable();
 	bool enabled() { return m_Enabled; };
