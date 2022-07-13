@@ -21,6 +21,24 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="Header Files\Widgets">
+      <UniqueIdentifier>{ab030780-35a2-4626-8f66-7615b048a9e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{0025674b-9799-4022-8dd8-d08dea218f11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities">
+      <UniqueIdentifier>{79709c24-e3f0-4e7f-9ea9-673856315857}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{fd5d54d4-4df0-4991-b69e-845f56fb17c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{dd5b9f3e-5fc5-48df-825a-1bb90b8574b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Widgets">
+      <UniqueIdentifier>{3251bb6f-1486-4ac1-97f3-b2baf9a25976}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="data\H2Analyst.qrc">
@@ -28,174 +46,177 @@
     </QtRcc>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ControlPanel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DataPanel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DataStore.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\H2Analyst.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ParserIntCanLog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PlotWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Populator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\qcustomplot.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TreeView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PlotManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DialogPlotLayout.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PanelToggleButton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PlotCrosshairs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PlotLine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Plottable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TimeSeries.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="include\DataOperations.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Dialogs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\XYSeries.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TimeCursor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Exporters.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SpecialPlots.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PlotRubberband.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Timestamp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DataStructures.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Settings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="include\ControlPanel.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\ControlPanel.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\DataPanel.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\DataPanel.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\DataStore.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\DialogPlotLayout.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\H2Analyst.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\PanelToggleButton.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\PlotWidget.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\PlotCrosshairs.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\Populator.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\PlotLine.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\qcustomplot.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\PlotManager.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\PlotManager.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\PlotRubberband.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\DialogPlotLayout.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\Plottable.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\PanelToggleButton.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\PlotWidget.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\PlotCrosshairs.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\qcustomplot.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\PlotLine.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\TimeCursor.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\Plottable.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\TimeSeries.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\TimeSeries.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Widgets\include\XYSeries.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
-    <QtMoc Include="include\XYSeries.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Utilities\include\Populator.h">
+      <Filter>Header Files\Utilities</Filter>
     </QtMoc>
-    <QtMoc Include="include\TimeCursor.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Core\include\DataStore.h">
+      <Filter>Header Files\Core</Filter>
     </QtMoc>
-    <QtMoc Include="include\PlotRubberband.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Core\include\H2Analyst.h">
+      <Filter>Header Files\Core</Filter>
     </QtMoc>
-    <QtMoc Include="include\Settings.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="application\Core\include\SettingsManager.h">
+      <Filter>Header Files\Core</Filter>
+    </QtMoc>
+    <QtMoc Include="application\Widgets\include\AbstractPlot.h">
+      <Filter>Header Files\Widgets</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\DataStructures.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Widgets\include\Dialogs.h">
+      <Filter>Header Files\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="include\Parsers.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Widgets\include\PlotDefinitions.h">
+      <Filter>Header Files\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="include\TreeView.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Widgets\include\SpecialPlots.h">
+      <Filter>Header Files\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="include\DataOperations.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Widgets\include\TreeView.h">
+      <Filter>Header Files\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="include\Dialogs.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Utilities\include\DataOperations.h">
+      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="include\Exporters.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Utilities\include\Exporters.h">
+      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="include\SpecialPlots.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Utilities\include\Parsers.h">
+      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="include\PlotDefinitions.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Utilities\include\Timestamp.h">
+      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="include\Namespace.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Core\include\DataStructures.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="include\Timestamp.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="application\Core\include\Namespace.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="application\Core\src\DataStore.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Core\src\DataStructures.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Core\src\H2Analyst.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Core\src\main.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Core\src\SettingsManager.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Utilities\src\DataOperations.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Utilities\src\Exporters.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Utilities\src\ParserIntCanLog.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Utilities\src\Populator.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Utilities\src\Timestamp.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\ControlPanel.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\DataPanel.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\DialogPlotLayout.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\Dialogs.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\PanelToggleButton.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\PlotCrosshairs.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\PlotLine.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\PlotManager.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\PlotRubberband.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\Plottable.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\PlotWidget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\qcustomplot.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\SpecialPlots.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\TimeCursor.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\TimeSeries.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\TreeView.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\XYSeries.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

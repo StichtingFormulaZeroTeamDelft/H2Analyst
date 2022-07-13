@@ -13,7 +13,7 @@
 #include "DataPanel.h"
 #include "Dialogs.h"
 #include "PlotManager.h"
-#include "Settings.h"
+#include "SettingsManager.h"
 #include "Parsers.h"
 #include "PanelToggleButton.h"
 #include "Exporters.h"

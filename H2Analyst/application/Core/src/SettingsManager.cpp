@@ -1,4 +1,4 @@
-#include "Settings.h"
+#include "SettingsManager.h"
 
 
 /**

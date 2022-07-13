@@ -62,7 +62,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Libs\boost_1_79_0;C:\Libs\armadillo-11.1.1\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\Core\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\Widgets\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\Utilities\include;C:\Libs\boost_1_79_0;C:\Libs\armadillo-11.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile />
@@ -75,7 +75,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PrecompiledHeaderFile />
-      <AdditionalIncludeDirectories>C:\Libs\boost_1_79_0;C:\Libs\armadillo-11.1.1\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\Core\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\Widgets\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\Utilities\include;C:\Libs\boost_1_79_0;C:\Libs\armadillo-11.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
@@ -113,71 +113,64 @@
     <QtRcc Include="data\H2Analyst.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\DataOperations.cpp" />
-    <ClCompile Include="src\ControlPanel.cpp" />
-    <ClCompile Include="src\DataPanel.cpp" />
-    <ClCompile Include="src\DataStore.cpp" />
-    <ClCompile Include="src\DataStructures.cpp" />
-    <ClCompile Include="src\DialogPlotLayout.cpp" />
-    <ClCompile Include="src\Dialogs.cpp" />
-    <ClCompile Include="src\Exporters.cpp" />
-    <ClCompile Include="src\H2Analyst.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\PanelToggleButton.cpp" />
-    <ClCompile Include="src\ParserIntCanLog.cpp" />
-    <ClCompile Include="src\PlotCrosshairs.cpp" />
-    <ClCompile Include="src\PlotLine.cpp" />
-    <ClCompile Include="src\PlotManager.cpp" />
-    <ClCompile Include="src\PlotRubberband.cpp" />
-    <ClCompile Include="src\Plottable.cpp" />
-    <ClCompile Include="src\PlotWidget.cpp" />
-    <ClCompile Include="src\Populator.cpp" />
-    <ClCompile Include="src\qcustomplot.cpp" />
-    <ClCompile Include="src\Settings.cpp" />
-    <ClCompile Include="src\SpecialPlots.cpp" />
-    <ClCompile Include="src\TimeCursor.cpp" />
-    <ClCompile Include="src\TimeSeries.cpp" />
-    <ClCompile Include="src\Timestamp.cpp" />
-    <ClCompile Include="src\TreeView.cpp" />
-    <ClCompile Include="src\XYSeries.cpp" />
+    <QtMoc Include="application\Core\include\DataStore.h" />
+    <ClInclude Include="application\Core\include\DataStructures.h" />
+    <QtMoc Include="application\Core\include\H2Analyst.h" />
+    <ClInclude Include="application\Core\include\Namespace.h" />
+    <QtMoc Include="application\Core\include\SettingsManager.h" />
+    <ClInclude Include="application\Utilities\include\DataOperations.h" />
+    <ClInclude Include="application\Utilities\include\Exporters.h" />
+    <ClInclude Include="application\Utilities\include\Parsers.h" />
+    <QtMoc Include="application\Utilities\include\Populator.h" />
+    <ClInclude Include="application\Utilities\include\Timestamp.h" />
+    <QtMoc Include="application\Widgets\include\AbstractPlot.h" />
+    <QtMoc Include="application\Widgets\include\ControlPanel.h" />
+    <QtMoc Include="application\Widgets\include\DataPanel.h" />
+    <QtMoc Include="application\Widgets\include\DialogPlotLayout.h" />
+    <ClInclude Include="application\Widgets\include\Dialogs.h" />
+    <QtMoc Include="application\Widgets\include\PanelToggleButton.h" />
+    <QtMoc Include="application\Widgets\include\PlotCrosshairs.h" />
+    <ClInclude Include="application\Widgets\include\PlotDefinitions.h" />
+    <QtMoc Include="application\Widgets\include\PlotLine.h" />
+    <QtMoc Include="application\Widgets\include\PlotManager.h" />
+    <QtMoc Include="application\Widgets\include\PlotRubberband.h" />
+    <QtMoc Include="application\Widgets\include\Plottable.h" />
+    <QtMoc Include="application\Widgets\include\PlotWidget.h" />
+    <QtMoc Include="application\Widgets\include\qcustomplot.h" />
+    <ClInclude Include="application\Widgets\include\SpecialPlots.h" />
+    <QtMoc Include="application\Widgets\include\TimeCursor.h" />
+    <QtMoc Include="application\Widgets\include\TimeSeries.h" />
+    <ClInclude Include="application\Widgets\include\TreeView.h" />
+    <QtMoc Include="application\Widgets\include\XYSeries.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="include\ControlPanel.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="include\DataPanel.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="include\DataStore.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\DataOperations.h" />
-    <ClInclude Include="include\DataStructures.h" />
-    <QtMoc Include="include\XYSeries.h" />
-    <QtMoc Include="include\PanelToggleButton.h" />
-    <ClInclude Include="include\Dialogs.h" />
-    <ClInclude Include="include\Exporters.h" />
-    <ClInclude Include="include\Namespace.h" />
-    <ClInclude Include="include\Parsers.h" />
-    <QtMoc Include="include\PlotManager.h" />
-    <QtMoc Include="include\PlotCrosshairs.h" />
-    <QtMoc Include="include\PlotLine.h" />
-    <QtMoc Include="include\Plottable.h" />
-    <QtMoc Include="include\TimeSeries.h" />
-    <QtMoc Include="include\TimeCursor.h" />
-    <ClInclude Include="include\PlotDefinitions.h" />
-    <QtMoc Include="include\PlotRubberband.h" />
-    <QtMoc Include="include\Settings.h" />
-    <ClInclude Include="include\SpecialPlots.h" />
-    <ClInclude Include="include\Timestamp.h" />
-    <ClInclude Include="include\TreeView.h" />
-    <QtMoc Include="include\qcustomplot.h" />
-    <QtMoc Include="include\Populator.h" />
-    <QtMoc Include="include\PlotWidget.h" />
-    <QtMoc Include="include\H2Analyst.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="include\DialogPlotLayout.h" />
+    <ClCompile Include="application\Core\src\DataStore.cpp" />
+    <ClCompile Include="application\Core\src\DataStructures.cpp" />
+    <ClCompile Include="application\Core\src\H2Analyst.cpp" />
+    <ClCompile Include="application\Core\src\main.cpp" />
+    <ClCompile Include="application\Core\src\SettingsManager.cpp" />
+    <ClCompile Include="application\Utilities\src\DataOperations.cpp" />
+    <ClCompile Include="application\Utilities\src\Exporters.cpp" />
+    <ClCompile Include="application\Utilities\src\ParserIntCanLog.cpp" />
+    <ClCompile Include="application\Utilities\src\Populator.cpp" />
+    <ClCompile Include="application\Utilities\src\Timestamp.cpp" />
+    <ClCompile Include="application\Widgets\src\ControlPanel.cpp" />
+    <ClCompile Include="application\Widgets\src\DataPanel.cpp" />
+    <ClCompile Include="application\Widgets\src\DialogPlotLayout.cpp" />
+    <ClCompile Include="application\Widgets\src\Dialogs.cpp" />
+    <ClCompile Include="application\Widgets\src\PanelToggleButton.cpp" />
+    <ClCompile Include="application\Widgets\src\PlotCrosshairs.cpp" />
+    <ClCompile Include="application\Widgets\src\PlotLine.cpp" />
+    <ClCompile Include="application\Widgets\src\PlotManager.cpp" />
+    <ClCompile Include="application\Widgets\src\PlotRubberband.cpp" />
+    <ClCompile Include="application\Widgets\src\Plottable.cpp" />
+    <ClCompile Include="application\Widgets\src\PlotWidget.cpp" />
+    <ClCompile Include="application\Widgets\src\qcustomplot.cpp" />
+    <ClCompile Include="application\Widgets\src\SpecialPlots.cpp" />
+    <ClCompile Include="application\Widgets\src\TimeCursor.cpp" />
+    <ClCompile Include="application\Widgets\src\TimeSeries.cpp" />
+    <ClCompile Include="application\Widgets\src\TreeView.cpp" />
+    <ClCompile Include="application\Widgets\src\XYSeries.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
