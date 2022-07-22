@@ -130,6 +130,7 @@
     <ClInclude Include="application\Widgets\include\Dialogs.h" />
     <QtMoc Include="application\Widgets\include\PanelToggleButton.h" />
     <QtMoc Include="application\Widgets\include\PlotCrosshairs.h" />
+    <ClInclude Include="application\Widgets\include\AbstractGraph.h" />
     <ClInclude Include="application\Widgets\include\PlotDefinitions.h" />
     <QtMoc Include="application\Widgets\include\PlotLine.h" />
     <QtMoc Include="application\Widgets\include\PlotManager.h" />
@@ -139,6 +140,8 @@
     <ClInclude Include="application\Widgets\include\SpecialPlots.h" />
     <QtMoc Include="application\Widgets\include\TimeCursor.h" />
     <QtMoc Include="application\Widgets\include\TimeSeries.h" />
+    <QtMoc Include="application\Widgets\include\TimePlot.h" />
+    <ClInclude Include="application\Widgets\include\TimeGraph.h" />
     <ClInclude Include="application\Widgets\include\TreeView.h" />
     <QtMoc Include="application\Widgets\include\XYSeries.h" />
   </ItemGroup>
@@ -158,6 +161,7 @@
     <ClCompile Include="application\Widgets\src\DataPanel.cpp" />
     <ClCompile Include="application\Widgets\src\DialogPlotLayout.cpp" />
     <ClCompile Include="application\Widgets\src\Dialogs.cpp" />
+    <ClCompile Include="application\Widgets\src\AbstractGraph.cpp" />
     <ClCompile Include="application\Widgets\src\PanelToggleButton.cpp" />
     <ClCompile Include="application\Widgets\src\PlotCrosshairs.cpp" />
     <ClCompile Include="application\Widgets\src\PlotLine.cpp" />
@@ -167,6 +171,8 @@
     <ClCompile Include="application\Widgets\src\qcustomplot.cpp" />
     <ClCompile Include="application\Widgets\src\SpecialPlots.cpp" />
     <ClCompile Include="application\Widgets\src\TimeCursor.cpp" />
+    <ClCompile Include="application\Widgets\src\TimeGraph.cpp" />
+    <ClCompile Include="application\Widgets\src\TimePlot.cpp" />
     <ClCompile Include="application\Widgets\src\TimeSeries.cpp" />
     <ClCompile Include="application\Widgets\src\TreeView.cpp" />
     <ClCompile Include="application\Widgets\src\XYSeries.cpp" />

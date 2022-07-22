@@ -100,6 +100,9 @@
     <QtMoc Include="application\Widgets\include\AbstractPlot.h">
       <Filter>Header Files\Widgets</Filter>
     </QtMoc>
+    <QtMoc Include="application\Widgets\include\TimePlot.h">
+      <Filter>Header Files\Widgets</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Widgets\include\Dialogs.h">
@@ -131,6 +134,12 @@
     </ClInclude>
     <ClInclude Include="application\Core\include\Namespace.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Widgets\include\AbstractGraph.h">
+      <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Widgets\include\TimeGraph.h">
+      <Filter>Header Files\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +222,15 @@
       <Filter>Source Files\Widgets</Filter>
     </ClCompile>
     <ClCompile Include="application\Widgets\src\AbstractPlot.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\TimePlot.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\AbstractGraph.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\TimeGraph.cpp">
       <Filter>Source Files\Widgets</Filter>
     </ClCompile>
   </ItemGroup>

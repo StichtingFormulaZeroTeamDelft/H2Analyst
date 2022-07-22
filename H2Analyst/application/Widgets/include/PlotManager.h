@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AbstractPlot.h"
+#include "TimePlot.h"
 #include "DataPanel.h"
 #include "DialogPlotLayout.h"
 #include "Dialogs.h"
@@ -15,6 +16,7 @@
 #include <vector>
 
 class AbstractPlot;
+class TimePlot;
 
 class PlotManager :
     public QWidget
@@ -29,7 +31,6 @@ private:
     std::vector<QSplitter*> m_HSplitters;
 
     const DataPanel* m_DataPanel;
-    std::vector<AbstractPlot*> m_Plots;
 
     bool m_TimeAlignEnabled;
     bool m_BusyAligning;
@@ -37,10 +38,13 @@ private:
     double m_TimeCursorTime;
     bool m_TimeCursorEnabled;
 
-    AbstractPlot* createPlot();
-    void clearLayout(QLayout* layout);
+    std::vector<AbstractPlot*> plots();
+    void addChildrenPlots(QSplitter* splitter, std::vector<AbstractPlot*>& plots);
+
+    AbstractPlot* createPlot(H2A::PlotType type = H2A::Abstract);
     void setPlotLayoutRC(uint8_t rows, uint8_t cols);
     void alignTimeAxis(AbstractPlot* ref = nullptr);
+    AbstractPlot* replacePlot(AbstractPlot* source, H2A::PlotType newType);
 
 public:
 
@@ -48,10 +52,9 @@ public:
     void setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel; };
     bool aligningTime() { return m_TimeAlignEnabled; };
     bool allPlotsEmpty();
-    bool getOtherTimeRange(AbstractPlot* source, QCPRange& range) const;
+    bool getOtherTimeRange(AbstractPlot* source, QCPRange& range);
     const bool timeCursorEnabled() const { return m_TimeCursorEnabled; };
     const double timeCursorTime() const { return m_TimeCursorTime; };
-    size_t numberOfPlots() { return m_Plots.size(); };
 
 public slots:
     void setPlotLayoutDialog();
@@ -62,6 +65,7 @@ public slots:
     void timeAxisChanged(AbstractPlot* source);
     void deletePlot(AbstractPlot* source);
     void insertPlot(AbstractPlot* source, H2A::Direction dir);
+    void plotSelected(AbstractPlot* target = nullptr, H2A::PlotType type = H2A::Abstract);
     
 signals:
     void timeCursorMoved(double time);

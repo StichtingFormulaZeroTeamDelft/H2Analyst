@@ -21,10 +21,21 @@ m_TimeCursorTime(0.0)
 /**
 * Convenience function for creating a new plot, setting its members and connecting signals.
 **/
-AbstractPlot* PlotManager::createPlot() {
+AbstractPlot* PlotManager::createPlot(H2A::PlotType type) {
 	AbstractPlot* plot = new AbstractPlot(this);
-	m_Plots.push_back(plot);
+	switch (type)
+	{
+	case H2A::Time:
+		plot = new TimePlot(this);
+		break;
+	case H2A::XY:
+		break;
+	default:
+		break;
+	}
 	connect(plot, SIGNAL(timeAxisChanged(AbstractPlot*)), this, SLOT(timeAxisChanged(AbstractPlot*)));
+	connect(plot, &AbstractPlot::plotSelected, this, &PlotManager::plotSelected);
+	connect(plot, SIGNAL(deleteMe(AbstractPlot*)), this, SLOT(deletePlot(AbstractPlot*)));
 	return plot;
 }
 
@@ -48,8 +59,9 @@ void PlotManager::setPlotLayoutDialog() {
 void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 	// When plots were added to the layout, the layout became their parent.
 	// If the layout would be deleted, the plots are also deleted from memory.
-	// To avoid this, their parent is changed to be this manager so they can be re-used later.
-	for (const auto& plot : m_Plots) plot->setParent(this);
+	// To avoid this, get a vector of pointers and set their parents to be this manager so they can be re-used later.
+	auto plots = this->plots();
+	for (const auto& plot : plots) plot->setParent(this);
 
 	// Delete all splitters
 	delete m_VSplitter;
@@ -58,9 +70,9 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 	this->layout()->addWidget(m_VSplitter);
 
 	// Delete empty plots from memory
-	auto plotIt = m_Plots.begin();
-	while (plotIt != m_Plots.end()) {
-		if ((*plotIt)->isEmpty()) { delete* plotIt; plotIt = m_Plots.erase(plotIt); }
+	auto plotIt = plots.begin();
+	while (plotIt != plots.end()) {
+		if ((*plotIt)->isEmpty()) { delete* plotIt; plotIt = plots.erase(plotIt); }
 		else plotIt++;
 	}
 
@@ -76,10 +88,10 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 		{
 			if (row_i == 0) sizesH.push_back(QGuiApplication::primaryScreen()->virtualSize().width());
 			// Use existing plot if possible, otherwise make a new one
-			if (m_Plots.size() >= plot_counter + 1)
+			if (plots.size() >= plot_counter + 1)
 			{
-				HSplitter->addWidget(m_Plots[plot_counter]);
-				m_Plots[plot_counter]->show();
+				HSplitter->addWidget(plots[plot_counter]);
+				plots[plot_counter]->show();
 			}
 			else {
 				auto plot = this->createPlot();
@@ -94,8 +106,8 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 	m_VSplitter->setSizes(sizesV);
 
 	// Delete plots that don't fit new layout from memory
-	if (m_Plots.size() > rows * cols)
-		m_Plots.erase(m_Plots.begin() + rows * cols, m_Plots.end());
+	if (plots.size() > rows * cols)
+		plots.erase(plots.begin() + rows * cols, plots.end());
 }
 
 /**
@@ -115,19 +127,20 @@ void PlotManager::alignTimeAxis(AbstractPlot* ref) {
 		m_BusyAligning = true;
 
 		// If no ref is given, find the plot with the smallest time axis range and use that to set the others.
+		auto plots = this->plots();
 		if (ref == nullptr) {
 			QCPRange range(QCPRange::minRange, QCPRange::maxRange);
-			for (const auto& plot : m_Plots) {
+			for (const auto& plot : plots) {
 				if (plot->type() == H2A::Time && plot->xAxis->range().size() < range.size()) {
 					range = plot->xAxis->range();
 					ref = plot;
 				}
 			}
-			if (ref == nullptr) ref = m_Plots.front(); // Should never be reached, but to avoid errors.
+			if (ref == nullptr) ref = plots.front(); // Should never be reached, but to avoid errors.
 		}
 
 		// Set plots to match the reference.
-		for (const auto& plot : m_Plots) {
+		for (const auto& plot : plots) {
 			if (!plot->type() == H2A::Time || plot == ref) continue;
 			plot->xAxis->setRange(ref->xAxis->range());
 			//plot->zoomYToData();
@@ -152,7 +165,7 @@ void PlotManager::setTimeAlignEnabled(bool align) {
 * Function that reset the views of all plots in this manager.
 **/
 void PlotManager::resetAllViews() {
-	for (const auto& plot : m_Plots)
+	for (const auto& plot : this->plots())
 		if (!plot->isEmpty()) plot->resetView();
 }
 
@@ -160,7 +173,7 @@ void PlotManager::resetAllViews() {
 * Function that return true if all plots in this manager are empty.
 **/
 bool PlotManager::allPlotsEmpty() {
-	for (const auto& plot : m_Plots)
+	for (const auto& plot : this->plots())
 		if (!plot->isEmpty()) return false;
 	return true;
 }
@@ -172,7 +185,7 @@ bool PlotManager::allPlotsEmpty() {
 **/
 void PlotManager::setTimeCursorTime(double time) {
 	m_TimeCursorTime = time;
-	for (const auto& plot : m_Plots) plot->setTimeCursor(time);
+	for (const auto& plot : this->plots()) plot->setTimeCursor(time);
 	emit this->timeCursorMoved(m_TimeCursorTime);
 }
 
@@ -183,7 +196,7 @@ void PlotManager::setTimeCursorTime(double time) {
 **/
 void PlotManager::setTimeCursorEnabled(bool enabled) {
 	m_TimeCursorEnabled = enabled;
-	for (const auto& plot : m_Plots)
+	for (const auto& plot : this->plots())
 		plot->enableTimeCursor(enabled);
 }
 
@@ -203,15 +216,14 @@ void PlotManager::timeAxisChanged(AbstractPlot* source) {
 void PlotManager::deletePlot(AbstractPlot* source) {
 	if (source == nullptr) return;
 
-	// Check if source is not the last one.
-	if (m_Plots.size() < 2) {
+	// Check if source is not the last plot.
+	if (this->plots().size() < 2) {
 		H2A::Dialog::message("Plotting data becomes quite hard without a single plot...");
 		return;
 	}
 
 	// Hide plot so layout can adapt and delete it from memory.
 	source->hide();
-	m_Plots.erase(std::remove(m_Plots.begin(), m_Plots.end(), source), m_Plots.end());
 	source->deleteLater();
 }
 
@@ -256,13 +268,91 @@ void PlotManager::insertPlot(AbstractPlot* ref, H2A::Direction dir)
 * @param source Plot that is requesting a time range from a different one.
 * @param range Range object to store result in.
 **/
-bool PlotManager::getOtherTimeRange(AbstractPlot* source, QCPRange& range) const {
+bool PlotManager::getOtherTimeRange(AbstractPlot* source, QCPRange& range) {
 	if (!m_TimeAlignEnabled) return false;
-	for (const auto& plot : m_Plots) {
+	for (const auto& plot : this->plots()) {
 		if (plot != source && plot->type() == H2A::Time) {
 			range = plot->xAxis->range();
 			return true;
 		}
 	}
 	return false;
+}
+
+/**
+* Returns a list of the current plots in the manager.
+**/
+std::vector<AbstractPlot*> PlotManager::plots() {
+	std::vector<AbstractPlot*> plots;
+	this->addChildrenPlots(m_VSplitter, plots);
+	return plots;
+}
+
+/**
+* Function that recursively gathers all plots from the layouts.
+* 
+* @param splitter Splitter to get the child plots from.
+* @param plots Vector to store pointers to the widgets in.
+**/
+void PlotManager::addChildrenPlots(QSplitter* splitter, std::vector<AbstractPlot*>& plots) {
+	for (int i = 0; i < splitter->count(); ++i) {
+		auto child = splitter->widget(i);
+		if (qobject_cast<QSplitter*>(child)) {
+			this->addChildrenPlots(qobject_cast<QSplitter*>(child), plots);
+			continue;
+		}
+		if (qobject_cast<AbstractPlot*>(child)) {
+			plots.push_back(qobject_cast<AbstractPlot*>(child));
+			continue;
+		}
+	}
+}
+
+/**
+* Replaces an existing plot with a newly created plot of given type.
+* 
+* @param source Plot to replace.
+* @param newType Type of new plot.
+**/
+AbstractPlot* PlotManager::replacePlot(AbstractPlot* source, H2A::PlotType newType) {
+	AbstractPlot* newPlot = createPlot(newType);
+	auto parent = qobject_cast<QSplitter*>(source->parent());
+	if (!parent) {
+		H2A::Dialog::message("Failed to replace plot widget...");
+		return source;
+	}
+	auto oldPlot = parent->replaceWidget(parent->indexOf(source), newPlot);
+	oldPlot->deleteLater();
+	return newPlot;
+}
+
+/**
+* When this slot is called, the currently selected datasets are plotted in the target plot.
+* If no plot is specified, it selects the first one that is available.
+* 
+* @param target Plot widget to plot selected data in.
+* @param type Type of plot requested
+**/
+void PlotManager::plotSelected(AbstractPlot* target, H2A::PlotType type) {
+	
+	// Get selected datasets and make sure they are populated
+	auto datasets = m_DataPanel->getSelectedDatasets();
+	m_DataPanel->requestDatasetPopulation(datasets, true);
+
+	// No target specified, find the first one that is still empty
+	if (!target) {
+		for (const auto& plot : this->plots()) {
+			if (plot->isEmpty()) target = plot;
+		}
+		// If no empty plot is found, abort plotting.
+		if (!target) {
+			H2A::Dialog::message("No empty plots available for plotting.");
+			return;
+		}
+	}
+
+	// Check if target is right type. If not, change it.
+	target = target->type() == type ? target : this->replacePlot(target, type);
+
+	target->plot(datasets, true);
 }
