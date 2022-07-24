@@ -49,7 +49,7 @@ public:
 	
 	// Actions
 	virtual void plot(std::vector<const H2A::Dataset*> datasets, bool clearFirst = false);
-	void replot();
+	virtual void replot();
 
 
 protected:
@@ -88,6 +88,6 @@ signals:
 	void timeAxisChanged(AbstractPlot*);
 	void plotSelected(AbstractPlot* source, H2A::PlotType type, bool clearFirst = true);
 	void deleteMe(AbstractPlot* source);
-	void timeCursorEnabled(double time);
+	void timeCursorPlaced(double time);
 
 };

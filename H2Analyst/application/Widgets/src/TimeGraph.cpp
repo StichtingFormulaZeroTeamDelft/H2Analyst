@@ -20,5 +20,27 @@ TimeGraph::TimeGraph(QCustomPlot* parent, const H2A::Dataset* dataset) : Abstrac
 * This function sets the graph and other graphical elements.
 **/
 void TimeGraph::setColor(QColor color) {
+	m_Color = color;
 	m_Graph->setPen(QPen(color));
+}
+
+/**
+* Function that find the coordinate that belongs to a given time. Returns true if time is within data range and a point is found.
+* 
+* @param time Time to get coordinate from.
+* @param point Point to store result into.
+**/
+bool TimeGraph::dataAt(double time, QPointF& point) const {
+	auto data = m_Graph->data();
+	bool rangeFound = true;
+	auto keyRange = data->keyRange(rangeFound);
+	if (time < keyRange.lower || time > keyRange.upper) return false;
+
+	for (auto i = 0; i < data->size(); ++i) {
+		if (data->at(i)->mainKey() > time) {
+			point = QPointF(data->at(i)->mainKey(), data->at(i)->mainValue());
+			return true;
+		}
+	}
+	return false;
 }

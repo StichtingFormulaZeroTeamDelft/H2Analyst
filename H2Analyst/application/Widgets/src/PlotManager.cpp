@@ -39,8 +39,8 @@ AbstractPlot* PlotManager::createPlot(H2A::PlotType type) {
 
 	plot->setTimeCursorEnabled(m_TimeCursorEnabled);
 	plot->setTimeCursorTime(m_TimeCursorTime);
-	connect(plot, &AbstractPlot::timeCursorEnabled, this, [=]() {this->setTimeCursorEnabled(true); });
-	connect(plot, &AbstractPlot::timeCursorEnabled, this, &PlotManager::setTimeCursorTime);
+	connect(plot, &AbstractPlot::timeCursorPlaced, this, [=]() {this->setTimeCursorEnabled(true); });
+	connect(plot, &AbstractPlot::timeCursorPlaced, this, &PlotManager::setTimeCursorTime);
 	
 	return plot;
 }

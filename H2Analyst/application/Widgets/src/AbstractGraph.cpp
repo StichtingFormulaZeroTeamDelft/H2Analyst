@@ -3,7 +3,9 @@
 AbstractGraph::AbstractGraph(QCustomPlot* parent, const H2A::Dataset* dataset) :
 m_Parent(parent),
 m_Graph(nullptr),
-m_Datasets() {
+m_Datasets(),
+m_Color(QColor("black"))
+{
 
 	m_Graph = m_Parent->addGraph();
 	m_Datasets.push_back(dataset);

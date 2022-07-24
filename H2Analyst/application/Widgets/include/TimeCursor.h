@@ -12,9 +12,11 @@
 // Forward declarations
 class AbstractPlot;
 
-class TimeCursor : public QObject
+class TimeCursor : public QWidget
 {
 	Q_OBJECT
+
+	const int HITBOX_RANGE = 5;
 
 	AbstractPlot* m_Plot;
 	QCPLayer* m_Layer;
@@ -22,6 +24,7 @@ class TimeCursor : public QObject
 	bool m_Enabled;
 	QCPItemLine* m_LineV;
 	std::vector<QCPItemText*> m_Labels;
+	bool m_Dragging;
 
 
 public:
@@ -29,6 +32,11 @@ public:
 	TimeCursor(AbstractPlot* plot);
 
 	bool enabled() { return m_Enabled; };
+
+protected:
+	void mouseMoveEvent(QMouseEvent* event) override;
+	void mousePressEvent(QMouseEvent* event) override;
+	void mouseReleaseEvent(QMouseEvent* event) override;
 
 public slots:
 	void draw();

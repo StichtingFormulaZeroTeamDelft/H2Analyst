@@ -136,7 +136,7 @@ void AbstractPlot::mouseDoubleClickEvent(QMouseEvent* event) {
 	if (this->isEmpty()) return;
 
 	// Time cursor
-	emit this->timeCursorEnabled(this->xAxis->pixelToCoord(event->pos().x()));
+	emit this->timeCursorPlaced(this->xAxis->pixelToCoord(event->pos().x()));
 	
 	QCustomPlot::mouseDoubleClickEvent(event);
 }
@@ -163,8 +163,10 @@ void AbstractPlot::mouseReleaseEvent(QMouseEvent* event) {
 * @param event Event that caused this function to get triggered.
 **/
 void AbstractPlot::wheelEvent(QWheelEvent* event) {
-	if (!this->isEmpty())
+	if (!this->isEmpty()) {
 		QCustomPlot::wheelEvent(event);
+		this->replot();
+	}
 }
 
 /**
