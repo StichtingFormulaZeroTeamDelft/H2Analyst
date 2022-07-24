@@ -4,7 +4,7 @@
 Rubberband::Rubberband(AbstractPlot* parent) : QRubberBand(QRubberBand::Rectangle, parent),
 m_Plot(parent),
 m_Origin(),
-m_Enabled(false)
+m_Active(false)
 {
 	connect(m_Plot, &AbstractPlot::mouseMoved, this, &Rubberband::mouseMoveEvent);
 }
@@ -16,7 +16,7 @@ m_Enabled(false)
 **/
 void Rubberband::start(QPoint origin) {
 	m_Origin = origin;
-	m_Enabled = true;
+	m_Active = true;
 	this->setGeometry(QRect(m_Origin, QSize()));
 }
 
@@ -26,14 +26,18 @@ void Rubberband::start(QPoint origin) {
 * @param xRange Object to store the X range in.
 * @param yRange Object to store the Y range in.
 **/
-void Rubberband::end(QCPRange& xRange, QCPRange& yRange) {
+void Rubberband::end() {
 	this->hide();
-	m_Enabled = false;
+	m_Active = false;
 
-	xRange = QCPRange(	m_Plot->xAxis->pixelToCoord(this->geometry().left()),
+	QCPRange xRange(	m_Plot->xAxis->pixelToCoord(this->geometry().left()),
 						m_Plot->xAxis->pixelToCoord(this->geometry().right()));
-	yRange = QCPRange(	m_Plot->yAxis->pixelToCoord(this->geometry().bottom()),
+	QCPRange yRange(	m_Plot->yAxis->pixelToCoord(this->geometry().bottom()),
 						m_Plot->yAxis->pixelToCoord(this->geometry().top()));
+	
+	m_Plot->xAxis->setRange(xRange);
+	m_Plot->yAxis->setRange(yRange);
+	m_Plot->replot();
 }
 
 /**
@@ -41,7 +45,7 @@ void Rubberband::end(QCPRange& xRange, QCPRange& yRange) {
 **/
 void Rubberband::cancel() {
 	this->hide();
-	m_Enabled = false;
+	m_Active = false;
 }
 
 
@@ -51,7 +55,7 @@ void Rubberband::cancel() {
 * @param event Event that caused the signal to be triggered (supplied by signal).
 **/
 void Rubberband::mouseMoveEvent(QMouseEvent* event) {
-	if (!m_Enabled) return;
+	if (!m_Active) return;
 
 	m_Mouse = event->pos();
 	QRect rect = QRect(m_Origin, m_Mouse).normalized();

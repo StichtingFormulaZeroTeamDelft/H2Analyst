@@ -8,7 +8,7 @@ TimePlot::TimePlot(QWidget* parent) : AbstractPlot(parent)
 	m_Type = H2A::Time;
 	this->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables | QCP::iMultiSelect);
 	this->setAxisLabels();
-	this->legend->setVisible(true);
+	this->legend->setVisible(false);
 }
 
 /**
@@ -52,6 +52,7 @@ void TimePlot::plot(std::vector<const H2A::Dataset*> datasets, bool clearFirst) 
 	m_LimHardX = QCPRange(m_LimHardX.lower - LIMIT_PADDING * m_LimHardX.size(), m_LimHardX.upper + LIMIT_PADDING * m_LimHardX.size());
 	m_LimHardY = QCPRange(m_LimHardY.lower - LIMIT_PADDING * m_LimHardY.size(), m_LimHardY.upper + LIMIT_PADDING * m_LimHardY.size());
 
+	this->legend->setVisible(true);
 	this->resetView();
 }
 
@@ -94,16 +95,23 @@ void TimePlot::setAxisLabels() {
 * Reset view to fit all graphs with some padding.
 **/
 void TimePlot::resetView() {
-	QCPRange rangeX = this->dataRangeX();
-	double padding = rangeX.size() * STD_VIEW_PADDING;
-	rangeX = QCPRange(rangeX.lower - padding, rangeX.upper + padding);
-	
-	QCPRange rangeY = this->dataRangeY();
-	padding = rangeY.size() * STD_VIEW_PADDING;
-	rangeY = QCPRange(rangeY.lower - padding, rangeY.upper + padding);
+	if (this->isEmpty()) {
+		this->xAxis->setRange(0.0, 10.0);
+		this->yAxis->setRange(0.0, 10.0);
+		this->setAxisLabels();
+	}
+	else {
+		QCPRange rangeX = this->dataRangeX();
+		double padding = rangeX.size() * STD_VIEW_PADDING;
+		rangeX = QCPRange(rangeX.lower - padding, rangeX.upper + padding);
 
-	this->xAxis->setRange(rangeX);
-	this->yAxis->setRange(rangeY);
+		QCPRange rangeY = this->dataRangeY();
+		padding = rangeY.size() * STD_VIEW_PADDING;
+		rangeY = QCPRange(rangeY.lower - padding, rangeY.upper + padding);
+
+		this->xAxis->setRange(rangeX);
+		this->yAxis->setRange(rangeY);
+	}
 	this->replot();
 }
 

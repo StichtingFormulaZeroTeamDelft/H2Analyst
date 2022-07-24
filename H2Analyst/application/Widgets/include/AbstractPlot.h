@@ -3,6 +3,7 @@
 #include "Namespace.h"
 #include "DataStructures.h"
 #include "TimeCursor.h"
+#include "PlotRubberband.h"
 #include "AbstractGraph.h"
 
 #include "qcustomplot.h"
@@ -24,6 +25,7 @@ protected:
 	H2A::PlotType m_Type;
 	std::vector<AbstractGraph*> m_Graphs;
 	TimeCursor* m_TimeCursor;
+	Rubberband* m_Rubberband;
 
 
 	QCPRange m_LimHardX, m_LimHardY;
@@ -47,16 +49,17 @@ public:
 	
 	// Actions
 	virtual void plot(std::vector<const H2A::Dataset*> datasets, bool clearFirst = false);
+	void replot();
 
-	// Time cursor
-	void setTimeCursor(double time);
-	virtual void enableTimeCursor(bool enable) {};
 
 protected:
 
 	// Mouse events
 	void mouseMoveEvent(QMouseEvent* event) override;
 	void leaveEvent(QEvent*) override;
+	void mousePressEvent(QMouseEvent* event) override;
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void mouseReleaseEvent(QMouseEvent* event) override;
 	void wheelEvent(QWheelEvent* event) override;
 
 	// Drag/drop functionality
@@ -74,12 +77,17 @@ public slots:
 	virtual void resetView() {};
 	void clear();
 
+	// Time cursor
+	void setTimeCursorEnabled(bool enable);
+	void setTimeCursorTime(double time);
+
 signals:
 
 	void mouseMoved(QMouseEvent*);
 	void mouseLeft();
 	void timeAxisChanged(AbstractPlot*);
-	void plotSelected(AbstractPlot* source, H2A::PlotType type);
+	void plotSelected(AbstractPlot* source, H2A::PlotType type, bool clearFirst = true);
 	void deleteMe(AbstractPlot* source);
+	void timeCursorEnabled(double time);
 
 };

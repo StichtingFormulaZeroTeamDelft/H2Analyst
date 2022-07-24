@@ -4,6 +4,7 @@
 AbstractPlot::AbstractPlot(QWidget* parent) : QCustomPlot(parent),
 m_Type(H2A::Abstract),
 m_TimeCursor(new TimeCursor(this)),
+m_Rubberband(new Rubberband(this)),
 m_BusyEnforcingViewLimits(false)
 {
 	this->xAxis->setTickLabels(false);
@@ -77,14 +78,16 @@ void AbstractPlot::clear() {
 		delete graph;
 	}
 	m_Graphs.clear();
+	this->legend->setVisible(false);
+	this->resetView();
+	this->replot();
 }
 
 /**
-* Set time of time cursor.
+* Slots to set time cursor enable and time.
 **/
-void AbstractPlot::setTimeCursor(double time) {
-	m_TimeCursor->setTime(time);
-}
+void AbstractPlot::setTimeCursorEnabled(bool enable) { m_TimeCursor->setEnabled(enable); }
+void AbstractPlot::setTimeCursorTime(double time) { m_TimeCursor->setTime(time); }
 
 /**
 * Function that overrides Base and is called when the mouse is moved while it is over this widget.
@@ -104,6 +107,55 @@ void AbstractPlot::mouseMoveEvent(QMouseEvent* event) {
 void AbstractPlot::leaveEvent(QEvent*) {
 	emit this->mouseLeft();
 }
+
+/**
+* Override function for mouse presses.
+*
+* @param event Event that caused this function to get triggered.
+**/
+void AbstractPlot::mousePressEvent(QMouseEvent* event) {
+	
+	// Ignore all clicks if plot is still empty
+	if (this->isEmpty()) return;
+
+	// Rubberband
+	if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
+		m_Rubberband->start(event->pos());
+	}
+	else {
+		QCustomPlot::mousePressEvent(event);
+	}
+}
+
+/**
+* Override function for double mouse presses.
+*
+* @param event Event that caused this function to get triggered.
+**/
+void AbstractPlot::mouseDoubleClickEvent(QMouseEvent* event) {
+	if (this->isEmpty()) return;
+
+	// Time cursor
+	emit this->timeCursorEnabled(this->xAxis->pixelToCoord(event->pos().x()));
+	
+	QCustomPlot::mouseDoubleClickEvent(event);
+}
+
+/**
+* Override function for mouse releases.
+*
+* @param event Event that caused this function to get triggered.
+**/
+void AbstractPlot::mouseReleaseEvent(QMouseEvent* event) {
+
+	if (m_Rubberband->isActive()) m_Rubberband->end();
+
+	QCustomPlot::mouseReleaseEvent(event);
+}
+
+
+
+
 
 /**
 * This function overrides QWidget and is called when the scrollwheel is spun while the mouse over this widget.
@@ -128,7 +180,8 @@ void AbstractPlot::dragEnterEvent(QDragEnterEvent* event) {
 **/
 void AbstractPlot::dropEvent(QDropEvent*) {
 	// If data is dropped on an AbstractPlot object, it should be changed to a TimePlot and plot the data.
-	emit this->plotSelected(this, H2A::Time);
+	bool ctrlPressed = (QApplication::keyboardModifiers() & Qt::ControlModifier);
+	emit this->plotSelected(this, H2A::Time, !ctrlPressed);
 }
 
 /**
@@ -162,6 +215,10 @@ void AbstractPlot::createAbstractContextMenu(QMenu& menu) {
 	connect(acResetView, SIGNAL(triggered(bool)), this, SLOT(resetView()));
 	menu.addAction(acResetView);
 
+	QAction* acClear = new QAction(QString("Clear"));
+	connect(acClear, SIGNAL(triggered(bool)), this, SLOT(clear()));
+	menu.addAction(acClear);
+
 	QAction* acDelete = new QAction(QIcon(QPixmap(":/icons/remove")), QString("Delete plot"));
 	connect(acDelete, &QAction::triggered, [=]() {emit this->deleteMe(this); });
 	menu.addAction(acDelete);
@@ -175,3 +232,12 @@ void AbstractPlot::contextMenu(const QPoint& pos) {
 	this->createAbstractContextMenu(menu);
 	menu.exec(mapToGlobal(pos));
 }
+
+/**
+* Function that is used to add extra functionality to standard replot.
+**/
+void AbstractPlot::replot() {
+	QCustomPlot::replot();
+	m_TimeCursor->draw();
+}
+

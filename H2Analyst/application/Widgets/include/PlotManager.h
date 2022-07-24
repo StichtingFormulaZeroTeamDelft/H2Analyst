@@ -65,7 +65,7 @@ public slots:
     void timeAxisChanged(AbstractPlot* source);
     void deletePlot(AbstractPlot* source);
     void insertPlot(AbstractPlot* source, H2A::Direction dir);
-    void plotSelected(AbstractPlot* target = nullptr, H2A::PlotType type = H2A::Abstract);
+    void plotSelected(AbstractPlot* target = nullptr, H2A::PlotType type = H2A::Abstract, bool clearFirst = true);
     
 signals:
     void timeCursorMoved(double time);

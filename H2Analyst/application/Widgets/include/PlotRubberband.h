@@ -1,9 +1,11 @@
 #pragma once
 
 #include "AbstractPlot.h"
+#include "qcustomplot.h"
 
 #include <QRubberband>
 
+class AbstractPlot;
 
 class Rubberband : public QRubberBand
 {
@@ -16,7 +18,7 @@ class Rubberband : public QRubberBand
 	QPoint m_Origin;
 	QPoint m_Mouse;
 
-	bool m_Enabled;
+	bool m_Active;
 	bool m_SnappedH;
 	bool m_SnappedV;
 
@@ -25,9 +27,9 @@ public:
 	Rubberband(AbstractPlot* parent);
 
 	void start(QPoint origin);
-	void end(QCPRange& xRange, QCPRange& yRange);
+	void end();
 	void cancel();
-	const bool isEnabled() const { return m_Enabled; };
+	bool isActive() const { return m_Active; };
 
 signals:
 	void released(const QCPRange xRange, const QCPRange yRange);

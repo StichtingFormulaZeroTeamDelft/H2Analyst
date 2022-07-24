@@ -36,6 +36,12 @@ AbstractPlot* PlotManager::createPlot(H2A::PlotType type) {
 	connect(plot, SIGNAL(timeAxisChanged(AbstractPlot*)), this, SLOT(timeAxisChanged(AbstractPlot*)));
 	connect(plot, &AbstractPlot::plotSelected, this, &PlotManager::plotSelected);
 	connect(plot, SIGNAL(deleteMe(AbstractPlot*)), this, SLOT(deletePlot(AbstractPlot*)));
+
+	plot->setTimeCursorEnabled(m_TimeCursorEnabled);
+	plot->setTimeCursorTime(m_TimeCursorTime);
+	connect(plot, &AbstractPlot::timeCursorEnabled, this, [=]() {this->setTimeCursorEnabled(true); });
+	connect(plot, &AbstractPlot::timeCursorEnabled, this, &PlotManager::setTimeCursorTime);
+	
 	return plot;
 }
 
@@ -185,7 +191,7 @@ bool PlotManager::allPlotsEmpty() {
 **/
 void PlotManager::setTimeCursorTime(double time) {
 	m_TimeCursorTime = time;
-	for (const auto& plot : this->plots()) plot->setTimeCursor(time);
+	for (const auto& plot : this->plots()) plot->setTimeCursorTime(time);
 	emit this->timeCursorMoved(m_TimeCursorTime);
 }
 
@@ -197,7 +203,7 @@ void PlotManager::setTimeCursorTime(double time) {
 void PlotManager::setTimeCursorEnabled(bool enabled) {
 	m_TimeCursorEnabled = enabled;
 	for (const auto& plot : this->plots())
-		plot->enableTimeCursor(enabled);
+		plot->setTimeCursorEnabled(enabled);
 }
 
 /**
@@ -333,8 +339,8 @@ AbstractPlot* PlotManager::replacePlot(AbstractPlot* source, H2A::PlotType newTy
 * @param target Plot widget to plot selected data in.
 * @param type Type of plot requested
 **/
-void PlotManager::plotSelected(AbstractPlot* target, H2A::PlotType type) {
-	
+void PlotManager::plotSelected(AbstractPlot* target, H2A::PlotType type, bool clearFirst) {
+
 	// Get selected datasets and make sure they are populated
 	auto datasets = m_DataPanel->getSelectedDatasets();
 	m_DataPanel->requestDatasetPopulation(datasets, true);
@@ -354,5 +360,5 @@ void PlotManager::plotSelected(AbstractPlot* target, H2A::PlotType type) {
 	// Check if target is right type. If not, change it.
 	target = target->type() == type ? target : this->replacePlot(target, type);
 
-	target->plot(datasets, true);
+	target->plot(datasets, clearFirst);
 }

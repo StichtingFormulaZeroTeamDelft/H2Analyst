@@ -2,6 +2,7 @@
 
 TimeCursor::TimeCursor(AbstractPlot* plot) : QObject(plot),
 m_Plot(plot),
+m_Time(0.0),
 m_Enabled(false)
 {
 
@@ -90,14 +91,11 @@ void TimeCursor::setTime(double time) {
 **/
 void TimeCursor::setEnabled(bool enable) {
 	m_Enabled = enable;
-	if (m_Enabled)
-	{
+	if (m_Enabled) {
 		this->draw();
 	}
-	else
-	{
+	else {
 		m_Layer->setVisible(false);
 		m_Layer->replot();
 	}
 }
-
