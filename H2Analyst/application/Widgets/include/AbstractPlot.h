@@ -67,12 +67,8 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent* event) override;
 	virtual void dropEvent(QDropEvent* event) override;
 
-	// Context menu
-	void createAbstractContextMenu(QMenu& menu);
-
 private slots:
 	void enforceViewLimits();
-	void contextMenu(const QPoint& pos);
 	void emitTimeAxisChanged();
 
 public slots:
@@ -84,13 +80,11 @@ public slots:
 	void setTimeCursorTime(double time);
 
 signals:
-
+	void contextMenuRequested(AbstractPlot* source, const QPoint& pos);
 	void mouseMoved(QMouseEvent*);
 	void mouseLeft();
 	void timeAxisChanged(AbstractPlot*);
 	void plotSelected(AbstractPlot* source, H2A::PlotType type, bool clearFirst = true);
-	void deleteMe(AbstractPlot* source);
 	void timeCursorPlaced(double time);
-	void resetAllViewsRequested();
 
 };

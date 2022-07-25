@@ -56,6 +56,7 @@ public:
     const double timeCursorTime() const { return m_TimeCursorTime; };
 
 public slots:
+    void contextMenu(AbstractPlot* source, const QPoint& pos);
     void setPlotLayoutDialog();
     void setTimeAlignEnabled(bool align);
     void alignTimeAxis(AbstractPlot* ref = nullptr);

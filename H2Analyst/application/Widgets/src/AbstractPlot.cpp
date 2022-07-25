@@ -19,7 +19,7 @@ m_BusyEnforcingViewLimits(false)
 
 	this->setAcceptDrops(true);
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
+	connect(this, &QWidget::customContextMenuRequested, [=](const QPoint& pos) {emit this->contextMenuRequested(this, pos); });
 }
 
 /**
@@ -194,47 +194,6 @@ void AbstractPlot::enforceViewLimits() {
 	this->xAxis->setRange(this->xAxis->range().bounded(m_LimHardX.lower, m_LimHardX.upper));
 	this->yAxis->setRange(this->yAxis->range().bounded(m_LimHardY.lower, m_LimHardY.upper));
 	m_BusyEnforcingViewLimits = false;
-}
-
-/**
-* Function that creates the abstract context menu that applies to all plots.
-**/
-void AbstractPlot::createAbstractContextMenu(QMenu& menu) {
-
-	QAction* acPlot = new QAction("Plot");
-	acPlot->setEnabled(false);
-	menu.addAction(acPlot);
-
-	QMenu* plotMenu = menu.addMenu(QIcon(QPixmap(":/icons/more-information")), "Other plots");
-
-	QAction* acPlotXY = new QAction("XY");
-	acPlotXY->setEnabled(false);
-	plotMenu->addAction(acPlotXY);
-
-	QAction* acResetView = new QAction(QIcon(QPixmap(":/icons/uno")), QString("Reset view"));
-	connect(acResetView, SIGNAL(triggered(bool)), this, SLOT(resetView()));
-	menu.addAction(acResetView);
-
-	QAction* acResetAllViews = new QAction(QIcon(QPixmap(":/icons/uno")), QString("Reset all views"));
-	connect(acResetAllViews, SIGNAL(triggered(bool)), this, SIGNAL(resetAllViewsRequested()));
-	menu.addAction(acResetAllViews);
-
-	QAction* acClear = new QAction(QString("Clear"));
-	connect(acClear, SIGNAL(triggered(bool)), this, SLOT(clear()));
-	menu.addAction(acClear);
-
-	QAction* acDelete = new QAction(QIcon(QPixmap(":/icons/remove")), QString("Delete plot"));
-	connect(acDelete, &QAction::triggered, [=]() {emit this->deleteMe(this); });
-	menu.addAction(acDelete);
-}
-
-/**
-* Slot that opens context (right-click) menu.
-**/
-void AbstractPlot::contextMenu(const QPoint& pos) {
-	QMenu menu;
-	this->createAbstractContextMenu(menu);
-	menu.exec(mapToGlobal(pos));
 }
 
 /**

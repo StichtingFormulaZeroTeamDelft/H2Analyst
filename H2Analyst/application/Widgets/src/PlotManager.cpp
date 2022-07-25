@@ -35,8 +35,7 @@ AbstractPlot* PlotManager::createPlot(H2A::PlotType type) {
 	}
 	connect(plot, SIGNAL(timeAxisChanged(AbstractPlot*)), this, SLOT(alignTimeAxis(AbstractPlot*)));
 	connect(plot, &AbstractPlot::plotSelected, this, &PlotManager::plotSelected);
-	connect(plot, SIGNAL(deleteMe(AbstractPlot*)), this, SLOT(deletePlot(AbstractPlot*)));
-	connect(plot, SIGNAL(resetAllViewsRequested()), this, SLOT(resetAllViews()));
+	connect(plot, &AbstractPlot::contextMenuRequested, this, &PlotManager::contextMenu);
 
 	plot->setTimeCursorEnabled(m_TimeCursorEnabled);
 	plot->setTimeCursorTime(m_TimeCursorTime);
@@ -360,4 +359,42 @@ void PlotManager::plotSelected(AbstractPlot* target, H2A::PlotType type, bool cl
 	target = target->type() == type ? target : this->replacePlot(target, type);
 
 	target->plot(datasets, clearFirst);
+}
+
+
+/**
+* Function that creates the abstract context menu that applies to all plots.
+**/
+void PlotManager::contextMenu(AbstractPlot* source, const QPoint& pos) {
+
+	QMenu menu(this);
+
+	QAction* acPlot = new QAction("Plot");
+	menu.addAction(acPlot);
+	connect(acPlot, &QAction::triggered, [=]() { this->plotSelected(source, H2A::Time); });
+
+	QMenu* plotMenu = menu.addMenu(QIcon(QPixmap(":/icons/more-information")), "Other plots");
+
+	QAction* acPlotXY = new QAction("XY");
+	acPlotXY->setEnabled(false);
+	// connect action
+	plotMenu->addAction(acPlotXY);
+
+	QAction* acResetView = new QAction(QIcon(QPixmap(":/icons/uno")), QString("Reset view"));
+	connect(acResetView, &QAction::triggered, [=]() {source->resetView(); });
+	menu.addAction(acResetView);
+
+	QAction* acResetAllViews = new QAction(QIcon(QPixmap(":/icons/uno")), QString("Reset all views"));
+	connect(acResetAllViews, &QAction::triggered, [=]() {this->resetAllViews(); });
+	menu.addAction(acResetAllViews);
+
+	QAction* acClear = new QAction(QString("Clear"));
+	connect(acClear, &QAction::triggered, [=]() {source->clear(); });
+	menu.addAction(acClear);
+
+	QAction* acDelete = new QAction(QIcon(QPixmap(":/icons/remove")), QString("Delete plot"));
+	connect(acDelete, &QAction::triggered, [=]() {this->deletePlot(source); });
+	menu.addAction(acDelete);
+
+	menu.exec(source->mapToGlobal(pos));
 }
