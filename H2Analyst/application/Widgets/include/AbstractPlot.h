@@ -5,6 +5,7 @@
 #include "TimeCursor.h"
 #include "PlotRubberband.h"
 #include "AbstractGraph.h"
+#include <QtGlobal>
 
 #include "qcustomplot.h"
 
@@ -72,6 +73,7 @@ protected:
 private slots:
 	void enforceViewLimits();
 	void contextMenu(const QPoint& pos);
+	void emitTimeAxisChanged();
 
 public slots:
 	virtual void resetView() {};

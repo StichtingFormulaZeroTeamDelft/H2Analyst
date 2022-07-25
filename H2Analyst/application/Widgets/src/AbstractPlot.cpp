@@ -13,7 +13,9 @@ m_BusyEnforcingViewLimits(false)
 	m_LimHardX = this->xAxis->range();
 	m_LimHardY = this->yAxis->range();
 	connect(this->xAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(enforceViewLimits()));
+	connect(this->xAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(emitTimeAxisChanged()));
 	connect(this->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(enforceViewLimits()));
+	connect(this->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(emitTimeAxisChanged()));
 
 	this->setAcceptDrops(true);
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -243,3 +245,9 @@ void AbstractPlot::replot() {
 	m_TimeCursor->draw();
 }
 
+/**
+* Ugly slot that is needed to emit signal from overloaded signal.
+**/
+void AbstractPlot::emitTimeAxisChanged() {
+	emit this->timeAxisChanged(this);
+}

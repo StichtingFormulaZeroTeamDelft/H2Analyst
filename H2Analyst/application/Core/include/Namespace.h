@@ -3,6 +3,8 @@
 #include <QColor>
 
 #include <vector>
+#include <iostream>
+#include <string>
 
 namespace H2A
 {
@@ -10,6 +12,11 @@ namespace H2A
     * General
     **/
 	enum Direction { left, right, up, down };
+
+    // Logging
+    inline void log(const std::string& mess) { std::cout << mess << std::endl; };
+    inline void logInfo(const std::string& mess) { std::cout << "[INFO] " << mess << std::endl; };
+    inline void logWarning(const std::string& mess) { std::cout << "[Warning] " << mess << std::endl; };
 
     /**
     * Plots

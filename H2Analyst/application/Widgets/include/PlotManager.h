@@ -43,7 +43,6 @@ private:
 
     AbstractPlot* createPlot(H2A::PlotType type = H2A::Abstract);
     void setPlotLayoutRC(uint8_t rows, uint8_t cols);
-    void alignTimeAxis(AbstractPlot* ref = nullptr);
     AbstractPlot* replacePlot(AbstractPlot* source, H2A::PlotType newType);
 
 public:
@@ -59,10 +58,10 @@ public:
 public slots:
     void setPlotLayoutDialog();
     void setTimeAlignEnabled(bool align);
+    void alignTimeAxis(AbstractPlot* ref = nullptr);
     void setTimeCursorEnabled(bool enabled);
     void setTimeCursorTime(double time);
     void resetAllViews();
-    void timeAxisChanged(AbstractPlot* source);
     void deletePlot(AbstractPlot* source);
     void insertPlot(AbstractPlot* source, H2A::Direction dir);
     void plotSelected(AbstractPlot* target = nullptr, H2A::PlotType type = H2A::Abstract, bool clearFirst = true);

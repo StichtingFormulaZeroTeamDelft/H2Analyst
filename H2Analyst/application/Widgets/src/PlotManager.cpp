@@ -33,7 +33,7 @@ AbstractPlot* PlotManager::createPlot(H2A::PlotType type) {
 	default:
 		break;
 	}
-	connect(plot, SIGNAL(timeAxisChanged(AbstractPlot*)), this, SLOT(timeAxisChanged(AbstractPlot*)));
+	connect(plot, SIGNAL(timeAxisChanged(AbstractPlot*)), this, SLOT(alignTimeAxis(AbstractPlot*)));
 	connect(plot, &AbstractPlot::plotSelected, this, &PlotManager::plotSelected);
 	connect(plot, SIGNAL(deleteMe(AbstractPlot*)), this, SLOT(deletePlot(AbstractPlot*)));
 
@@ -124,6 +124,8 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 **/
 void PlotManager::alignTimeAxis(AbstractPlot* ref) {
 	
+	if (!m_TimeAlignEnabled) return;
+
 	// Avoid aligning time axis when a plot is cleared
 	if (ref != nullptr) { if (ref->isEmpty()) return; }
 
@@ -164,7 +166,13 @@ void PlotManager::alignTimeAxis(AbstractPlot* ref) {
 **/
 void PlotManager::setTimeAlignEnabled(bool align) {
 	m_TimeAlignEnabled = align;
-	if (m_TimeAlignEnabled) this->alignTimeAxis();
+	if (m_TimeAlignEnabled) {
+		H2A::logInfo("Time alignment enabled");
+		this->alignTimeAxis();
+	}
+	else {
+		H2A::logInfo("Time alignment disabled");
+	}
 }
 
 /**
@@ -204,16 +212,6 @@ void PlotManager::setTimeCursorEnabled(bool enabled) {
 	m_TimeCursorEnabled = enabled;
 	for (const auto& plot : this->plots())
 		plot->setTimeCursorEnabled(enabled);
-}
-
-/**
-* Slot that is called when a time axis of any plot is changed.
-* 
-* @param source Plot that triggered the call of this slot.
-**/
-void PlotManager::timeAxisChanged(AbstractPlot* source) {
-	if (m_TimeAlignEnabled)
-		this->alignTimeAxis(source);
 }
 
 /**
