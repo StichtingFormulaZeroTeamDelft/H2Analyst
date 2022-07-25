@@ -155,10 +155,6 @@ void AbstractPlot::mouseReleaseEvent(QMouseEvent* event) {
 	QCustomPlot::mouseReleaseEvent(event);
 }
 
-
-
-
-
 /**
 * This function overrides QWidget and is called when the scrollwheel is spun while the mouse over this widget.
 *
@@ -218,6 +214,10 @@ void AbstractPlot::createAbstractContextMenu(QMenu& menu) {
 	QAction* acResetView = new QAction(QIcon(QPixmap(":/icons/uno")), QString("Reset view"));
 	connect(acResetView, SIGNAL(triggered(bool)), this, SLOT(resetView()));
 	menu.addAction(acResetView);
+
+	QAction* acResetAllViews = new QAction(QIcon(QPixmap(":/icons/uno")), QString("Reset all views"));
+	connect(acResetAllViews, SIGNAL(triggered(bool)), this, SIGNAL(resetAllViewsRequested()));
+	menu.addAction(acResetAllViews);
 
 	QAction* acClear = new QAction(QString("Clear"));
 	connect(acClear, SIGNAL(triggered(bool)), this, SLOT(clear()));

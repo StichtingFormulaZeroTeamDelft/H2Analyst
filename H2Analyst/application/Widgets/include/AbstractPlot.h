@@ -91,5 +91,6 @@ signals:
 	void plotSelected(AbstractPlot* source, H2A::PlotType type, bool clearFirst = true);
 	void deleteMe(AbstractPlot* source);
 	void timeCursorPlaced(double time);
+	void resetAllViewsRequested();
 
 };

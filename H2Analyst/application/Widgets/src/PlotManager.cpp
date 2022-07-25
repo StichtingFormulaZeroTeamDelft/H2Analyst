@@ -36,6 +36,7 @@ AbstractPlot* PlotManager::createPlot(H2A::PlotType type) {
 	connect(plot, SIGNAL(timeAxisChanged(AbstractPlot*)), this, SLOT(alignTimeAxis(AbstractPlot*)));
 	connect(plot, &AbstractPlot::plotSelected, this, &PlotManager::plotSelected);
 	connect(plot, SIGNAL(deleteMe(AbstractPlot*)), this, SLOT(deletePlot(AbstractPlot*)));
+	connect(plot, SIGNAL(resetAllViewsRequested()), this, SLOT(resetAllViews()));
 
 	plot->setTimeCursorEnabled(m_TimeCursorEnabled);
 	plot->setTimeCursorTime(m_TimeCursorTime);
