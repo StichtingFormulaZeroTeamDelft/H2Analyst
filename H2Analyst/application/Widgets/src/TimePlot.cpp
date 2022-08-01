@@ -115,4 +115,16 @@ void TimePlot::resetView() {
 	this->replot();
 }
 
+/**
+* Override function for double mouse presses.
+*
+* @param event Event that caused this function to get triggered.
+**/
+void TimePlot::mouseDoubleClickEvent(QMouseEvent* event) {
+	if (this->isEmpty()) return;
 
+	// Time cursor
+	emit this->timeCursorPlaced(this->xAxis->pixelToCoord(event->pos().x()));
+
+	AbstractPlot::mouseDoubleClickEvent(event);
+}

@@ -137,9 +137,6 @@ void AbstractPlot::mousePressEvent(QMouseEvent* event) {
 void AbstractPlot::mouseDoubleClickEvent(QMouseEvent* event) {
 	if (this->isEmpty()) return;
 
-	// Time cursor
-	emit this->timeCursorPlaced(this->xAxis->pixelToCoord(event->pos().x()));
-	
 	QCustomPlot::mouseDoubleClickEvent(event);
 }
 

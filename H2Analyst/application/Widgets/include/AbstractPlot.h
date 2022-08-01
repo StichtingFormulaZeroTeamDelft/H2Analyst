@@ -76,8 +76,8 @@ public slots:
 	void clear();
 
 	// Time cursor
-	void setTimeCursorEnabled(bool enable);
-	void setTimeCursorTime(double time);
+	virtual void setTimeCursorEnabled(bool enable);
+	virtual void setTimeCursorTime(double time);
 
 signals:
 	void contextMenuRequested(AbstractPlot* source, const QPoint& pos);

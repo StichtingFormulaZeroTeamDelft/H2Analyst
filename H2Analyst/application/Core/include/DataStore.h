@@ -35,6 +35,7 @@ public:
 	const std::vector<H2A::Datafile*>& getDatafiles();
 	void requestDatasetPopulation(const H2A::Dataset* dataset);
 	void loadFiles(const QStringList &files);
+	bool datasetPresentUID(const H2A::Datafile* datafile, const uint32_t uid) const;
 
 signals:
 	void fileLoaded();

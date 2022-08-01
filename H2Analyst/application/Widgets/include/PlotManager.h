@@ -2,6 +2,7 @@
 
 #include "AbstractPlot.h"
 #include "TimePlot.h"
+#include "EmcyPlot.h"
 #include "DataPanel.h"
 #include "DialogPlotLayout.h"
 #include "Dialogs.h"

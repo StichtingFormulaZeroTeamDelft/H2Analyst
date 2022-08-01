@@ -103,6 +103,9 @@
     <QtMoc Include="application\Widgets\include\TimePlot.h">
       <Filter>Header Files\Widgets</Filter>
     </QtMoc>
+    <QtMoc Include="application\Widgets\include\EmcyPlot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Widgets\include\Dialogs.h">
@@ -140,6 +143,12 @@
     </ClInclude>
     <ClInclude Include="application\Widgets\include\TimeGraph.h">
       <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Utilities\include\StringOperations.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Utilities\include\Emcies.h">
+      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -232,6 +241,12 @@
     </ClCompile>
     <ClCompile Include="application\Widgets\src\TimeGraph.cpp">
       <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Widgets\src\EmcyPlot.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Utilities\src\Emcies.cpp">
+      <Filter>Source Files\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

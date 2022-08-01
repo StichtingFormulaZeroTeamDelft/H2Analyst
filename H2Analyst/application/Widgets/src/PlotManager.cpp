@@ -10,8 +10,6 @@ m_BusyAligning(false),
 m_TimeCursorEnabled(false),
 m_TimeCursorTime(0.0)
 {
-	m_VSplitter->setChildrenCollapsible(false);
-
 	// Init single plot
 	this->setPlotLayoutRC(1, 1);
 
@@ -29,6 +27,9 @@ AbstractPlot* PlotManager::createPlot(H2A::PlotType type) {
 		plot = new TimePlot(this);
 		break;
 	case H2A::XY:
+		break;
+	case H2A::EmcyList:
+		plot = new EmcyPlot(m_DataPanel, this);
 		break;
 	default:
 		break;
@@ -73,6 +74,7 @@ void PlotManager::setPlotLayoutRC(uint8_t rows, uint8_t cols) {
 	delete m_VSplitter;
 	m_HSplitters.clear();
 	m_VSplitter = new QSplitter(Qt::Vertical, this);
+	m_VSplitter->setChildrenCollapsible(false);
 	this->layout()->addWidget(m_VSplitter);
 
 	// Delete empty plots from memory
@@ -246,19 +248,19 @@ void PlotManager::insertPlot(AbstractPlot* ref, H2A::Direction dir)
 	// Add the plot
 	QList<int> sizes;
 	auto plot = this->createPlot();
-	if (dir == H2A::up || dir == H2A::down) { 
+	if (dir == H2A::Up || dir == H2A::Down) { 
 		QSplitter* splitter = new QSplitter(Qt::Horizontal);
 		splitter->addWidget(plot);
 		auto refSplitterIndex = std::find(m_HSplitters.begin(), m_HSplitters.end(), refSplitter);
 		if (refSplitterIndex == m_HSplitters.end()) return;
 		m_HSplitters.insert(refSplitterIndex, splitter);
-		uint8_t offset = (dir == H2A::up) ? 0 : 1;
+		uint8_t offset = (dir == H2A::Up) ? 0 : 1;
 		m_VSplitter->insertWidget(m_VSplitter->indexOf(refSplitter) + offset, splitter);
 		for (int i = 0; i < m_VSplitter->count(); ++i) sizes.push_back(QGuiApplication::primaryScreen()->virtualSize().height());
 		m_VSplitter->setSizes(sizes);
 	}
 	else {
-		uint8_t offset = (dir == H2A::left) ? 0 : 1;
+		uint8_t offset = (dir == H2A::Left) ? 0 : 1;
 		refSplitter->insertWidget(refSplitter->indexOf(ref) + offset, plot);
 		for (int i = 0; i < refSplitter->count(); ++i) sizes.push_back(QGuiApplication::primaryScreen()->virtualSize().width());
 		refSplitter->setSizes(sizes);
@@ -322,7 +324,7 @@ AbstractPlot* PlotManager::replacePlot(AbstractPlot* source, H2A::PlotType newTy
 	AbstractPlot* newPlot = createPlot(newType);
 	auto parent = qobject_cast<QSplitter*>(source->parent());
 	if (!parent) {
-		H2A::Dialog::message("Failed to replace plot widget...");
+		H2A::logWarning("Failed to replace plot widget");
 		return source;
 	}
 	auto oldPlot = parent->replaceWidget(parent->indexOf(source), newPlot);
@@ -368,10 +370,13 @@ void PlotManager::plotSelected(AbstractPlot* target, H2A::PlotType type, bool cl
 void PlotManager::contextMenu(AbstractPlot* source, const QPoint& pos) {
 
 	QMenu menu(this);
+	bool enabled;
 
 	QAction* acPlot = new QAction("Plot");
-	menu.addAction(acPlot);
+	enabled = m_DataPanel->getSelectedDatasets().size() > 0;
+	acPlot->setEnabled(enabled);
 	connect(acPlot, &QAction::triggered, [=]() { this->plotSelected(source, H2A::Time); });
+	menu.addAction(acPlot);
 
 	QMenu* plotMenu = menu.addMenu(QIcon(QPixmap(":/icons/more-information")), "Other plots");
 
@@ -380,7 +385,14 @@ void PlotManager::contextMenu(AbstractPlot* source, const QPoint& pos) {
 	// connect action
 	plotMenu->addAction(acPlotXY);
 
+	QAction* acPlotEmcy = new QAction("Emcy");
+	enabled = m_DataPanel->getSelectedDatafiles().size() == 1 || m_DataPanel->getDatafiles().size() == 1;
+	acPlotEmcy->setEnabled(enabled);
+	connect(acPlotEmcy, &QAction::triggered, [=]() {this->replacePlot(source, H2A::EmcyList); });
+	plotMenu->addAction(acPlotEmcy);
+
 	QAction* acResetView = new QAction(QIcon(QPixmap(":/icons/uno")), QString("Reset view"));
+	acResetView->setEnabled(!source->isEmpty() && source->type() != H2A::EmcyList);
 	connect(acResetView, &QAction::triggered, [=]() {source->resetView(); });
 	menu.addAction(acResetView);
 
@@ -389,6 +401,7 @@ void PlotManager::contextMenu(AbstractPlot* source, const QPoint& pos) {
 	menu.addAction(acResetAllViews);
 
 	QAction* acClear = new QAction(QString("Clear"));
+	acClear->setEnabled(!source->isEmpty() && source->type() != H2A::EmcyList);
 	connect(acClear, &QAction::triggered, [=]() {source->clear(); });
 	menu.addAction(acClear);
 

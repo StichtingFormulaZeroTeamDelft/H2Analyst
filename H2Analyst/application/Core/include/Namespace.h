@@ -11,7 +11,7 @@ namespace H2A
     /**
     * General
     **/
-	enum Direction { left, right, up, down };
+	enum Direction { Left, Right, Up, Down };
 
     // Logging
     inline void log(const std::string& mess) { std::cout << mess << std::endl; };
@@ -21,7 +21,7 @@ namespace H2A
     /**
     * Plots
     **/
-    enum PlotType { Abstract, Time, XY };
+    enum PlotType { Abstract, Time, XY, EmcyList };
 
     const std::vector<QColor> PlotColors = {
         QColor(0, 114, 189),
@@ -38,14 +38,15 @@ namespace H2A
     * DataPanel
     **/
     enum class ItemType : uint8_t {
-        kDatafile, kSystem, kSubsystem, kDataset,
+        Datafile, System, Subsystem, Dataset,
     };
 
     namespace ItemRole {
-        const uint32_t kItemType = Qt::UserRole + 1;
-        const uint32_t kSorting = Qt::UserRole + 2;
-        const uint32_t kDatasetPtr = Qt::UserRole + 3;
-        const uint32_t kFilter = Qt::UserRole + 4;
+        const uint32_t ItemType = Qt::UserRole + 1;
+        const uint32_t Sorting = Qt::UserRole + 2;
+        const uint32_t DataPtr = Qt::UserRole + 3; // Used in DataPanel to store pointer to datafile/dataset
+        const uint32_t Filter = Qt::UserRole + 4;
+        const uint32_t Emcy = Qt::UserRole + 5; // Used in Emcy list to store emcy object
     };
 
     const int TREEVIEW_FILTER_EXPAND_THRESHOLD = 50;

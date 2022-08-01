@@ -103,6 +103,16 @@ void DataStore::loadFiles(const QStringList& files) {
 }
 
 /**
+* Function to check if a given UID is present in the given datafile.
+*
+* @param datafile Datafile to check if UID exists in.
+* @param uid UID to check for.
+**/
+bool DataStore::datasetPresentUID(const H2A::Datafile* datafile, const uint32_t uid) const {
+	return false;
+}
+
+/**
 * Adds a padding to the time vectors to make the given datafiles have the same start time.
 **/
 void DataStore::alignTimeVectors(std::vector<H2A::Datafile*> datafiles) {

@@ -119,9 +119,11 @@
     <ClInclude Include="application\Core\include\Namespace.h" />
     <QtMoc Include="application\Core\include\SettingsManager.h" />
     <ClInclude Include="application\Utilities\include\DataOperations.h" />
+    <ClInclude Include="application\Utilities\include\Emcies.h" />
     <ClInclude Include="application\Utilities\include\Exporters.h" />
     <ClInclude Include="application\Utilities\include\Parsers.h" />
     <QtMoc Include="application\Utilities\include\Populator.h" />
+    <ClInclude Include="application\Utilities\include\StringOperations.h" />
     <ClInclude Include="application\Utilities\include\Timestamp.h" />
     <QtMoc Include="application\Widgets\include\AbstractPlot.h" />
     <QtMoc Include="application\Widgets\include\ControlPanel.h" />
@@ -131,6 +133,7 @@
     <QtMoc Include="application\Widgets\include\PanelToggleButton.h" />
     <QtMoc Include="application\Widgets\include\PlotCrosshairs.h" />
     <ClInclude Include="application\Widgets\include\AbstractGraph.h" />
+    <QtMoc Include="application\Widgets\include\EmcyPlot.h" />
     <ClInclude Include="application\Widgets\include\PlotDefinitions.h" />
     <QtMoc Include="application\Widgets\include\PlotLine.h" />
     <QtMoc Include="application\Widgets\include\PlotManager.h" />
@@ -152,6 +155,7 @@
     <ClCompile Include="application\Core\src\main.cpp" />
     <ClCompile Include="application\Core\src\SettingsManager.cpp" />
     <ClCompile Include="application\Utilities\src\DataOperations.cpp" />
+    <ClCompile Include="application\Utilities\src\Emcies.cpp" />
     <ClCompile Include="application\Utilities\src\Exporters.cpp" />
     <ClCompile Include="application\Utilities\src\ParserIntCanLog.cpp" />
     <ClCompile Include="application\Utilities\src\Populator.cpp" />
@@ -162,6 +166,7 @@
     <ClCompile Include="application\Widgets\src\DialogPlotLayout.cpp" />
     <ClCompile Include="application\Widgets\src\Dialogs.cpp" />
     <ClCompile Include="application\Widgets\src\AbstractGraph.cpp" />
+    <ClCompile Include="application\Widgets\src\EmcyPlot.cpp" />
     <ClCompile Include="application\Widgets\src\PanelToggleButton.cpp" />
     <ClCompile Include="application\Widgets\src\PlotCrosshairs.cpp" />
     <ClCompile Include="application\Widgets\src\PlotLine.cpp" />

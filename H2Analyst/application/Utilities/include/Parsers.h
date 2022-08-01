@@ -5,10 +5,12 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 #include <boost/algorithm/string.hpp>
 #include <armadillo>
 
+#include "Namespace.h"
 #include "DataStructures.h"
 
 

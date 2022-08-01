@@ -43,6 +43,7 @@ namespace H2A
 		const std::vector<double> timeVec() const;
 
 		std::vector<double> dataVec = std::vector<double>();
+		std::vector<uint64_t> byteVec = std::vector<uint64_t>();
 
 		bool volatile populating = false;
 		bool volatile populated = false;
@@ -62,8 +63,8 @@ namespace H2A
 		std::vector<Dataset*> datasets = std::vector<Dataset*>();
 
 		arma::Row<uint16_t>* message_ids = nullptr;
-		arma::Row<double> *message_time = nullptr;
-		arma::Mat<uint8_t> *messages = nullptr;
+		arma::Row<double>* message_time = nullptr;
+		arma::Mat<uint8_t>* messages = nullptr;
 
 		bool volatile populationStarted = false;
 		QThread* populationThread;

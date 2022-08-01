@@ -13,9 +13,9 @@ m_TreeProxyModel(new QSortFilterProxyModel(this))
 	connect(m_SearchBox, &QLineEdit::returnPressed, [=]() {this->applyFindFilter(); });
 	connect(m_SearchBox, SIGNAL(textChanged(QString)), this, SLOT(searchInputChanged()));
 
-	m_TreeItemModel->setSortRole(H2A::ItemRole::kSorting);
+	m_TreeItemModel->setSortRole(H2A::ItemRole::Sorting);
 	m_TreeProxyModel->setSourceModel(m_TreeItemModel);
-	m_TreeProxyModel->setFilterRole(H2A::ItemRole::kFilter);
+	m_TreeProxyModel->setFilterRole(H2A::ItemRole::Filter);
 	m_TreeProxyModel->setRecursiveFilteringEnabled(true);
 	m_TreeSelectionModel = new QItemSelectionModel(m_TreeProxyModel);
 
@@ -32,13 +32,13 @@ m_TreeProxyModel(new QSortFilterProxyModel(this))
 }
 
 /**
-* Datastore setter
+* Function to check if a given UID is present in the given datafile.
 * 
-* @param datastore New DataStore
+* @param datafile Datafile to check if UID exists in.
+* @param uid UID to check for.
 **/
-void DataPanel::setDataStore(DataStore* datastore) {
-	// Todo: make sure it is safe to change datastore after one has already been connected
-	m_DataStore = datastore;
+bool DataPanel::datasetPresentUID(const H2A::Datafile* datafile, const uint32_t uid) const {
+	return m_DataStore->datasetPresentUID(datafile, uid);
 }
 
 /**
@@ -47,15 +47,19 @@ void DataPanel::setDataStore(DataStore* datastore) {
 * @param item Item to find dataset of.
 **/
 const H2A::Dataset* DataPanel::getDatasetFromItem(const QStandardItem* item) const {
-	return static_cast<const H2A::Dataset*>(item->data(H2A::ItemRole::kDatasetPtr).value<const void*>());
+	if (item->data(H2A::ItemRole::ItemType).value<H2A::ItemType>() != H2A::ItemType::Dataset) return nullptr;
+	return static_cast<const H2A::Dataset*>(item->data(H2A::ItemRole::DataPtr).value<const void*>());
+
 }
 
+
 /**
-* Returns the Dataset objects of the item that are currently selected.
+* Returns the Dataset objects of the item(s) that are currently selected.
 **/
 std::vector<const H2A::Dataset*> DataPanel::getSelectedDatasets() const {
 	QModelIndexList indices = m_TreeSelectionModel->selectedIndexes();
 
+	// Iterate over selected items and add them and their children if they are datasets.
 	std::vector<const H2A::Dataset*> datasets;
 	for (auto const& index : indices) {
 		QStandardItem* item = m_TreeItemModel->itemFromIndex(m_TreeProxyModel->mapToSource(index));
@@ -66,6 +70,24 @@ std::vector<const H2A::Dataset*> DataPanel::getSelectedDatasets() const {
 }
 
 /**
+* Returns the Datafile objects of the item(s) that are currently selected.
+**/
+std::vector<const H2A::Datafile*> DataPanel::getSelectedDatafiles() const {
+	QModelIndexList indices = m_TreeSelectionModel->selectedIndexes();
+
+	// Iterate over selected items and add them to the result vector if they are datafiles.
+	std::vector<const H2A::Datafile*> datafiles;
+	for (auto const& index : indices) {
+		QStandardItem* item = m_TreeItemModel->itemFromIndex(m_TreeProxyModel->mapToSource(index));
+		if (item->data(H2A::ItemRole::ItemType).value<H2A::ItemType>() == H2A::ItemType::Datafile) {
+			datafiles.push_back(static_cast<const H2A::Datafile*>(item->data(H2A::ItemRole::DataPtr).value<const void*>()));
+		}
+	}
+
+	return datafiles;
+}
+
+/**
 * Takes the given item and adds its children datasets to the given vector.
 * 
 * @param item Item to add children datasets of.
@@ -73,12 +95,12 @@ std::vector<const H2A::Dataset*> DataPanel::getSelectedDatasets() const {
 **/
 void DataPanel::addChildrenDatasets(const QStandardItem* item, std::vector<const H2A::Dataset*>& target) const {
 	
-	if (item->data(H2A::ItemRole::kItemType).value<H2A::ItemType>() == H2A::ItemType::kDataset) {
+	if (item->data(H2A::ItemRole::ItemType).value<H2A::ItemType>() == H2A::ItemType::Dataset) {
 		// This is a dataset, so simply add it to the list of datasets
-		const H2A::Dataset* item_ds = this->getDatasetFromItem(item);
+		const H2A::Dataset* dataset = this->getDatasetFromItem(item);
 		// For good measure, make sure the dataset is not already in the target list (should never occur)
-		if (std::find(target.begin(), target.end(), item_ds) == target.end())
-			target.push_back(item_ds);
+		if (std::find(target.begin(), target.end(), dataset) == target.end())
+			target.push_back(dataset);
 	}
 
 	// Add all children of this item as well
@@ -136,7 +158,7 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df) {
 	
 	// Create item for datafile and set its name
 	boost::split(str_split, df->name, boost::is_any_of("."));
-	QStandardItem* datafile_item = this->createTreeItem(H2A::ItemType::kDatafile, str_split.front());
+	QStandardItem* datafile_item = this->createTreeItem(df, str_split.front());
 
 	// Create a map with the systems and their belonging datasets
 	std::map<std::string, std::vector<H2A::Dataset*>> system_map;
@@ -151,7 +173,7 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df) {
 
 	// Iterate over the created map and create its items
 	for (auto const& [system, datasets] : system_map) {
-		QStandardItem* system_item = this->createTreeItem(H2A::ItemType::kSystem, system);
+		QStandardItem* system_item = this->createTreeItem(H2A::ItemType::System, system);
 		datafile_item->appendRow(system_item);
 
 		// First loop looks for 2-worded subsystems, second loop for 1-worded subsystems
@@ -180,13 +202,13 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df) {
 
 				// If there are at least 3 hits, its enough to make a subsystem
 				if (hits.size() > 3) {
-					QStandardItem* subsys_item = this->createTreeItem(H2A::ItemType::kSubsystem, boost::join(std::vector<std::string>(vec_pattern.begin() + 2, vec_pattern.begin() + 2 + n_word), " "));
+					QStandardItem* subsys_item = this->createTreeItem(H2A::ItemType::Subsystem, boost::join(std::vector<std::string>(vec_pattern.begin() + 2, vec_pattern.begin() + 2 + n_word), " "));
 					system_item->appendRow(subsys_item);
 
 					// Iterate over hits and add them to the tree
 					for (auto const& ds : hits) {
 						boost::split(str_split, ds->name, boost::is_any_of(" "));						
-						subsys_item->appendRow(this->createTreeItem(H2A::ItemType::kDataset, boost::join(std::vector<std::string>(str_split.begin() + 2 + n_word, str_split.end()), " "), ds));
+						subsys_item->appendRow(this->createTreeItem(ds, boost::join(std::vector<std::string>(str_split.begin() + 2 + n_word, str_split.end()), " ")));
 
 						// Remove added datasets from map to avoid adding them more than once
 						auto ds_iterator = std::find(system_map[system].begin(), system_map[system].end(), ds);
@@ -200,7 +222,7 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df) {
 		// Any datasets that are still in the system_map do no belong to any sybsystem
 		for (auto const& ds : datasets) {
 			boost::split(str_split, ds->name, boost::is_any_of(" "));
-			system_item->appendRow(this->createTreeItem(H2A::ItemType::kDataset, boost::join(std::vector<std::string>(str_split.begin() + 2, str_split.end()), " "), ds));
+			system_item->appendRow(this->createTreeItem(ds, boost::join(std::vector<std::string>(str_split.begin() + 2, str_split.end()), " ")));
 		}
 
 	}
@@ -209,82 +231,75 @@ QStandardItem* DataPanel::createTreeItemFromDatafile(const H2A::Datafile* df) {
 }
 
 /**
-* Function that creates an item of given type with given name.
-* If the type is a dataset, the pointer to this dataset should be supplied as well.
+* Function to create a standardItem for a datafile.
 * 
-* @param type Type of item to create.
-* @param name Name to give the item.
-* @param ds Dataset that this item belongs to (default = nullptr).
+* @param datafile Datafile that belongs to this item.
+* @param name Display name of the item.
 **/
-QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::string& name, const H2A::Dataset* ds) {
+QStandardItem* DataPanel::createTreeItem(const H2A::Datafile* datafile, const std::string& name) {
+	auto item = this->createTreeItem(H2A::ItemType::Datafile, name);
+	item->setData(QVariant::fromValue(static_cast<const void*>(datafile)), H2A::ItemRole::DataPtr);
+	return item;
+}
+
+/**
+* Function to create a standardItem for a dataset.
+*
+* @param dataset Dataset that belongs to this item.
+* @param name Display name of the item.
+**/
+QStandardItem* DataPanel::createTreeItem(const H2A::Dataset* dataset, const std::string& name) {
+	auto item = this->createTreeItem(H2A::ItemType::Dataset, name);
+	item->setData(QVariant::fromValue(QString(dataset->name.c_str())), H2A::ItemRole::Filter);
+	item->setData(QVariant::fromValue(static_cast<const void*>(dataset)), H2A::ItemRole::DataPtr);
+	std::stringstream ttStream;
+	ttStream << "<p style = 'white-space:pre'>";
+	ttStream << "<b>UID:</b> " << dataset->uid << "\n";
+	ttStream << "</p>";
+	item->setToolTip(ttStream.str().c_str());
+	return item;
+}
+
+/**
+* Function to create a generic standardItem (used for systems and subsystems).
+*
+* @param type Item type.
+* @param name Display name of the item.
+**/
+QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::string& name) {
 	QStandardItem* item = new QStandardItem(QString(name.c_str()));
 	item->setEditable(false);
-		
-	// Store item type
-	item->setData(QVariant::fromValue(type), H2A::ItemRole::kItemType);
-
-	// Store pointer to dataset if this is a dataset item
-	QVariant dataset_ptr;
-	if (type == H2A::ItemType::kDataset)
-		dataset_ptr = QVariant::fromValue(static_cast<const void*>(ds));
-	else
-		dataset_ptr = QVariant::fromValue(static_cast<const void*>(nullptr));
-	item->setData(dataset_ptr, H2A::ItemRole::kDatasetPtr);
+	item->setData(QVariant::fromValue(type), H2A::ItemRole::ItemType);
+	item->setData("", H2A::ItemRole::Filter);
+	item->setData(static_cast<const void*>(nullptr), H2A::ItemRole::DataPtr);
 
 	// Type specific operations
 	std::vector<std::string> str_split;
-	std::stringstream ttStream, nameStream;
-	
-	ttStream << "<p style = 'white-space:pre'>";
+	std::stringstream nameStream;
 	QString sort_name(name.c_str());
 
 	switch (type)
 	{
-	case H2A::ItemType::kDatafile:
+	case H2A::ItemType::Datafile:
 		sort_name = "AAAA_" + sort_name;
-		item->setData("", H2A::ItemRole::kFilter);
-
-		// Format name to something smaller
-		/*
-		boost::split(str_split, name, boost::is_any_of("-"));
-		for (const auto& str : std::vector<std::string>(str_split.begin() + 2, str_split.end())) {
-			nameStream << str;
-			if (str != str_split.back()) nameStream << "-";
-		}
-		nameStream << " " << str_split[1].substr(0, 4) << "-" << str_split[1].substr(4, 2) << "-" << str_split[1].substr(6, 2) << " " <<
-			str_split[1].substr(9, 2) << ":" << str_split[1].substr(11, 2) << ":" << str_split[1].substr(13, 2);
-		item->setText(QString(nameStream.str().c_str()));
-		*/
-		item->setText(QString(name.c_str()));
-
 		break;
-	case H2A::ItemType::kSystem:
+	case H2A::ItemType::System:
 		sort_name = "AAA_" + sort_name;
-		item->setData("", H2A::ItemRole::kFilter);
 		break;
-	case H2A::ItemType::kSubsystem:
+	case H2A::ItemType::Subsystem:
 		sort_name = "AA_" + sort_name;
 		item->setIcon(QIcon(":/icon/dataset"));
-		item->setData("", H2A::ItemRole::kFilter);
 		break;
-	case H2A::ItemType::kDataset:
+	case H2A::ItemType::Dataset:
 		sort_name = "A_" + sort_name;
-		item->setData(QString(ds->name.c_str()), H2A::ItemRole::kFilter);
-
-		//Tooltip
-		ttStream << "<b>Data:</b> " << ds->quantity << " [" << ds->unit << "]\n";
-		ttStream << "<b>UID:</b> " << ds->uid << "\n";
-		ttStream << "</p>";
-		item->setToolTip(ttStream.str().c_str());
-
 		break;
 	default: break;
 	}
-
-	item->setData(sort_name, H2A::ItemRole::kSorting);
+	item->setData(sort_name, H2A::ItemRole::Sorting);
 
 	return item;
 }
+
 
 /**
 * Applies the filter from the input box.
@@ -300,7 +315,7 @@ void DataPanel::applyFindFilter() {
 }
 
 /**
-* Function to apply filter after clear button has been pressed in search box.
+* Slot to apply filter after clear button has been pressed in search box.
 **/
 void DataPanel::searchInputChanged() {
 	if (m_SearchBox->text() == "") this->applyFindFilter();
@@ -308,6 +323,7 @@ void DataPanel::searchInputChanged() {
 
 /**
 * Function that recursively counts the number of rows (including children) of an index.
+* Used to check how many hits remain after filter has been applied.
 * 
 * @param index Index of item to count rows of.
 **/
