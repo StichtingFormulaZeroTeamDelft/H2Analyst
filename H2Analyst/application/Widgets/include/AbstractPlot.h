@@ -74,6 +74,7 @@ private slots:
 public slots:
 	virtual void resetView() {};
 	void clear();
+	void clip();
 
 	// Time cursor
 	virtual void setTimeCursorEnabled(bool enable);

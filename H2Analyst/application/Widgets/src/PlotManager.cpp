@@ -427,5 +427,9 @@ void PlotManager::contextMenu(AbstractPlot* source, const QPoint& pos) {
 	connect(acInsertBelow, &QAction::triggered, [=]() {this->insertPlot(source, H2A::Down); });
 	insertMenu->addAction(acInsertBelow);
 
+	QAction* acClip = new QAction(QIcon(QPixmap(":/icons/screenshot")), QString("Screenshot"));
+	connect(acClip, &QAction::triggered, source, &AbstractPlot::clip);
+	menu.addAction(acClip);
+
 	menu.exec(source->mapToGlobal(pos));
 }

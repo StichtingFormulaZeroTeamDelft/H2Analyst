@@ -207,3 +207,11 @@ void AbstractPlot::replot() {
 void AbstractPlot::emitTimeAxisChanged() {
 	emit this->timeAxisChanged(this);
 }
+
+/**
+* Clip (screenshot) plot to clipboard
+**/
+void AbstractPlot::clip() {
+	auto pixmap = this->grab();
+	QApplication::clipboard()->setPixmap(pixmap);
+}
