@@ -86,5 +86,4 @@ signals:
 	void timeAxisChanged(AbstractPlot*);
 	void plotSelected(AbstractPlot* source, H2A::PlotType type, bool clearFirst = true);
 	void timeCursorPlaced(double time);
-
 };

@@ -409,5 +409,23 @@ void PlotManager::contextMenu(AbstractPlot* source, const QPoint& pos) {
 	connect(acDelete, &QAction::triggered, [=]() {this->deletePlot(source); });
 	menu.addAction(acDelete);
 
+	QMenu* insertMenu = menu.addMenu(QIcon(QPixmap(":/icons/plus")), "Insert plot");
+
+	QAction* acInsertLeft = new QAction(QIcon(QPixmap(":/icons/left-arrow")), QString("Insert left"));
+	connect(acInsertLeft, &QAction::triggered, [=]() {this->insertPlot(source, H2A::Left); });
+	insertMenu->addAction(acInsertLeft);
+
+	QAction* acInsertRight = new QAction(QIcon(QPixmap(":/icons/right-arrow")), QString("Insert right"));
+	connect(acInsertRight, &QAction::triggered, [=]() {this->insertPlot(source, H2A::Right); });
+	insertMenu->addAction(acInsertRight);
+
+	QAction* acInsertAbove = new QAction(QIcon(QPixmap(":/icons/up-arrow")), QString("Insert above"));
+	connect(acInsertAbove, &QAction::triggered, [=]() {this->insertPlot(source, H2A::Up); });
+	insertMenu->addAction(acInsertAbove);
+
+	QAction* acInsertBelow = new QAction(QIcon(QPixmap(":/icons/down-arrow")), QString("Insert below"));
+	connect(acInsertBelow, &QAction::triggered, [=]() {this->insertPlot(source, H2A::Down); });
+	insertMenu->addAction(acInsertBelow);
+
 	menu.exec(source->mapToGlobal(pos));
 }
