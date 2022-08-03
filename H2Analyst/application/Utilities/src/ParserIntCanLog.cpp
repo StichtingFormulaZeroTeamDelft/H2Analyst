@@ -205,24 +205,26 @@ void ReadDatasets(char* buffer, size_t& cursor, uint32_t& element_size, H2A::Dat
 
 void ReadMessages(char* buffer, size_t& cursor, const std::vector<int32_t>& dimensions, H2A::Datafile* df, const bool& byte_swap) {
 	
-	if (dimensions[0] != 12) { std::cout << "Warning: unexpexted number of rows in messages array" << std::endl; }
+	if (dimensions[0] != 12) H2A::logWarning("Unexpected number of rows in messages struct");
 	Tag tag = ReadTag(&buffer[cursor], byte_swap);
-	if (tag.type != 2) { std::cout << "Warning: unexpected datatype used for message array" << std::endl; }
+	if (tag.type != 2) H2A::logWarning("Unexpected datatype used for messages struct");
 	cursor += 8; // Tag has been read, skip over it
 
 	// Read IDs, dTs and message data to arma rows and matrix
-	arma::Mat<uint8_t> *message_mat = new arma::Mat<uint8_t>(8, static_cast<arma::uword>(dimensions[1]));
+	auto nRows = dimensions[0];
+	auto nDataRows = nRows - 4; // -4 because the first 2 rows are IDs, the 3th and 4th are dTs.
+	arma::Mat<uint8_t> *message_mat = new arma::Mat<uint8_t>(nDataRows, static_cast<arma::uword>(dimensions[1]));
 	arma::Row<uint16_t> *id_row = new arma::Row<uint16_t>(message_mat->n_cols);
 	arma::Row<int16_t> *dt_row = new arma::Row<int16_t>(message_mat->n_cols);
 
 	for (size_t col = 0; col < static_cast<size_t>(dimensions[1]); col++) {
 		// Concatenate row 0 with 1 and 2 with 3 to form 16bit values for the message IDs and dTs
-		id_row->at(col) = static_cast<uint16_t>(static_cast<uint8_t>(buffer[cursor + col * 12 + 1]) << 8) | static_cast<uint8_t>(buffer[cursor + col * 12 + 0]);
-		dt_row->at(col) = static_cast<int16_t>(static_cast<uint8_t>(buffer[cursor + col * 12 + 3]) << 8) | static_cast<uint8_t>(buffer[cursor + col * 12 + 2]);
+		id_row->at(col) = static_cast<uint16_t>(static_cast<uint8_t>(buffer[cursor + col * nRows + 1]) << 8) | static_cast<uint8_t>(buffer[cursor + col * nRows + 0]);
+		dt_row->at(col) = static_cast<int16_t>(static_cast<uint8_t>(buffer[cursor + col * nRows + 3]) << 8) | static_cast<uint8_t>(buffer[cursor + col * nRows + 2]);
 
 		// Message data
-		for (uint8_t row = 0; row < 8; row++)
-			message_mat->at(row, col) = static_cast<uint8_t>(buffer[cursor + static_cast<size_t>(col) * 12 + row + 4]);;
+		for (uint8_t row = 0; row < nDataRows; row++)
+			message_mat->at(row, col) = static_cast<uint8_t>(buffer[cursor + static_cast<size_t>(col) * nRows + row + 4]);;
 	}
 
 	// First dT value is the (negative) offset between the startTime and the first message
@@ -380,7 +382,6 @@ void H2A::Parsers::IntCanLog(const std::string& filename, H2A::Datafile* datafil
 
 	delete[] data;
 	delete[] buffer;
-
 	
 	//datafile.populateDatasets();
 	return;
