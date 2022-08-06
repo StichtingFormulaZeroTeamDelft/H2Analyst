@@ -7,6 +7,7 @@
 #include "DialogPlotLayout.h"
 #include "Dialogs.h"
 #include "Namespace.h"
+#include "FlexGridLayout.h"
 
 #include "qcustomplot.h"
 
@@ -18,6 +19,7 @@
 
 class AbstractPlot;
 class TimePlot;
+class FlexGridLayout;
 
 class PlotManager :
     public QWidget
@@ -27,9 +29,10 @@ class PlotManager :
 
 private:        
 
-    QVBoxLayout* m_Layout;
-    QSplitter* m_VSplitter;
-    std::vector<QSplitter*> m_HSplitters;
+    FlexGridLayout* m_Layout;
+    //QVBoxLayout* m_Layout;
+    //QSplitter* m_VSplitter;
+    //std::vector<QSplitter*> m_HSplitters;
 
     const DataPanel* m_DataPanel;
 
@@ -39,20 +42,18 @@ private:
     double m_TimeCursorTime;
     bool m_TimeCursorEnabled;
 
-    std::vector<AbstractPlot*> plots();
-    void addChildrenPlots(QSplitter* splitter, std::vector<AbstractPlot*>& plots);
+    std::vector<AbstractPlot*> plots() { return m_Layout->plots(); };
 
-    AbstractPlot* createPlot(H2A::PlotType type = H2A::Abstract);
-    void setPlotLayoutRC(uint8_t rows, uint8_t cols);
+    void setPlotLayout(uint8_t rows, uint8_t cols);
     AbstractPlot* replacePlot(AbstractPlot* source, H2A::PlotType newType);
 
 public:
 
     PlotManager(QWidget *parent = nullptr);
+    AbstractPlot* createPlot(H2A::PlotType type = H2A::Abstract);
     void setDataPanel(const DataPanel* datapanel) { m_DataPanel = datapanel; };
     bool aligningTime() { return m_TimeAlignEnabled; };
     bool allPlotsEmpty();
-    bool getOtherTimeRange(AbstractPlot* source, QCPRange& range);
     const bool timeCursorEnabled() const { return m_TimeCursorEnabled; };
     const double timeCursorTime() const { return m_TimeCursorTime; };
 
