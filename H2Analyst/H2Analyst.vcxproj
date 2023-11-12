@@ -84,7 +84,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\core\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\data\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\parsers\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\plotting\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\utilities\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\widgets\include;C:\Libs\boost_1_79_0;C:\Libs\armadillo-11.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;C:\Libs\armadillo-11.1.1\include;C:\Libs\boost_1_79_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile />
@@ -96,7 +96,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_CMake|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\core\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\data\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\parsers\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\plotting\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\utilities\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\widgets\include;C:\Libs\boost_1_79_0;C:\Libs\armadillo-11.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;C:\Libs\armadillo-11.1.1\include;C:\Libs\boost_1_79_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>
@@ -110,7 +110,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PrecompiledHeaderFile />
-      <AdditionalIncludeDirectories>C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\core\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\data\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\parsers\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\plotting\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\utilities\include;C:\Users\Daan\source\repos\H2Analyst\H2Analyst\application\widgets\include;C:\Libs\boost_1_79_0;C:\Libs\armadillo-11.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;C:\Libs\armadillo-11.1.1\include;C:\Libs\boost_1_79_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>

@@ -42,7 +42,7 @@ private:
     double m_TimeCursorTime;
     bool m_TimeCursorEnabled;
 
-    std::vector<AbstractPlot*> plots() { return m_Layout->plots(); };
+    std::vector<AbstractPlot*> plots();
 
     void setPlotLayout(uint8_t rows, uint8_t cols);
     AbstractPlot* replacePlot(AbstractPlot* source, H2A::PlotType newType);

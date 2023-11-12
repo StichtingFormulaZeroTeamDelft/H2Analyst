@@ -51,6 +51,12 @@ void PlotManager::setPlotLayoutDialog() {
 }
 
 /**
+* Function that returns the plots.
+*
+**/
+std::vector<AbstractPlot*> PlotManager::plots() { return m_Layout->plots(); }
+
+/**
 * Function that sets the layout of plots to a given number of rows and colums.
 *
 * @param rows Number of rows in new layout.
