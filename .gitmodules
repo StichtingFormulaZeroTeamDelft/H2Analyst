@@ -1,0 +1,3 @@
+[submodule "H2Analyst/libs/boost"]
+	path = H2Analyst/libs/boost
+	url = https://github.com/boostorg/boost.git
