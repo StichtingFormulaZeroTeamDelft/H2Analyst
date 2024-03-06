@@ -1,6 +1,31 @@
 # H2Analyst
  Data visualization and analysis tool, built for Forze Hydrogen Racing.
 
+## Local Development Setup
+The instructions for a local setup of the project are based on Visual Studio 2022 (Community)\
+However the project should be compatible with any version of Visual Studio $\geq$ 2017
+
+### Installing Qt
+- Download the Qt installer [here](https://www.qt.io/download-qt-installer-oss?hsCtaTracking=99d9dd4f-5681-48d2-b096-470725510d34%7C074ddad0-fdef-4e53-8aa8-5e8a876d6ab4)
+- Launch the installer
+- In the **Installation Folder** section select only **Custom Installation**
+- In the **Select Components** section tick the **archive** box and click on **Filter**
+- Under **Qt** select the following version: **Qt 5.15.2**
+- Under **Qt->Developer and Designer Tools** select **Qt Installer Framework 4.7**
+- OPTIONAL: Disable the options for Qt Design Studio and Qt Creator (under Developer and Designer Tools)
+
+### Visual Studio 2022 Setup
+- Start Visual Studio 2022
+- Open the _.sln_ file from the cloned repository
+- Select **Extensions->Manage Extensions**
+- Search for **Qt Visual Studio Tools** and download the extension
+- Select **Extensions->Qt VS Tools->Qt Versions**
+- Add a new Qt version and set the path to your Qt installation folder
+  - The correct executable can be found in **Qt->5.15.2->msvc2019_64->bin->qmake.exe**
+- Restart Visual Studio and open the project to make sure all changes are applied correctly
+
+### Finishing up
+Ater following these instruction verify that the everything is installed correctly by starting the project (**Ctrl+F5**)
 
 ## Code Structure
 
