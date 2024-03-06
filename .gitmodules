@@ -1,3 +1,7 @@
 [submodule "H2Analyst/libs/boost"]
 	path = H2Analyst/libs/boost
 	url = https://github.com/boostorg/boost.git
+[submodule "H2Analyst/libs/armadillo"]
+	path = H2Analyst/libs/armadillo
+	url = https://gitlab.com/conradsnicta/armadillo-code.git
+	branch = 11.4.x

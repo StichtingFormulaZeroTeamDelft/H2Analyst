@@ -86,7 +86,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;$(ProjectDir)\libs\boost;C:\Libs\armadillo-11.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;$(ProjectDir)\libs\boost;$(ProjectDir)\libs\armadillo\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile />
@@ -103,7 +103,7 @@ if not exist boost\ .\b2 headers</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_CMake|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;$(ProjectDir)\libs\boost;C:\Libs\armadillo-11.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;$(ProjectDir)\libs\boost;$(ProjectDir)\libs\armadillo\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>
@@ -122,7 +122,7 @@ if not exist boost\ .\b2 headers</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PrecompiledHeaderFile />
-      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;$(ProjectDir)\libs\boost;C:\Libs\armadillo-11.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\application\core\include;$(ProjectDir)\application\data\include;$(ProjectDir)\application\parsers\include;$(ProjectDir)\application\plotting\include;$(ProjectDir)\application\utilities\include;$(ProjectDir)\application\widgets\include;$(ProjectDir)\libs\boost;$(ProjectDir)\libs\armadillo\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
