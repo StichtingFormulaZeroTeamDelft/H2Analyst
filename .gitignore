@@ -3,7 +3,8 @@ installer/
 */build/
 */x64/
 
-
+# User specific files
+*.user
 
 # Prerequisites
 *.d
