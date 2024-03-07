@@ -1,6 +1,11 @@
 # H2Analyst
  Data visualization and analysis tool, built for Forze Hydrogen Racing.
 
+## Installation Instructions
+In order to install the plotter go to [releases](https://github.com/StichtingFormulaZeroTeamDelft/H2Analyst/releases) page and download the installer for the latest release. Then run the downloaded installer to install the plotter.
+
+To install the project for development see the section on [Local Development Setup](#local-development-setup).
+
 ## Local Development Setup
 The instructions for a local setup of the project are based on Visual Studio 2022 (Community)\
 However the project should be compatible with any version of Visual Studio $\geq$ 2017
@@ -13,6 +18,7 @@ However the project should be compatible with any version of Visual Studio $\geq
 - Under **Qt** select the following version: **Qt 5.15.2**
 - Under **Qt->Developer and Designer Tools** select **Qt Installer Framework 4.7**
 - OPTIONAL: Disable the options for Qt Design Studio and Qt Creator (under Developer and Designer Tools)
+- Create an environment variable named **QtInstall** pointing to the Qt installation folder (only required when building installers)
 
 ### Visual Studio 2022 Setup
 - Start Visual Studio 2022
@@ -25,7 +31,12 @@ However the project should be compatible with any version of Visual Studio $\geq
 - Restart Visual Studio and open the project to make sure all changes are applied correctly
 
 ### Finishing up
-Ater following these instruction verify that the everything is installed correctly by starting the project (**Ctrl+F5**)
+Ater following these steps verify that the everything is installed correctly by starting the project (**Ctrl+F5**).
+
+## Creating Installers
+To create an installer for a new release follow these steps:
+- Build the project in the release configuration
+- Run the **build_installer.bat** script in the **installer** folder
 
 ## Code Structure
 

@@ -1,7 +1,9 @@
-installer/
 .vs/
 */build/
 */x64/
+
+# Qt installer
+*.qm
 
 # User specific files
 *.user
