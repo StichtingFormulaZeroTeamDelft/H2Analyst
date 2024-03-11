@@ -50,7 +50,7 @@ public:
 
 protected:
 	void paintEvent(QPaintEvent* event) override;
-	void enterEvent(QEvent* event) override { emit this->btEntered(this); };
+	void enterEvent(QEnterEvent* event) override { emit this->btEntered(this); };
 	void leaveEvent(QEvent* event) override { emit this->btLeft(this); };
 
 signals:

@@ -34,7 +34,7 @@ if not defined QtInstall (
 )
 :: Create the installer in this folder
 cd data
-%QtInstall%\5.15.2\msvc2019_64\bin\windeployqt.exe H2Analyst.exe --compiler-runtime
+%QtInstall%\6.5.3\msvc2019_64\bin\windeployqt.exe H2Analyst.exe --compiler-runtime
 cd ..\..\..
 %QtInstall%\Tools\QtInstallerFramework\4.7\bin\binarycreator.exe -c .\config\config.xml -p packages -f H2AnalystInstaller
 echo Installer has been created successfully
