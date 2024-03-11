@@ -18,11 +18,11 @@ void SettingsManager::checkFolders() {
 	if (m_SettingsFolderPath.isEmpty()) {
 		/*
 		* Standard data folders:
-		* Windows: %appdata%/H2Analyst/
+		* Windows: %appdata%/Roaming/H2Analyst/
 		* Mac: ? (tbd)
 		* Linux: ? (tbd)
 		*/
-		m_SettingsFolderPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+		m_SettingsFolderPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 		m_SettingsFolder = QDir(m_SettingsFolderPath);
 
 		// Check if settings folder exists and if not, create it

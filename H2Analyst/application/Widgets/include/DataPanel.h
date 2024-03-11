@@ -50,7 +50,7 @@ class DataPanel :
 
     const H2A::Dataset* getDatasetFromItem(const QStandardItem* item) const;
     void applyFindFilter();
-    int DataPanel::countRows(const QModelIndex& index = QModelIndex());
+    int countRows(const QModelIndex& index = QModelIndex());
 
 
 public:

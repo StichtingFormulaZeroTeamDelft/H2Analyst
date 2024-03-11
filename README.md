@@ -14,8 +14,7 @@ However the project should be compatible with any version of Visual Studio $\geq
 - Download the Qt installer [here](https://www.qt.io/download-qt-installer-oss?hsCtaTracking=99d9dd4f-5681-48d2-b096-470725510d34%7C074ddad0-fdef-4e53-8aa8-5e8a876d6ab4)
 - Launch the installer
 - In the **Installation Folder** section select only **Custom Installation**
-- In the **Select Components** section tick the **archive** box and click on **Filter**
-- Under **Qt** select the following version: **Qt 5.15.2**
+- Under **Qt** select the following version: **Qt 6.5.3**
 - Under **Qt->Developer and Designer Tools** select **Qt Installer Framework 4.7**
 - OPTIONAL: Disable the options for Qt Design Studio and Qt Creator (under Developer and Designer Tools)
 - Create an environment variable named **QtInstall** pointing to the Qt installation folder (only required when building installers)
@@ -27,7 +26,7 @@ However the project should be compatible with any version of Visual Studio $\geq
 - Search for **Qt Visual Studio Tools** and download the extension
 - Select **Extensions->Qt VS Tools->Qt Versions**
 - Add a new Qt version and set the path to your Qt installation folder
-  - The correct executable can be found in **Qt->5.15.2->msvc2019_64->bin->qmake.exe**
+  - The correct executable can be found in **Qt->6.5.3->msvc2019_64->bin->qmake.exe**
 - Restart Visual Studio and open the project to make sure all changes are applied correctly
 
 ### Finishing up

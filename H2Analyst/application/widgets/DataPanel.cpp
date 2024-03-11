@@ -271,7 +271,7 @@ QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::s
 	item->setEditable(false);
 	item->setData(QVariant::fromValue(type), H2A::ItemRole::ItemType);
 	item->setData("", H2A::ItemRole::Filter);
-	item->setData(static_cast<const void*>(nullptr), H2A::ItemRole::DataPtr);
+	//item->setData(QVariant::fromValue(nullptr), H2A::ItemRole::DataPtr);
 
 	// Type specific operations
 	std::vector<std::string> str_split;
@@ -306,8 +306,8 @@ QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::s
 **/
 void DataPanel::applyFindFilter() {
 	QString input = m_SearchBox->text();
-	QRegExp regExp(input, Qt::CaseInsensitive, QRegExp::FixedString);
-	m_TreeProxyModel->setFilterRegExp(regExp);
+	QRegularExpression regExp(input, QRegularExpression::CaseInsensitiveOption);
+	m_TreeProxyModel->setFilterRegularExpression(regExp);
 
 	int nDatasets = this->countRows(m_TreeView->rootIndex());
 	if (nDatasets <= H2A::TREEVIEW_FILTER_EXPAND_THRESHOLD)

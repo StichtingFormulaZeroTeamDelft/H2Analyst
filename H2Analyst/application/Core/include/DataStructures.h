@@ -24,7 +24,7 @@ namespace H2A
 		std::vector<double> timeVector = std::vector<double>();
 
 	public:
-		QMutex mutex = QMutex(QMutex::NonRecursive); // Mutex for multi-thread protection
+		QMutex mutex = QMutex(); // Mutex for multi-thread protection
 
 		Datafile* datafile = nullptr;
 
@@ -54,7 +54,7 @@ namespace H2A
 	**/
 	struct Datafile
 	{
-		QMutex mutex = QMutex(QMutex::NonRecursive); // Mutex for multi-thread protection
+		QMutex mutex = QMutex(); // Mutex for multi-thread protection
 
 		std::string name = "Not set";
 		Timestamp startTime;
