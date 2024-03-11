@@ -9,4 +9,5 @@
 	<WizardStyle>Classic</WizardStyle>
 	<InstallerApplicationIcon>installericon</InstallerApplicationIcon>
 	<InstallerWindowIcon>installericon</InstallerWindowIcon>
+	<Logo>logo.png</Logo>
 </Installer>

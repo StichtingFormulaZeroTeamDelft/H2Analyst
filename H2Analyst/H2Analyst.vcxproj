@@ -251,6 +251,9 @@ if not exist boost\ .\b2 headers</Command>
     <ClCompile Include="application\Widgets\PlotManager.cpp" />
     <ClCompile Include="application\Widgets\TreeView.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="H2Analyst.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />
