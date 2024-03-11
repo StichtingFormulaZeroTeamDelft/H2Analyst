@@ -8,6 +8,9 @@
 # User specific files
 *.user
 
+# Visual Code Files
+*.aps
+
 # Prerequisites
 *.d
 
