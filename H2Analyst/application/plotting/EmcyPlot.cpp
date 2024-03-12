@@ -15,7 +15,7 @@ m_WarningMsg(new QWidget())
 
 	// Build warning message
 	QHBoxLayout* warningLayout = new QHBoxLayout(m_WarningMsg);
-	QLabel* textLbl = new QLabel("WARNING: Static EMCY list is being used");
+	QLabel* textLbl = new QLabel("WARNING: Static EMCY definitions are being used");
 	QLabel* iconLbl = new QLabel();
 	iconLbl->setPixmap(QPixmap(":/icons/warning").scaledToWidth(WARNING_ICON_WIDTH, Qt::SmoothTransformation));
 	iconLbl->setMinimumWidth(24); // Makes sure icon is always fully shown when window is resized
