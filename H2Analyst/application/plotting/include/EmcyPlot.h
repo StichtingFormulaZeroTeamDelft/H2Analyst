@@ -43,6 +43,11 @@ class EmcyPlot : public AbstractPlot
 {
 	Q_OBJECT
 
+	const int WARNING_ICON_WIDTH = 24;
+
+	QVBoxLayout* m_VLayout;
+	QWidget* m_WarningMsg;
+
 	// List view objects
 	QListView* m_List;
 	QStandardItemModel* m_ListModel;
