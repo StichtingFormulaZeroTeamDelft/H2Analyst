@@ -15,6 +15,7 @@
         <file alias="circular">icons/circular.png</file>
         <file alias="up-arrow">icons/up-arrow.png</file>
         <file alias="down-arrow">icons/down-arrow.png</file>
+        <file alias="warning">icons/warning.png</file>
     </qresource>
     <qresource prefix="/plotBackgrounds">
         <file alias="trackAssenSat">plot_backgrounds/TrackAssenSat.jpg</file>

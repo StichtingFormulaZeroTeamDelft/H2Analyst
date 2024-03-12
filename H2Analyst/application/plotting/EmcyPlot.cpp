@@ -2,14 +2,29 @@
 
 EmcyPlot::EmcyPlot(const DataPanel* dataPanel, QWidget* parent) : AbstractPlot(parent),
 m_DataPanel(dataPanel),
-m_List(new QListView(this)),
+m_VLayout(new QVBoxLayout(this)),
+m_List(new QListView()),
 m_ListModel(new QStandardItemModel(this)),
 m_TimeCursor(new TimeCursorItem()),
-m_ItemDelegate(nullptr)
+m_ItemDelegate(nullptr),
+m_WarningMsg(new QWidget())
 {
 	m_Type = H2A::EmcyList;
 
 	m_TimeCursor->setBackground(QBrush(QColor(Qt::black)));
+
+	// Build warning message
+	QHBoxLayout* warningLayout = new QHBoxLayout(m_WarningMsg);
+	QLabel* textLbl = new QLabel("WARNING: Static EMCY list is being used");
+	QLabel* iconLbl = new QLabel();
+	iconLbl->setPixmap(QPixmap(":/icons/warning").scaledToWidth(WARNING_ICON_WIDTH, Qt::SmoothTransformation));
+	iconLbl->setMinimumWidth(24); // Makes sure icon is always fully shown when window is resized
+
+	warningLayout->addWidget(iconLbl);
+	warningLayout->addWidget(textLbl, Qt::AlignLeft | Qt::AlignVCenter);
+
+	m_VLayout->addWidget(m_List);
+	m_VLayout->addWidget(m_WarningMsg);
 
 	m_ItemDelegate = new ItemDelegate(m_ListModel, m_TimeCursor, this);
 	m_List->setModel(m_ListModel);
@@ -116,7 +131,7 @@ void EmcyPlot::addItem(const H2A::Emcy::Emcy& emcy) {
 * Override for resizeEvent to make sure list always has the same size as underlying widget.
 **/
 void EmcyPlot::resizeEvent(QResizeEvent* event) {
-	m_List->resize(this->size());
+	this->resize(this->size());
 	QCustomPlot::resizeEvent(event);
 }
 
