@@ -11,6 +11,9 @@ std::string H2A::Emcy::getSeverityStr(H2A::Emcy::Severity severity) {
 	case H2A::Emcy::None:
 		s = "None";
 		break;
+	case H2A::Emcy::Event:
+		s = "Event";
+		break;
 	case H2A::Emcy::Anomaly:
 		s = "Anomaly";
 		break;

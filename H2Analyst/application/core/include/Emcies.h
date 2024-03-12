@@ -16,7 +16,7 @@ namespace H2A
 {
 	namespace Emcy
 	{
-		enum Severity : uint8_t { None = 0, Anomaly = 1, Critical = 2, Panic = 3, Notice = 4, Inhibiting = 5, Unknown = 6 };
+		enum Severity : uint8_t { None = 0, Event = 1, Anomaly = 2, Notice = 3, Inhibiting = 4, Critical = 5, Panic = 6, Unknown = 7 };
 		std::string getSeverityStr(H2A::Emcy::Severity severity);
 
 		enum Level { System, FC, HighSide, Traction, LowSide, LV };
