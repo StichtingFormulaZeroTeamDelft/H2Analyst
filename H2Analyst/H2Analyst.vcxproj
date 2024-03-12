@@ -97,8 +97,8 @@
     </Link>
     <PreBuildEvent>
       <Command>cd $(ProjectDir)\libs\boost
-if not exist b2.exe call bootstrap.bat
-if not exist boost\ .\b2 headers</Command>
+call bootstrap.bat
+.\b2 headers</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_CMake|x64'">
@@ -115,8 +115,8 @@ if not exist boost\ .\b2 headers</Command>
     </Link>
     <PreBuildEvent>
       <Command>cd $(ProjectDir)\libs\boost
-if not exist b2.exe call bootstrap.bat
-if not exist boost\ .\b2 headers</Command>
+call bootstrap.bat
+.\b2 headers</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -131,8 +131,8 @@ if not exist boost\ .\b2 headers</Command>
     </Link>
     <PreBuildEvent>
       <Command>cd $(ProjectDir)\libs\boost
-if not exist b2.exe call bootstrap.bat
-if not exist boost\ .\b2 headers</Command>
+call bootstrap.bat
+.\b2 headers</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
