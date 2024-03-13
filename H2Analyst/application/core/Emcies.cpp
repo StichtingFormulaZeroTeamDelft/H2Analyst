@@ -46,7 +46,7 @@ void H2A::Emcy::readPayload(Emcy& emcy, const uint64_t& payload) {
 void H2A::Emcy::readEmcyCodesFromSettings(std::map<uint16_t, H2A::Emcy::Properties>& map, H2A::Car car) {
 	map.clear();
 
-	const char* fileName;
+	QString fileName;
 
 	switch (car) {
 	case H2A::Car::Forze8:
@@ -57,12 +57,15 @@ void H2A::Emcy::readEmcyCodesFromSettings(std::map<uint16_t, H2A::Emcy::Properti
 		break;
 	}
 
-	std::cout << "Loading EMCY definitions from " << fileName << std::endl;
+	std::cout << "Loading EMCY definitions from " << fileName.toStdString() << std::endl;
 
-	std::ifstream file(fileName);
-	std::string line;
-	if (file.is_open()) {
-		while (std::getline(file, line)) {
+	QFile file(fileName);
+	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		QTextStream in(&file);
+		std::string line;
+		while (!in.atEnd()) {
+			line = in.readLine().toStdString();
+
 			if (line.size() < 5) continue;
 
 			// Split line based on delimiter ';'

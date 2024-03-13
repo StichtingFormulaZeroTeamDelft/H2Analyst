@@ -20,4 +20,8 @@
     <qresource prefix="/plotBackgrounds">
         <file alias="trackAssenSat">plot_backgrounds/TrackAssenSat.jpg</file>
     </qresource>
+    <qresource prefix="/data">
+        <file alias="emcy-codes-f8">default_settings/emcy_codes_f8.txt</file>
+        <file alias="emcy-codes-f9">default_settings/emcy_codes_f9.txt</file>
+    </qresource>
 </RCC>
