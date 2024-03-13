@@ -55,13 +55,14 @@ class EmcyPlot : public AbstractPlot
 
 	const DataPanel* m_DataPanel;
 
+	QMutex* m_DataMutex;
+	std::vector<const H2A::Dataset*> m_EmcyDatasets;
 	std::map<uint16_t, H2A::Emcy::Properties> m_EmcyProperties;
-	const std::map < uint32_t, std::string> m_EmcyUIDs = {};
-
+	
 	// Time cursor
 	TimeCursorItem* m_TimeCursor;
-	int m_TimeCursorRow;
 
+	bool getDatasets();
 	void fillList();
 	void addItem(const H2A::Emcy::Emcy& emcy);
 	void sort();

@@ -16,6 +16,9 @@ namespace H2A
 {
 	namespace Emcy
 	{
+		static const char* F8_EMCY_FILE = "data\\default_settings\\emcy_codes_f8.txt";
+		static const char* F9_EMCY_FILE = "data\\default_settings\\emcy_codes_f9.txt";
+
 		enum Severity : uint8_t { None = 0, Event = 1, Anomaly = 2, Notice = 3, Inhibiting = 4, Critical = 5, Panic = 6, Unknown = 7 };
 		std::string getSeverityStr(H2A::Emcy::Severity severity);
 
