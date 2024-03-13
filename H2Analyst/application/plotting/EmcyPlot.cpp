@@ -7,7 +7,8 @@ m_List(new QListView()),
 m_ListModel(new QStandardItemModel(this)),
 m_TimeCursor(new TimeCursorItem()),
 m_ItemDelegate(nullptr),
-m_WarningMsg(new QWidget())
+m_WarningMsg(new QWidget()),
+m_DataMutex(new QMutex())
 {
 	m_Type = H2A::EmcyList;
 
@@ -48,30 +49,24 @@ m_WarningMsg(new QWidget())
 * Function that gets the emcies from the dataStore via the dataPanel and puts them in the list.
 **/
 void EmcyPlot::fillList() {
-	// Make sure a datafile is selected (should also be taken care of by emcy plot command)
-	auto datafiles = m_DataPanel->getSelectedDatafiles();
-	const H2A::Datafile* datafile = nullptr;
-	if (datafiles.size() == 0 && m_DataPanel->getDatafiles().size() == 1) {
-			datafile = m_DataPanel->getDatafiles().front();
-	}
-	else {
-		datafile = m_DataPanel->getSelectedDatafiles().front();
-	}
-	if (datafile == nullptr) {
-		H2A::logWarning("Failed to select a datafile for emcy list.");
-		return;
+	// Mutex is used to protect the dataset vector
+	m_DataMutex->lock();
+
+	if (m_EmcyDatasets.empty()) {
+		if (!this->getDatasets()) {
+			return;
+		}
 	}
 
-	// Gather EMCY datasets and make sure they are populated before going on
-	std::vector<const H2A::Dataset*> emcyDatasets;
-	for (const auto& dataset : datafile->datasets) {
-		if (dataset->datatype == 10) emcyDatasets.push_back(dataset);
-	}
-	m_DataPanel->requestDatasetPopulation(emcyDatasets, true);
+	m_DataMutex->unlock();
+
+	// Clear list except for the TimeCursor
+	m_ListModel->removeRows(0, m_TimeCursor->row());
+	m_ListModel->removeRows(1, m_ListModel->rowCount() - 1);
 
 	// Create vector of emcy structs
 	std::vector<H2A::Emcy::Emcy> emcies;
-	for (const auto& dataset : emcyDatasets) {
+	for (const auto& dataset : m_EmcyDatasets) {
 		auto timeVec = dataset->timeVec();
 		for (auto i = 0; i < timeVec.size(); ++i) {
 			H2A::Emcy::Emcy emcy;
@@ -105,6 +100,34 @@ void EmcyPlot::fillList() {
 
 	// Sort
 	this->sort();
+}
+
+/**
+* Get EMCY datasets from the selected datafiles.
+* If multiple datafiles are selected the first file is used.
+**/
+bool EmcyPlot::getDatasets() {
+	// Make sure a datafile is selected (should also be taken care of by emcy plot command)
+	auto datafiles = m_DataPanel->getSelectedDatafiles();
+	const H2A::Datafile* datafile = nullptr;
+	if (datafiles.size() == 0 && m_DataPanel->getDatafiles().size() == 1) {
+		datafile = m_DataPanel->getDatafiles().front();
+	}
+	else {
+		datafile = m_DataPanel->getSelectedDatafiles().front();
+	}
+	if (datafile == nullptr) {
+		H2A::logWarning("Failed to select a datafile for emcy list.");
+		return false;
+	}
+
+	// Gather EMCY datasets and make sure they are populated before going on
+	for (const auto& dataset : datafile->datasets) {
+		if (dataset->datatype == 10) m_EmcyDatasets.push_back(dataset);
+	}
+	m_DataPanel->requestDatasetPopulation(m_EmcyDatasets, true);
+
+	return true;
 }
 
 /**
@@ -180,7 +203,8 @@ void EmcyPlot::sort() {
 * @param car The currently selected car.
 **/
 void EmcyPlot::setSelectedCar(H2A::Car car) {
-	std::cout << "Selected: " << car << std::endl;
+	H2A::Emcy::readEmcyCodesFromSettings(m_EmcyProperties, car);
+	this->fillList();
 }
 
 /**

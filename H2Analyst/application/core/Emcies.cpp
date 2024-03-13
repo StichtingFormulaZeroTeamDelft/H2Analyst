@@ -46,9 +46,20 @@ void H2A::Emcy::readPayload(Emcy& emcy, const uint64_t& payload) {
 void H2A::Emcy::readEmcyCodesFromSettings(std::map<uint16_t, H2A::Emcy::Properties>& map, H2A::Car car) {
 	map.clear();
 
-	std::cout << std::filesystem::current_path() << std::endl;
+	const char* fileName;
 
-	std::ifstream file("data\\default_settings\\emcy_codes.txt");
+	switch (car) {
+	case H2A::Car::Forze8:
+		fileName = F8_EMCY_FILE;
+		break;
+	case H2A::Car::Forze9:
+		fileName = F9_EMCY_FILE;
+		break;
+	}
+
+	std::cout << "Loading EMCY definitions from " << fileName << std::endl;
+
+	std::ifstream file(fileName);
 	std::string line;
 	if (file.is_open()) {
 		while (std::getline(file, line)) {
