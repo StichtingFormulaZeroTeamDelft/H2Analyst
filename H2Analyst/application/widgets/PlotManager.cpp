@@ -6,7 +6,8 @@ m_DataPanel(nullptr),
 m_TimeAlignEnabled(true),
 m_BusyAligning(false),
 m_TimeCursorEnabled(false),
-m_TimeCursorTime(0.0)
+m_TimeCursorTime(0.0),
+m_SelectedCar(H2A::Car::Forze9)
 {
 }
 
@@ -23,7 +24,8 @@ AbstractPlot* PlotManager::createPlot(H2A::PlotType type) {
 	case H2A::XY:
 		break;
 	case H2A::EmcyList:
-		plot = new EmcyPlot(m_DataPanel, this);
+		plot = new EmcyPlot(m_DataPanel, m_SelectedCar, this);
+		connect(this, SIGNAL(selectedCarChanged(H2A::Car)), plot, SLOT(setSelectedCar(H2A::Car)));
 		break;
 	default:
 		break;
@@ -299,4 +301,15 @@ void PlotManager::contextMenu(AbstractPlot* source, const QPoint& pos) {
 	menu.addAction(acClip);
 
 	menu.exec(source->mapToGlobal(pos));
+}
+
+/**
+* Slot that sets the currently selected car.
+* Connected to signal from RadioButtons in ControlPanel.
+* 
+* @param car The currently selected car.
+**/
+void PlotManager::setSelectedCar(H2A::Car car) {
+	m_SelectedCar = car;
+	emit selectedCarChanged(m_SelectedCar);
 }

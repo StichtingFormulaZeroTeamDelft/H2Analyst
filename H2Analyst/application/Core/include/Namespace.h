@@ -50,4 +50,9 @@ namespace H2A
     };
 
     const int TREEVIEW_FILTER_EXPAND_THRESHOLD = 50;
+
+    /**
+    * ControlPanel
+    **/
+    enum Car { Forze8, Forze9 };
 }

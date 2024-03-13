@@ -68,7 +68,7 @@ class EmcyPlot : public AbstractPlot
 	//void drawTimeCursor();
 
 public:
-	EmcyPlot(const DataPanel* dataPanel, QWidget* parent = nullptr);
+	EmcyPlot(const DataPanel* dataPanel, H2A::Car car, QWidget* parent = nullptr);
 
 	bool isEmpty() const override { return false; };
 
@@ -81,6 +81,7 @@ private slots:
 public slots:
 	virtual void setTimeCursorEnabled(bool enable);
 	virtual void setTimeCursorTime(double time);
+	void setSelectedCar(H2A::Car car);
 
 signals:
 	void setTimeCursor(double time);

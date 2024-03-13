@@ -11,6 +11,9 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QToolButton>
+#include <QRadioButton>
+
+#include "Namespace.h"
 
 class H2Analyst;
 
@@ -30,6 +33,8 @@ private:
     QToolButton* m_TbTimeAlign;
     QCheckBox* m_CbTimeCursor;
     QLineEdit* m_LeTimeCursor;
+    QRadioButton* m_RbForze8;
+    QRadioButton* m_RbForze9;
     
     QGridLayout* m_Layout = new QGridLayout;
 
@@ -40,6 +45,7 @@ signals:
     void setTimeAlignEnable(bool align);
     void setTimeCursorEnable(bool align);
     void setTimeCursorTime(double time);
+    void selectedCarChanged(H2A::Car car);
 
 private slots:
     void timeCursorTimeEntered();

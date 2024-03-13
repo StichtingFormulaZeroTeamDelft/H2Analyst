@@ -42,6 +42,8 @@ private:
     double m_TimeCursorTime;
     bool m_TimeCursorEnabled;
 
+    H2A::Car m_SelectedCar;
+
     std::vector<AbstractPlot*> plots();
 
     void setPlotLayout(uint8_t rows, uint8_t cols);
@@ -68,8 +70,9 @@ public slots:
     void deletePlot(AbstractPlot* source);
     void insertPlot(AbstractPlot* source, H2A::Direction dir);
     void plotSelected(AbstractPlot* target = nullptr, H2A::PlotType type = H2A::Abstract, bool clearFirst = true);
+    void setSelectedCar(H2A::Car car);
     
 signals:
     void timeCursorMoved(double time);
-
+    void selectedCarChanged(H2A::Car car);
 };

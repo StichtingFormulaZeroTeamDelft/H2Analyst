@@ -27,15 +27,23 @@ ControlPanel::ControlPanel(QWidget* parent) : QWidget(parent)
 	m_LeTimeCursor->setClearButtonEnabled(true);
 	connect(m_LeTimeCursor, SIGNAL(returnPressed()), this, SLOT(timeCursorTimeEntered()));
 
-	m_Layout->addWidget(m_BtLoad);
-	m_Layout->addWidget(m_BtPlotLayout);
-	//m_Layout->addWidget(m_BtExport);
-	m_Layout->addWidget(m_TbTimeAlign);
-	m_Layout->addWidget(m_CbTimeCursor);
-	m_Layout->addWidget(m_LeTimeCursor);
+	m_RbForze8 = new QRadioButton("Forze 8", this);
+	connect(m_RbForze8, &QRadioButton::toggled, [=](bool checked) { if (checked) emit selectedCarChanged(H2A::Car::Forze8); });
+
+	m_RbForze9 = new QRadioButton("Forze 9", this);
+	m_RbForze9->setChecked(true);
+	connect(m_RbForze9, &QRadioButton::toggled, [=](bool checked) { if (checked) emit selectedCarChanged(H2A::Car::Forze9); });
+
+	m_Layout->addWidget(m_BtLoad, 0, 0, 1, 2);
+	m_Layout->addWidget(m_BtPlotLayout, 1, 0, 1, 2);
+	//m_Layout->addWidget(m_BtExport, 2, 0, 1, 2);
+	m_Layout->addWidget(m_TbTimeAlign, 3, 0, 1, 2);
+	m_Layout->addWidget(m_CbTimeCursor, 4, 0, 1, 2);
+	m_Layout->addWidget(m_LeTimeCursor, 5, 0, 1, 2);
+	m_Layout->addWidget(m_RbForze8, 6, 0, 1, 1);
+	m_Layout->addWidget(m_RbForze9, 6, 1, 1, 1);
 
 	this->setLayout(m_Layout);
-
 }
 
 
