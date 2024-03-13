@@ -40,7 +40,7 @@ namespace H2A
 		};
 		void readPayload(Emcy& emcy, const uint64_t& payload);
 
-		void readEmcyCodesFromSettings(std::map<uint16_t, H2A::Emcy::Properties>& emcyMap);
+		void readEmcyCodesFromSettings(std::map<uint16_t, H2A::Emcy::Properties>& emcyMap, H2A::Car car);
 	}
 }
 

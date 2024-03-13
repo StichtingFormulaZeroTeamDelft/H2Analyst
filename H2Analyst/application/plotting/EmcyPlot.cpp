@@ -1,6 +1,6 @@
 #include "EmcyPlot.h"
 
-EmcyPlot::EmcyPlot(const DataPanel* dataPanel, QWidget* parent) : AbstractPlot(parent),
+EmcyPlot::EmcyPlot(const DataPanel* dataPanel, H2A::Car car, QWidget* parent) : AbstractPlot(parent),
 m_DataPanel(dataPanel),
 m_VLayout(new QVBoxLayout(this)),
 m_List(new QListView()),
@@ -40,7 +40,7 @@ m_WarningMsg(new QWidget())
 
 	connect(m_List, &QListView::doubleClicked, this, &EmcyPlot::itemDoubleClicked);
 
-	H2A::Emcy::readEmcyCodesFromSettings(m_EmcyProperties);
+	H2A::Emcy::readEmcyCodesFromSettings(m_EmcyProperties, car);
 	this->fillList();
 }
 
@@ -170,6 +170,17 @@ void EmcyPlot::setTimeCursorEnabled(bool enabled) {
 **/
 void EmcyPlot::sort() {
 	m_ListModel->sort(0);
+}
+
+/**
+* Slot that sets the currently selected car.
+* Connected to signal from PlotManager.
+* Whenever the selected car is changed the EmcyProperties should be reloaded.
+* 
+* @param car The currently selected car.
+**/
+void EmcyPlot::setSelectedCar(H2A::Car car) {
+	std::cout << "Selected: " << car << std::endl;
 }
 
 /**

@@ -43,7 +43,7 @@ void H2A::Emcy::readPayload(Emcy& emcy, const uint64_t& payload) {
 	emcy.severity = static_cast<H2A::Emcy::Severity>(static_cast<uint8_t>((payload >> 24) & 0xFF));
 }
 
-void H2A::Emcy::readEmcyCodesFromSettings(std::map<uint16_t, H2A::Emcy::Properties>& map) {
+void H2A::Emcy::readEmcyCodesFromSettings(std::map<uint16_t, H2A::Emcy::Properties>& map, H2A::Car car) {
 	map.clear();
 
 	std::cout << std::filesystem::current_path() << std::endl;

@@ -57,7 +57,7 @@ H2Analyst::H2Analyst(QWidget* parent)
     connect(m_ControlPanel, SIGNAL(setTimeCursorEnable(bool)), m_PlotManager, SLOT(setTimeCursorEnabled(bool)));
     connect(m_ControlPanel, SIGNAL(setTimeCursorTime(double)), m_PlotManager, SLOT(setTimeCursorTime(double)));
     connect(m_PlotManager, SIGNAL(timeCursorMoved(double)), m_ControlPanel, SLOT(setTimeCursorTimeInputbox(double)));
-
+    connect(m_ControlPanel, SIGNAL(selectedCarChanged(H2A::Car)), m_PlotManager, SLOT(setSelectedCar(H2A::Car)));
 
     std::cout << "H2Analyst has been started" << std::endl;
 }
