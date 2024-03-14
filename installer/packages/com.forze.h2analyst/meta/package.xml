@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package>
-    <DisplayName>H2Analyst</DisplayName>
-    <Description>Plotter application for data analysis.</Description>
-    <Version>1.0.0</Version>
-    <ReleaseDate>2024-03-07</ReleaseDate>
-	<ForcedInstallation>true</ForcedInstallation>
+	<DisplayName>H2Analyst</DisplayName>
+	<Description>Plotter application for data analysis.</Description>
+	<Version>1.0.0</Version>
+	<ReleaseDate>2024-03-07</ReleaseDate>
+	<Default>true</Default>
 </Package>
