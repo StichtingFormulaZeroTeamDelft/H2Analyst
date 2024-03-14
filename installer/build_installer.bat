@@ -34,8 +34,16 @@ if not defined QtInstall (
 )
 :: Create the installer in this folder
 cd data
-%QtInstall%\6.5.3\msvc2019_64\bin\windeployqt.exe H2Analyst.exe --compiler-runtime
-cd ..\..\..
+%QtInstall%\6.5.3\msvc2019_64\bin\windeployqt.exe H2Analyst.exe --compiler-runtime --no-translations
+:: Move VC++ redist to a seperate package folder
+cd ..\..
+if not exist com.microsoft.vcredist\data\ (
+    mkdir com.microsoft.vcredist\data
+) else (
+    del com.microsoft.vcredist\data\*.* /S /Q 1>nul
+)
+move "com.forze.h2analyst\data\vc_redist.x64.exe" "com.microsoft.vcredist\data\" 1>nul
+cd ..
 %QtInstall%\Tools\QtInstallerFramework\4.7\bin\binarycreator.exe -c .\config\config.xml -p packages -f H2AnalystInstaller
 echo Installer has been created successfully
 

@@ -28,6 +28,7 @@ However the project should be compatible with any version of Visual Studio $\geq
 - Add a new Qt version and set the path to your Qt installation folder
   - The correct executable can be found in **Qt->6.5.3->msvc2019_64->bin->qmake.exe**
 - Restart Visual Studio and open the project to make sure all changes are applied correctly
+- Create an environment variable named **VCINSTALLDIR** pointing to the **VC** folder in the Visual Studio installation folder (only required when building installers)
 
 ### Finishing up
 Ater following these steps verify that the everything is installed correctly by starting the project (**Ctrl+F5**).

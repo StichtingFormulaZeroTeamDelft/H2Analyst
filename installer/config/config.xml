@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
-    <Name>H2Analyst</Name>
-    <Version>1.0.0</Version>
-    <Title>H2Analyst Installer</Title>
-    <Publisher>Forze Hydrogen Racing</Publisher>
-    <TargetDir>@HomeDir@/H2Analyst</TargetDir>
+	<Name>H2Analyst</Name>
+	<Version>1.0.0</Version>
+	<Title>H2Analyst Installer</Title>
+	<Publisher>Forze Hydrogen Racing</Publisher>
+	<TargetDir>@HomeDir@/H2Analyst</TargetDir>
 	<WizardShowPageList>false</WizardShowPageList>
 	<WizardStyle>Classic</WizardStyle>
 	<InstallerApplicationIcon>installericon</InstallerApplicationIcon>
