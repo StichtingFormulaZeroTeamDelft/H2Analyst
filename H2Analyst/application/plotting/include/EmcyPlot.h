@@ -1,14 +1,5 @@
 #pragma once
 
-
-#include <QListWidget>
-#include "Emcies.h"
-#include "AbstractPlot.h"
-#include "DataPanel.h"
-#include "StringOperations.h"
-
-#include <QVariant>
-
 #include <algorithm>
 #include <boost/range/combine.hpp>
 #include <boost/algorithm/string/regex.hpp>
@@ -16,6 +7,16 @@
 #include <filesystem>
 #include <map>
 #include <iomanip>
+
+#include <QListWidget>
+#include <QToolButton>
+#include <QVariant>
+
+#include "Emcies.h"
+#include "AbstractPlot.h"
+#include "DataPanel.h"
+#include "StringOperations.h"
+
 
 /**
 * Emcy codes defined here: https://github.com/StichtingFormulaZeroTeamDelft/Software_F8/blob/fda9a0777535e28049107f6815ac82edf8b60bf5/iar_workspace/generic/definitions/emcy_list.c
@@ -29,12 +30,22 @@ public:
 	TimeCursorItem() : QStandardItem("") {};
 };
 
+class EmcyFilterModel : public QSortFilterProxyModel
+{
+public:
+	EmcyFilterModel(QObject* parent = nullptr);
+	void updateFilter(H2A::Emcy::Severity, bool checked);
+	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+private:
+	uint8_t m_SeverityFilterState;
+};
+
 class ItemDelegate : public QStyledItemDelegate
 {
-	QStandardItemModel* m_Model;
+	EmcyFilterModel* m_Model;
 	TimeCursorItem* m_TimeCursor;
 public:
-	ItemDelegate(QStandardItemModel* model, TimeCursorItem* timeCursor, QObject* parent = nullptr);
+	ItemDelegate(EmcyFilterModel* model, TimeCursorItem* timeCursor, QObject* parent = nullptr);
 	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 };
 
@@ -48,10 +59,13 @@ class EmcyPlot : public AbstractPlot
 	QVBoxLayout* m_VLayout;
 	QWidget* m_WarningMsg;
 
+	QToolButton* m_TbFilter;
+
 	// List view objects
 	QListView* m_List;
 	QStandardItemModel* m_ListModel;
 	ItemDelegate* m_ItemDelegate;
+	EmcyFilterModel* m_EmcyFilterModel;
 
 	const DataPanel* m_DataPanel;
 
@@ -67,6 +81,7 @@ class EmcyPlot : public AbstractPlot
 	void addItem(const H2A::Emcy::Emcy& emcy);
 	void sort();
 	//void drawTimeCursor();
+	QMenu* buildFilterMenu();
 
 public:
 	EmcyPlot(const DataPanel* dataPanel, H2A::Car car, QWidget* parent = nullptr);
