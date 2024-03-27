@@ -8,7 +8,9 @@ m_ListModel(new QStandardItemModel(this)),
 m_TimeCursor(new TimeCursorItem()),
 m_ItemDelegate(nullptr),
 m_WarningMsg(new QWidget()),
-m_DataMutex(new QMutex())
+m_DataMutex(new QMutex()),
+m_TbFilter(new QToolButton()),
+m_EmcyFilterModel(new EmcyFilterModel(this))
 {
 	m_Type = H2A::EmcyList;
 
@@ -24,11 +26,21 @@ m_DataMutex(new QMutex())
 	warningLayout->addWidget(iconLbl);
 	warningLayout->addWidget(textLbl, Qt::AlignLeft | Qt::AlignVCenter);
 
+	m_TbFilter->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	m_TbFilter->setIcon(QIcon(":/icons/filter"));
+	m_TbFilter->setText("Filters");
+	m_TbFilter->setPopupMode(QToolButton::InstantPopup);
+
+	QMenu* filterMenu = buildFilterMenu();
+	m_TbFilter->setMenu(filterMenu);
+
+	m_VLayout->addWidget(m_TbFilter);
 	m_VLayout->addWidget(m_List);
 	m_VLayout->addWidget(m_WarningMsg);
 
-	m_ItemDelegate = new ItemDelegate(m_ListModel, m_TimeCursor, this);
-	m_List->setModel(m_ListModel);
+	m_EmcyFilterModel->setSourceModel(m_ListModel);
+	m_ItemDelegate = new ItemDelegate(m_EmcyFilterModel, m_TimeCursor, this);
+	m_List->setModel(m_EmcyFilterModel);
 	m_ListModel->setSortRole(H2A::ItemRole::Sorting);
 	m_List->setItemDelegate(m_ItemDelegate);
 	m_ListModel->appendRow(m_TimeCursor);
@@ -147,7 +159,6 @@ void EmcyPlot::addItem(const H2A::Emcy::Emcy& emcy) {
 	item->setToolTip(QString(emcy.source.c_str()));
 	item->setEditable(false);
 	m_ListModel->appendRow(item);
-
 }
 
 /**
@@ -164,7 +175,7 @@ void EmcyPlot::resizeEvent(QResizeEvent* event) {
 * @param event Event that caused this slot to be called.
 **/
 void EmcyPlot::itemDoubleClicked(const QModelIndex& index) {
-	auto item = m_ListModel->itemFromIndex(index);
+	auto item = m_ListModel->itemFromIndex(m_EmcyFilterModel->mapToSource(index));
 	H2A::Emcy::Emcy emcy = item->data(H2A::ItemRole::Emcy).value<H2A::Emcy::Emcy>();
 	emit this->timeCursorPlaced(emcy.time);
 }
@@ -207,13 +218,77 @@ void EmcyPlot::setSelectedCar(H2A::Car car) {
 	this->fillList();
 }
 
+QMenu* EmcyPlot::buildFilterMenu() {
+	QMenu* filterMenu = new QMenu();
+
+	QCheckBox* noneCB = new QCheckBox("None", filterMenu);
+	noneCB->setChecked(true);
+	QWidgetAction* noneAction = new QWidgetAction(filterMenu);
+	noneAction->setDefaultWidget(noneCB);
+	connect(noneCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Severity::None, checked); });
+
+	QCheckBox* eventCB = new QCheckBox("Event", filterMenu);
+	eventCB->setChecked(true);
+	QWidgetAction* eventAction = new QWidgetAction(filterMenu);
+	eventAction->setDefaultWidget(eventCB);
+	connect(eventCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Severity::Event, checked); });
+
+	QCheckBox* anomalyCB = new QCheckBox("Anomaly", filterMenu);
+	anomalyCB->setChecked(true);
+	QWidgetAction* anomalyAction = new QWidgetAction(filterMenu);
+	anomalyAction->setDefaultWidget(anomalyCB);
+	connect(anomalyCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Severity::Anomaly, checked); });
+
+	QCheckBox* noticeCB = new QCheckBox("Notice", filterMenu);
+	noticeCB->setChecked(true);
+	QWidgetAction* noticeAction = new QWidgetAction(filterMenu);
+	noticeAction->setDefaultWidget(noticeCB);
+	connect(noticeCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Severity::Notice, checked); });
+
+	QCheckBox* inhibitingCB = new QCheckBox("Inhibiting", filterMenu);
+	inhibitingCB->setChecked(true);
+	QWidgetAction* inhibitingAction = new QWidgetAction(filterMenu);
+	inhibitingAction->setDefaultWidget(inhibitingCB);
+	connect(inhibitingCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Severity::Inhibiting, checked); });
+
+	QCheckBox* criticalCB = new QCheckBox("Critical", filterMenu);
+	criticalCB->setChecked(true);
+	QWidgetAction* criticalAction = new QWidgetAction(filterMenu);
+	criticalAction->setDefaultWidget(criticalCB);
+	connect(criticalCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Severity::Critical, checked); });
+
+	QCheckBox* panicCB = new QCheckBox("Panic", filterMenu);
+	panicCB->setChecked(true);
+	QWidgetAction* panicAction = new QWidgetAction(filterMenu);
+	panicAction->setDefaultWidget(panicCB);
+	connect(panicCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Severity::Panic, checked); });
+
+	//QCheckBox* systemCB = new QCheckBox("System", filterMenu);
+	//systemCB->setChecked(true);
+	//QWidgetAction* systemAction = new QWidgetAction(filterMenu);
+	//systemAction->setDefaultWidget(systemCB);
+
+	filterMenu->addAction(noneAction);
+	filterMenu->addAction(eventAction);
+	filterMenu->addAction(anomalyAction);
+	filterMenu->addAction(noticeAction);
+	filterMenu->addAction(inhibitingAction);
+	filterMenu->addAction(criticalAction);
+	filterMenu->addAction(panicAction);
+	//filterMenu->addSeparator();
+	//filterMenu->addAction(systemAction);
+
+	return filterMenu;
+}
+
 /**
 * Custom delegate to change the height of a QStandardItem.
 * Used to make the TimeCursor much less high.
 **/
-ItemDelegate::ItemDelegate(QStandardItemModel* model, TimeCursorItem* timeCursor, QObject* parent) : QStyledItemDelegate(parent),
-m_Model(model),
-m_TimeCursor(timeCursor) {}
+ItemDelegate::ItemDelegate(EmcyFilterModel* model, TimeCursorItem* timeCursor, QObject* parent) : QStyledItemDelegate(parent),
+	m_Model(model),
+	m_TimeCursor(timeCursor)
+{}
 
 /**
 * Custom delegate to make time cursor item only a single pixel in height.
@@ -221,9 +296,39 @@ m_TimeCursor(timeCursor) {}
 QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
 	QSize s = QStyledItemDelegate::sizeHint(option, index);
-	auto item = m_Model->itemFromIndex(index);
-	if (m_Model->itemFromIndex(index)->row() == m_TimeCursor->row()) {
+	auto sourceModel = static_cast<QStandardItemModel*>(m_Model->sourceModel());
+	auto item = sourceModel->itemFromIndex(m_Model->mapToSource(index));
+	if (item->row() == m_TimeCursor->row()) {
 		s.setHeight(1);
 	}
 	return s;
+}
+
+EmcyFilterModel::EmcyFilterModel(QObject* parent)
+	: QSortFilterProxyModel(parent),
+	m_SeverityFilterState(0u)
+{}
+
+void EmcyFilterModel::updateFilter(H2A::Emcy::Severity severity, bool checked) {
+	if (checked) {
+		m_SeverityFilterState &= ~((uint8_t)1 << severity);
+	} else {
+		m_SeverityFilterState |= ((uint8_t)1 << severity);
+	}
+	this->invalidateFilter();
+}
+
+bool EmcyFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
+{
+	auto index = this->sourceModel()->index(sourceRow, 0, sourceParent);
+	auto item = this->sourceModel()->data(index, H2A::ItemRole::Emcy);
+
+	// Time cursor will not have valid data with the Emcy ItemRole
+	if (!item.isValid()) {
+		return true;
+	}
+
+	auto emcy = item.value<H2A::Emcy::Emcy>();
+
+	return !((1 << emcy.severity) & m_SeverityFilterState);
 }
