@@ -34,10 +34,12 @@ class EmcyFilterModel : public QSortFilterProxyModel
 {
 public:
 	EmcyFilterModel(QObject* parent = nullptr);
-	void updateFilter(H2A::Emcy::Severity, bool checked);
+	void updateFilter(H2A::Emcy::Severity severity, bool checked);
+	void updateFilter(H2A::Emcy::Level level, bool checked);
 	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
 private:
 	uint8_t m_SeverityFilterState;
+	uint16_t m_LevelFilterState; 
 };
 
 class ItemDelegate : public QStyledItemDelegate

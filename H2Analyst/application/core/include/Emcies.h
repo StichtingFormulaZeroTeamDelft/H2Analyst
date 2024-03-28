@@ -25,9 +25,12 @@ namespace H2A
 		enum Severity : uint8_t { None = 0, Event = 1, Anomaly = 2, Notice = 3, Inhibiting = 4, Critical = 5, Panic = 6, Unknown = 7 };
 		std::string getSeverityStr(H2A::Emcy::Severity severity);
 
-		enum Level { System, FC, HighSide, Traction, LowSide, LV };
+		enum Level { NONE, SYSTEM, LV, HV, TR_GENERAL, TR_FRONT, TR_REAR, FC_GENERAL, FC_LEFT, FC_RIGHT, HIGH_SIDE, LOW_SIDE };
+		std::string getLevelStr(H2A::Emcy::Level level);
+		H2A::Emcy::Level getLevel(std::string str);
 
 		struct Properties {
+			H2A::Emcy::Level level;
 			std::string text;
 			bool hide;
 		};
@@ -39,6 +42,7 @@ namespace H2A
 			H2A::Emcy::Severity severity;
 			uint8_t details[4];
 			std::string description;
+			H2A::Emcy::Level level;
 
 			bool operator < (const Emcy& rhs) const {
 				return time < rhs.time;

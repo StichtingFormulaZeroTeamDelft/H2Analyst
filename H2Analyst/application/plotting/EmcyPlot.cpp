@@ -45,6 +45,11 @@ m_EmcyFilterModel(new EmcyFilterModel(this))
 	m_List->setItemDelegate(m_ItemDelegate);
 	m_ListModel->appendRow(m_TimeCursor);
 
+	QFont font("Monospace");
+	font.setStyleHint(QFont::TypeWriter);
+
+	m_List->setFont(font);
+
 	// Hide plot elements
 	this->xAxis->setVisible(false);
 	this->xAxis->grid()->setVisible(false);
@@ -89,6 +94,7 @@ void EmcyPlot::fillList() {
 				auto description = m_EmcyProperties[emcy.code];
 				if (description.hide) continue; // Don't add the EMCY if it is marked as hidden
 				emcy.description = description.text;
+				emcy.level = description.level;
 			}
 			else {
 				emcy.description = "unknown";
@@ -105,7 +111,7 @@ void EmcyPlot::fillList() {
 			
 		}
 	}
-
+	
 	// Add items
 	for (const auto& emcy : emcies)
 		this->addItem(emcy);
@@ -149,9 +155,14 @@ bool EmcyPlot::getDatasets() {
 **/
 void EmcyPlot::addItem(const H2A::Emcy::Emcy& emcy) {
 	
-	// Create text label based on emcy data
+	// Create text labels based on emcy data
 	std::stringstream ss;
-	ss << "[" << std::fixed << std::setprecision(3) << emcy.time << "]\t(" << H2A::Emcy::getSeverityStr(emcy.severity) << ")\t" << emcy.description;
+	std::stringstream substring;
+	substring << "(" << H2A::Emcy::getLevelStr(emcy.level) << ")";
+	ss << "[" << std::fixed << std::setprecision(3) << emcy.time << "]\t(" 
+		<< H2A::Emcy::getSeverityStr(emcy.severity) << ")\t" 
+		<< std::left << std::setw(21) << substring.str()
+		<< emcy.description;
 	
 	auto item = new QStandardItem(tr(ss.str().c_str()));
 	item->setData(QVariant().fromValue<H2A::Emcy::Emcy>(emcy), H2A::ItemRole::Emcy);
@@ -263,11 +274,54 @@ QMenu* EmcyPlot::buildFilterMenu() {
 	panicAction->setDefaultWidget(panicCB);
 	connect(panicCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Severity::Panic, checked); });
 
-	//QCheckBox* systemCB = new QCheckBox("System", filterMenu);
-	//systemCB->setChecked(true);
-	//QWidgetAction* systemAction = new QWidgetAction(filterMenu);
-	//systemAction->setDefaultWidget(systemCB);
+	QCheckBox* noneSystemCB = new QCheckBox("None", filterMenu);
+	noneSystemCB->setChecked(true);
+	QWidgetAction* noneSystemAction = new QWidgetAction(filterMenu);
+	noneSystemAction->setDefaultWidget(noneSystemCB);
+	connect(noneSystemCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Level::NONE, checked); });
+	
+	QCheckBox* systemCB = new QCheckBox("System", filterMenu);
+	systemCB->setChecked(true);
+	QWidgetAction* systemAction = new QWidgetAction(filterMenu);
+	systemAction->setDefaultWidget(systemCB);
+	connect(systemCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Level::SYSTEM, checked); });
 
+	QCheckBox* lvCB = new QCheckBox("Low Voltage", filterMenu);
+	lvCB->setChecked(true);
+	QWidgetAction* lvAction = new QWidgetAction(filterMenu);
+	lvAction->setDefaultWidget(lvCB);
+	connect(lvCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Level::LV, checked); });
+
+	QCheckBox* hvCB = new QCheckBox("High Voltage", filterMenu);
+	hvCB->setChecked(true);
+	QWidgetAction* hvAction = new QWidgetAction(filterMenu);
+	hvAction->setDefaultWidget(hvCB);
+	connect(hvCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Level::HV, checked); });
+
+	QCheckBox* tractionCB = new QCheckBox("Traction", filterMenu);
+	tractionCB->setChecked(true);
+	QWidgetAction* tractionAction = new QWidgetAction(filterMenu);
+	tractionAction->setDefaultWidget(tractionCB);
+	connect(tractionCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Level::TR_GENERAL, checked); });
+
+	QCheckBox* fcCB = new QCheckBox("Fuel Cell", filterMenu);
+	fcCB->setChecked(true);
+	QWidgetAction* fcAction = new QWidgetAction(filterMenu);
+	fcAction->setDefaultWidget(fcCB);
+	connect(fcCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Level::FC_GENERAL, checked); });
+
+	QCheckBox* lsCB = new QCheckBox("Low Side", filterMenu);
+	lsCB->setChecked(true);
+	QWidgetAction* lsAction = new QWidgetAction(filterMenu);
+	lsAction->setDefaultWidget(lsCB);
+	connect(lsCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Level::LOW_SIDE, checked); });
+
+	QCheckBox* hsCB = new QCheckBox("High Side", filterMenu);
+	hsCB->setChecked(true);
+	QWidgetAction* hsAction = new QWidgetAction(filterMenu);
+	hsAction->setDefaultWidget(hsCB);
+	connect(hsCB, &QCheckBox::toggled, [=](bool checked) { m_EmcyFilterModel->updateFilter(H2A::Emcy::Level::HIGH_SIDE, checked); });
+	
 	filterMenu->addAction(noneAction);
 	filterMenu->addAction(eventAction);
 	filterMenu->addAction(anomalyAction);
@@ -275,8 +329,14 @@ QMenu* EmcyPlot::buildFilterMenu() {
 	filterMenu->addAction(inhibitingAction);
 	filterMenu->addAction(criticalAction);
 	filterMenu->addAction(panicAction);
-	//filterMenu->addSeparator();
-	//filterMenu->addAction(systemAction);
+	filterMenu->addSeparator();
+	filterMenu->addAction(noneSystemAction);
+	filterMenu->addAction(systemAction);
+	filterMenu->addAction(lvAction);
+	filterMenu->addAction(hvAction);
+	filterMenu->addAction(tractionAction);
+	filterMenu->addAction(lsAction);
+	filterMenu->addAction(hsAction);
 
 	return filterMenu;
 }
@@ -318,6 +378,20 @@ void EmcyFilterModel::updateFilter(H2A::Emcy::Severity severity, bool checked) {
 	this->invalidateFilter();
 }
 
+void EmcyFilterModel::updateFilter(H2A::Emcy::Level level, bool checked) {
+	uint16_t x = 0b1;
+	if ((level == H2A::Emcy::FC_GENERAL) || (level == H2A::Emcy::TR_GENERAL)) {
+		x = 0b111;
+	}
+	if (checked) {
+		m_LevelFilterState &= ~(x << level);
+	}
+	else {
+		m_LevelFilterState |= x << level;
+	}
+	this->invalidateFilter();
+}
+
 bool EmcyFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
 	auto index = this->sourceModel()->index(sourceRow, 0, sourceParent);
@@ -330,5 +404,8 @@ bool EmcyFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceP
 
 	auto emcy = item.value<H2A::Emcy::Emcy>();
 
-	return !((1 << emcy.severity) & m_SeverityFilterState);
+	bool severityFilters = !((1 << emcy.severity) & m_SeverityFilterState);
+	bool levelFilters = !((1 << emcy.level) & m_LevelFilterState);
+
+	return severityFilters && levelFilters;
 }
