@@ -366,7 +366,8 @@ QSize ItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelInd
 
 EmcyFilterModel::EmcyFilterModel(QObject* parent)
 	: QSortFilterProxyModel(parent),
-	m_SeverityFilterState(0u)
+	m_SeverityFilterState(0u),
+	m_LevelFilterState(0u)
 {}
 
 void EmcyFilterModel::updateFilter(H2A::Emcy::Severity severity, bool checked) {
@@ -379,7 +380,7 @@ void EmcyFilterModel::updateFilter(H2A::Emcy::Severity severity, bool checked) {
 }
 
 void EmcyFilterModel::updateFilter(H2A::Emcy::Level level, bool checked) {
-	uint16_t x = 0b1;
+	uint16_t x = 0b1u;
 	if ((level == H2A::Emcy::FC_GENERAL) || (level == H2A::Emcy::TR_GENERAL)) {
 		x = 0b111;
 	}
