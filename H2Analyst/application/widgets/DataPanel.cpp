@@ -253,6 +253,7 @@ QStandardItem* DataPanel::createTreeItem(const H2A::Dataset* dataset, const std:
 	item->setData(QVariant::fromValue(QString(dataset->name.c_str())), H2A::ItemRole::Filter);
 	item->setData(QVariant::fromValue(static_cast<const void*>(dataset)), H2A::ItemRole::DataPtr);
 	std::stringstream ttStream;
+	ttStream << item->toolTip().toStdString();
 	ttStream << "<p style = 'white-space:pre'>";
 	ttStream << "<b>UID:</b> " << dataset->uid << "\n";
 	ttStream << "</p>";
@@ -271,6 +272,7 @@ QStandardItem* DataPanel::createTreeItem(const H2A::ItemType& type, const std::s
 	item->setEditable(false);
 	item->setData(QVariant::fromValue(type), H2A::ItemRole::ItemType);
 	item->setData("", H2A::ItemRole::Filter);
+	item->setToolTip(QString(name.c_str()));
 	//item->setData(QVariant::fromValue(nullptr), H2A::ItemRole::DataPtr);
 
 	// Type specific operations
