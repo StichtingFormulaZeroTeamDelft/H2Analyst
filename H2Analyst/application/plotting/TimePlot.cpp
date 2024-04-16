@@ -49,7 +49,7 @@ void TimePlot::plot(std::vector<const H2A::Dataset*> datasets, bool clearFirst) 
 		m_LimHardX.expand(graph->rangeX());
 		m_LimHardY.expand(graph->rangeY());
 	}
-	m_LimHardX = QCPRange(m_LimHardX.lower - LIMIT_PADDING * m_LimHardX.size(), m_LimHardX.upper + LIMIT_PADDING * m_LimHardX.size());
+	m_LimHardX = QCPRange(m_LimHardX.lower, m_LimHardX.upper + LIMIT_PADDING * m_LimHardX.size());
 	m_LimHardY = QCPRange(m_LimHardY.lower - LIMIT_PADDING * m_LimHardY.size(), m_LimHardY.upper + LIMIT_PADDING * m_LimHardY.size());
 
 	this->legend->setVisible(true);
