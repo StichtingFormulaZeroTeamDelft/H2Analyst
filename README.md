@@ -31,7 +31,9 @@ However the project should be compatible with any version of Visual Studio $\geq
 - Create an environment variable named **VCINSTALLDIR** pointing to the **VC** folder in the Visual Studio installation folder (only required when building installers)
 
 ### Finishing up
-Ater following these steps verify that the everything is installed correctly by starting the project (**Ctrl+F5**).
+Lastly make sure that all the git submodules are pulled aswell.\
+Do this by running `git submodule update --init --recursive -f` in the repo folder on your machine.\
+Ater following these steps verify that the everything is installed correctly by starting the project (**Ctrl+F5**) in Visual Studio 2022.
 
 ## Creating Installers
 To create an installer for a new release follow these steps:
