@@ -81,6 +81,7 @@ void AbstractPlot::clear() {
 	}
 	m_Graphs.clear();
 	this->legend->setVisible(false);
+	this->m_TimeCursor->setEnabled(false);
 	this->resetView();
 	this->replot();
 }
